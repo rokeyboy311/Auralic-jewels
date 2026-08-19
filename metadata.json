@@ -1,0 +1,6 @@
+{
+  "name": "AURELIA — International Luxury Fine Jewellery",
+  "description": "Haute Joaillerie & Fine Jewellery E-Commerce House. Handcrafted gold, conflict-free certified diamonds, and bespoke gemstones with worldwide delivery.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
