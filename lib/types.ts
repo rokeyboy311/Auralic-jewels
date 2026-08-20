@@ -306,7 +306,7 @@ export interface Order {
   
   // Payment
   paymentStatus: PaymentStatus;
-  paymentMethod: 'stripe' | 'wire_transfer' | 'apple_pay' | 'vip_concierge';
+  paymentMethod: 'wire_transfer' | 'apple_pay' | 'vip_concierge';
   paymentIntentId?: string;
   stripeChargeId?: string;
   

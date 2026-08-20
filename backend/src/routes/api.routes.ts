@@ -496,7 +496,7 @@ router.post('/orders', optionalAuth, async (req: AuthenticatedRequest, res: Resp
     currency = 'USD', 
     exchangeRate = 1.0, 
     shippingMethodId = 'ferrari_armored_express',
-    paymentMethod = 'stripe',
+    paymentMethod = 'wire_transfer',
     notes 
   } = req.body;
 

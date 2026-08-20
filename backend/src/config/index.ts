@@ -30,8 +30,4 @@ export const config = {
     adminEmail: process.env.ADMIN_EMAIL || 'admin@auralic-jewels.vercel.app',
   },
 
-  stripe: {
-    secretKey: process.env.STRIPE_SECRET_KEY || '',
-    webhookSecret: process.env.STRIPE_WEBHOOK_SECRET || '',
-  },
 };

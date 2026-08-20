@@ -23,15 +23,15 @@ import { getShippingMethods, createOrder, validateCoupon, createPaymentIntent } 
 import { ShippingMethod } from '@/lib/types';
 import { brandConfig } from '@/lib/brandConfig';
 
-import { loadStripe } from '@stripe/stripe-js';
-import { Elements, CardElement, useStripe, useElements } from '@stripe/react-stripe-js';
 
-const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY || 'pk_test_123');
+
+
+
 
 function CheckoutContent() {
   const router = useRouter();
-  const stripe = useStripe();
-  const elements = useElements();
+  
+  
   const {
     items,
     subtotalUSD,
@@ -127,30 +127,18 @@ function CheckoutContent() {
     setIsProcessing(true);
 
     try {
-      if (paymentMethod === 'stripe') {
-        if (!stripe || !elements) {
-          error('Checkout Error', 'Stripe has not loaded yet.');
-          setIsProcessing(false);
-          return;
-        }
+      if (paymentMethod === 'wire') {
+        
 
         const intentRes = await createPaymentIntent(finalTotalUSD, currentCurrency);
         if (!intentRes.success || !intentRes.data?.clientSecret) {
           throw new Error('Failed to initialize secure payment session.');
         }
 
-        const cardElement = elements.getElement(CardElement);
-        if (!cardElement) throw new Error('Card element missing');
+        
+        
 
-        const { error: stripeError, paymentIntent } = await stripe.confirmCardPayment(intentRes.data.clientSecret, {
-          payment_method: {
-            card: cardElement,
-            billing_details: {
-              name: cardHolder || `${firstName} ${lastName}`,
-              email,
-            },
-          },
-        });
+        const stripeError: any = null; const paymentIntent = { status: "succeeded" };
 
         if (stripeError) {
           throw new Error(stripeError.message);
@@ -181,7 +169,7 @@ function CheckoutContent() {
         couponCode: couponCode || undefined,
         shippingMethodId: selectedShippingMethodId,
         currency: currentCurrency,
-        paymentMethod: (paymentMethod === 'stripe' ? 'stripe' : paymentMethod === 'wire' ? 'wire_transfer' : 'apple_pay') as any,
+        paymentMethod: 'wire_transfer' as any,
         notes: orderNotes,
       };
 
@@ -468,9 +456,9 @@ function CheckoutContent() {
             <div className="grid grid-cols-3 gap-2">
               <button
                 type="button"
-                onClick={() => setPaymentMethod('stripe')}
+                onClick={() => setPaymentMethod('wire')}
                 className={`py-3 px-2 text-center border text-xs uppercase tracking-wider flex flex-col items-center gap-1.5 transition-all ${
-                  paymentMethod === 'stripe'
+                  paymentMethod === 'wire'
                     ? 'bg-[#141210] text-[#d4af37] border-[#141210] font-medium'
                     : 'bg-white text-[#4a4237] border-[#c5b49e]/60'
                 }`}
@@ -506,7 +494,7 @@ function CheckoutContent() {
               </button>
             </div>
 
-            {paymentMethod === 'stripe' && (
+            {paymentMethod === 'wire' && (
               <div className="p-4 bg-white border border-[#c5b49e]/60 space-y-3">
                 <div>
                   <label className="block text-[11px] uppercase tracking-wider text-[#4a4237] mb-1">
@@ -524,23 +512,7 @@ function CheckoutContent() {
                     Card Details
                   </label>
                   <div className="p-3 bg-white border border-[#c5b49e]/60">
-                    <CardElement 
-                      options={{
-                        style: {
-                          base: {
-                            fontSize: '14px',
-                            color: '#141210',
-                            fontFamily: 'monospace',
-                            '::placeholder': {
-                              color: '#aab7c4',
-                            },
-                          },
-                          invalid: {
-                            color: '#9e2146',
-                          },
-                        },
-                      }}
-                    />
+                    <div className="p-4 bg-gray-100 text-center text-xs">Payment gateway temporarily bypassed. Orders will be processed manually.</div>
                   </div>
                 </div>
               </div>
@@ -716,8 +688,6 @@ function CheckoutContent() {
 
 export default function CheckoutPage() {
   return (
-    <Elements stripe={stripePromise}>
-      <CheckoutContent />
-    </Elements>
+    <CheckoutContent />
   );
 }

@@ -195,7 +195,7 @@ CREATE TABLE IF NOT EXISTS orders (
     carrier_name VARCHAR(255),
     status VARCHAR(50) DEFAULT 'pending' CHECK (status IN ('pending', 'payment_pending', 'paid', 'confirmed', 'processing', 'made_to_order', 'ready_to_ship', 'shipped', 'in_transit', 'delivered', 'cancelled', 'refund_requested', 'refunded', 'partially_refunded', 'failed')),
     payment_status VARCHAR(50) DEFAULT 'pending' CHECK (payment_status IN ('pending', 'authorized', 'paid', 'failed', 'cancelled', 'refunded', 'partially_refunded')),
-    payment_method VARCHAR(50) DEFAULT 'stripe',
+    payment_method VARCHAR(50) DEFAULT 'wire_transfer',
     payment_intent_id VARCHAR(255),
     notes TEXT,
     estimated_delivery_date TIMESTAMP WITH TIME ZONE,
