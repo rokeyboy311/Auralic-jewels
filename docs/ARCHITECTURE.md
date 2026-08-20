@@ -52,6 +52,6 @@ The architecture is strictly divided into three primary standalone pillars:
 
 ## 4. Key Design Principles
 
-- **No Hardcoded Localhost**: The frontend uses `NEXT_PUBLIC_API_URL` to connect seamlessly to development (`http://localhost:5000`) or production (`https://api.yourdomain.com`).
+- **No Hardcoded Localhost**: The frontend uses `NEXT_PUBLIC_API_URL` to connect seamlessly to development (`http://localhost:5000`) or production (`https://auralic-jewels.onrender.com`).
 - **Zero Client Trust**: All critical calculations (product prices, discounts, sales taxes, insured armored shipping) are validated and recalculated server-side.
 - **Human-Readable Code Quality**: Clean, documented TypeScript with explanatory comments at every major architecture junction.

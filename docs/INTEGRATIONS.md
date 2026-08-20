@@ -20,7 +20,7 @@ This document details how to configure third-party services for Google OAuth, St
      - `https://your-frontend.vercel.app`
    - **Authorized Redirect URIs**:
      - `http://localhost:5000/api/auth/google/callback`
-     - `https://api.yourdomain.com/api/auth/google/callback`
+     - `https://auralic-jewels.onrender.com/api/auth/google/callback`
 5. Save the **Client ID** and **Client Secret** into your `.env` files:
    - Frontend: `NEXT_PUBLIC_GOOGLE_CLIENT_ID`
    - Backend: `GOOGLE_CLIENT_ID` and `GOOGLE_CLIENT_SECRET`
@@ -35,7 +35,7 @@ This document details how to configure third-party services for Google OAuth, St
    - `Secret Key` (`sk_live_...` or `sk_test_...`) -> Set as `STRIPE_SECRET_KEY` on Backend.
 3. Configure Webhooks under **Developers > Webhooks**:
    - Click **Add Endpoint**.
-   - **Endpoint URL**: `https://api.yourdomain.com/api/payments/webhook`
+   - **Endpoint URL**: `https://auralic-jewels.onrender.com/api/payments/webhook`
    - **Events to Listen For**:
      - `payment_intent.succeeded`
      - `payment_intent.payment_failed`

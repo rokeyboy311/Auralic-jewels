@@ -54,7 +54,7 @@ Maison Aurelia is engineered with a strict **two-tier full-stack architecture** 
 | Component | Target Platform | Local Development | Production Environment |
 | :--- | :--- | :--- | :--- |
 | **Frontend** | **Vercel** | `http://localhost:3000` | `https://aureliajewels.com` |
-| **Backend REST API** | **Render** | `http://localhost:5000` | `https://api.yourdomain.com` |
+| **Backend REST API** | **Render** | `http://localhost:5000` | `https://auralic-jewels.onrender.com` |
 | **Database** | **Neon PostgreSQL** | Neon Connection Pool | Neon High-Availability Replica Pool |
 
 ---
@@ -154,7 +154,7 @@ Maison Aurelia is engineered with a strict **two-tier full-stack architecture** 
 # Centralized API Base URL (Crucial for Deployment)
 # In development, leave empty or set to http://localhost:5000
 # In production, set to your Render API URL
-NEXT_PUBLIC_API_URL="https://api.yourdomain.com"
+NEXT_PUBLIC_API_URL="https://auralic-jewels.onrender.com"
 
 # Public Google OAuth Client ID
 NEXT_PUBLIC_GOOGLE_CLIENT_ID="your-google-client-id.apps.googleusercontent.com"
@@ -182,7 +182,7 @@ JWT_SECRET="super-secure-random-jwt-secret-string-at-least-64-characters"
 # Google OAuth Credentials
 GOOGLE_CLIENT_ID="your-google-client-id.apps.googleusercontent.com"
 GOOGLE_CLIENT_SECRET="GOCSPX-your-client-secret"
-GOOGLE_CALLBACK_URL="https://api.yourdomain.com/api/auth/google/callback"
+GOOGLE_CALLBACK_URL="https://auralic-jewels.onrender.com/api/auth/google/callback"
 
 # Stripe Payment Processing
 STRIPE_SECRET_KEY="sk_live_51P..."
@@ -352,7 +352,7 @@ The Express backend can be deployed to **Render** using a Web Service:
      - `https://aureliajewels.com`
    - **Authorized Redirect URIs**:
      - `http://localhost:5000/api/auth/google/callback`
-     - `https://api.yourdomain.com/api/auth/google/callback`
+     - `https://auralic-jewels.onrender.com/api/auth/google/callback`
 5. Copy the **Client ID** and **Client Secret** into your `.env` files.
 
 ---
@@ -362,7 +362,7 @@ The Express backend can be deployed to **Render** using a Web Service:
 1. Log in to [Stripe Dashboard](https://dashboard.stripe.com).
 2. In **Developers > API Keys**, copy your `Publishable Key` and `Secret Key`.
 3. Navigate to **Developers > Webhooks** and click **Add Endpoint**:
-   - **Endpoint URL**: `https://api.yourdomain.com/api/payments/webhook`
+   - **Endpoint URL**: `https://auralic-jewels.onrender.com/api/payments/webhook`
    - **Events to listen for**:
      - `payment_intent.succeeded`
      - `payment_intent.payment_failed`
@@ -466,7 +466,7 @@ The database and API architecture are fully prepared for 3D GLTF / Three.js mode
 ## 13. Troubleshooting & FAQ
 
 #### Q1: "Failed to fetch / Network Error" when connecting frontend to backend
-- **Fix**: Check `NEXT_PUBLIC_API_URL` on Vercel. Ensure there is no trailing slash (e.g. `https://api.yourdomain.com`).
+- **Fix**: Check `NEXT_PUBLIC_API_URL` on Vercel. Ensure there is no trailing slash (e.g. `https://auralic-jewels.onrender.com`).
 - **Fix**: Verify backend `FRONTEND_URL` on Render includes your exact Vercel production domain.
 
 #### Q2: PostgreSQL connection timeout on Neon
@@ -474,7 +474,7 @@ The database and API architecture are fully prepared for 3D GLTF / Three.js mode
 - **Fix**: Verify `?sslmode=require` is appended to your `DATABASE_URL`.
 
 #### Q3: Google OAuth redirect mismatch (`redirect_uri_mismatch`)
-- **Fix**: In Google Cloud Console, ensure both development (`http://localhost:5000/api/auth/google/callback`) and production (`https://api.yourdomain.com/api/auth/google/callback`) are added under **Authorized Redirect URIs**.
+- **Fix**: In Google Cloud Console, ensure both development (`http://localhost:5000/api/auth/google/callback`) and production (`https://auralic-jewels.onrender.com/api/auth/google/callback`) are added under **Authorized Redirect URIs**.
 
 ---
 

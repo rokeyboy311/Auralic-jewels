@@ -1,7 +1,7 @@
 # REST API SPECIFICATIONS & ENDPOINT CONTRACTS
 
 Base URL in development: `http://localhost:5000/api`  
-Base URL in production: `https://api.yourdomain.com/api`
+Base URL in production: `https://auralic-jewels.onrender.com/api`
 
 ---
 
