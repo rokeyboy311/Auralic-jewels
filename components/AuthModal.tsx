@@ -77,7 +77,7 @@ export default function AuthModal({ isOpen, onClose, initialMode = 'signin' }: A
 
   const handleQuickAdminAccess = async () => {
     setIsSubmitting(true);
-    const ok = await login('admin@aureliajewels.com', 'admin123');
+    const ok = await login('admin@auralic-jewels.vercel.app', 'admin123');
     setIsSubmitting(false);
     if (ok) {
       onClose();

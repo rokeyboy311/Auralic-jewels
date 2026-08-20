@@ -81,7 +81,7 @@ function LoginForm() {
 
   const handleQuickAdminAccess = async () => {
     setIsSubmitting(true);
-    const ok = await login('admin@aureliajewels.com', 'admin123');
+    const ok = await login('admin@auralic-jewels.vercel.app', 'admin123');
     setIsSubmitting(false);
     if (ok) {
       router.push('/admin');

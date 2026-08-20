@@ -73,7 +73,7 @@ export class EmailService {
           </p>
         </div>
         <div style="text-align: center; margin-top: 30px; font-size: 12px; color: #999;">
-          <p>12 Place Vendôme, 75001 Paris, France | concierge@aureliajewels.com</p>
+          <p>12 Place Vendôme, 75001 Paris, France | concierge@auralic-jewels.vercel.app</p>
         </div>
       </div>
     `;

@@ -718,7 +718,7 @@ router.post('/payments/create-intent', async (req: Request, res: Response) => {
     const payment = await PaymentService.createPaymentIntent(
       Number(amount),
       currency || 'USD',
-      { orderId: orderId || `ORD-${Date.now()}`, customerEmail: customerEmail || 'patron@aureliajewels.com' }
+      { orderId: orderId || `ORD-${Date.now()}`, customerEmail: customerEmail || 'patron@auralic-jewels.vercel.app' }
     );
     return res.json({ success: true, data: payment });
   } catch (error: any) {
@@ -807,7 +807,7 @@ router.post('/bespoke', optionalAuth, async (req: AuthenticatedRequest, res: Res
 
   // Send email to Atelier Jeweller
   EmailService.sendEmail({
-    to: config.resend.adminEmail || 'atelier@aureliajewels.com',
+    to: config.resend.adminEmail || 'atelier@auralic-jewels.vercel.app',
     subject: `New Haute Joaillerie Commission Inquiry [${refNum}] from ${customerName}`,
     html: `
       <h2>Private Bespoke Commission Brief</h2>
@@ -1273,8 +1273,8 @@ router.get('/admin/staff', requireStaff, async (req: AuthenticatedRequest, res: 
     return res.json({
       success: true,
       data: [
-        { id: 'staff_1', name: 'Master Goldsmith Henri Vane', email: 'henri@aureliajewels.com', role: 'MASTER_JEWELLER', specialty: '18K/22K Solitaire & Bezel Setting' },
-        { id: 'staff_2', name: 'Dr. Vivienne Moreau', email: 'vivienne@aureliajewels.com', role: 'SENIOR_GEMOLOGIST', specialty: 'GIA D-FL Diamond & Untreated Emerald Sourcing' },
+        { id: 'staff_1', name: 'Master Goldsmith Henri Vane', email: 'henri@auralic-jewels.vercel.app', role: 'MASTER_JEWELLER', specialty: '18K/22K Solitaire & Bezel Setting' },
+        { id: 'staff_2', name: 'Dr. Vivienne Moreau', email: 'vivienne@auralic-jewels.vercel.app', role: 'SENIOR_GEMOLOGIST', specialty: 'GIA D-FL Diamond & Untreated Emerald Sourcing' },
       ],
     });
   }

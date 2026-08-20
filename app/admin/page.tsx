@@ -313,7 +313,7 @@ export default function AdminDashboardPage() {
   };
 
   const handleAdminAuth = async () => {
-    await login('admin@aureliajewels.com', 'admin123');
+    await login('admin@auralic-jewels.vercel.app', 'admin123');
   };
 
   if (!isAdmin) {

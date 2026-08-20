@@ -1,7 +1,7 @@
 import { MetadataRoute } from 'next';
 
 export default function robots(): MetadataRoute.Robots {
-  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://aureliajewels.com';
+  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://auralic-jewels.vercel.app';
 
   return {
     rules: {

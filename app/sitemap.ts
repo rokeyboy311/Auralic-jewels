@@ -3,7 +3,7 @@ import * as api from '@/lib/api';
 import { Product } from '@/lib/types';
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://aureliajewels.com';
+  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://auralic-jewels.vercel.app';
 
   const staticRoutes = [
     '',

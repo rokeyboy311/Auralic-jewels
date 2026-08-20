@@ -11,7 +11,7 @@ export const metadata: Metadata = {
     description:
       'Certified conflict-free diamond solitaires, rare Colombian emeralds, and 18K/22K gold masterworks.',
     type: 'website',
-    url: 'https://aureliajewels.com',
+    url: 'https://auralic-jewels.vercel.app',
   },
   twitter: {
     card: 'summary_large_image',

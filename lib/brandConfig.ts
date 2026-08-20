@@ -45,9 +45,9 @@ export const brandConfig: BrandConfig = {
   foundedYear: 1988,
   founder: 'Maison Aurelia Artisans',
   headquarters: '12 Place Vendôme, 75001 Paris, France',
-  supportEmail: 'care@aureliajewels.com',
-  conciergeEmail: 'concierge@aureliajewels.com',
-  pressEmail: 'press@aureliajewels.com',
+  supportEmail: 'care@auralic-jewels.vercel.app',
+  conciergeEmail: 'concierge@auralic-jewels.vercel.app',
+  pressEmail: 'press@auralic-jewels.vercel.app',
   phone: '+1 (800) 842-8930',
   conciergeWhatsApp: '+33 1 42 68 00 00',
   socials: {

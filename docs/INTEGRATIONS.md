@@ -11,12 +11,12 @@ This document details how to configure third-party services for Google OAuth, St
 3. Under **APIs & Services > OAuth Consent Screen**:
    - Set **User Type** to `External`.
    - Set **App Name** to `Maison Aurelia Haute Joaillerie`.
-   - Set **User Support Email** to `concierge@aureliajewels.com`.
+   - Set **User Support Email** to `concierge@auralic-jewels.vercel.app`.
 4. Under **APIs & Services > Credentials > Create Credentials > OAuth 2.0 Client ID**:
    - **Application Type**: `Web application`
    - **Authorized JavaScript Origins**:
      - `http://localhost:3000`
-     - `https://aureliajewels.com`
+     - `https://auralic-jewels.vercel.app`
      - `https://your-frontend.vercel.app`
    - **Authorized Redirect URIs**:
      - `http://localhost:5000/api/auth/google/callback`
@@ -47,12 +47,12 @@ This document details how to configure third-party services for Google OAuth, St
 ## 3. Resend Transactional Email Setup
 
 1. Sign up at [Resend](https://resend.com).
-2. In **Domains**, add your domain (e.g. `aureliajewels.com`) and add the DNS records (DKIM, SPF, MX) to your domain registrar.
+2. In **Domains**, add your domain (e.g. `auralic-jewels.vercel.app`) and add the DNS records (DKIM, SPF, MX) to your domain registrar.
 3. In **API Keys**, generate a new API key with *Full Access*.
 4. Configure in `backend/.env`:
    ```bash
    RESEND_API_KEY="re_123456789"
-   EMAIL_FROM="Maison Aurelia <concierge@aureliajewels.com>"
+   EMAIL_FROM="Maison Aurelia <concierge@auralic-jewels.vercel.app>"
    ```
 
 ---

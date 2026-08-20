@@ -46,7 +46,7 @@ export default function PrivacyPolicyPage() {
             4. GDPR & CCPA Patron Rights
           </h2>
           <p>
-            Patrons may at any time request a full export of their personal data or request permanent deletion from our client registry by contacting privacy@aureliajewels.com.
+            Patrons may at any time request a full export of their personal data or request permanent deletion from our client registry by contacting privacy@auralic-jewels.vercel.app.
           </p>
         </section>
       </div>

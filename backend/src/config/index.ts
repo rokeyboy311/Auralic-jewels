@@ -26,8 +26,8 @@ export const config = {
 
   resend: {
     apiKey: process.env.RESEND_API_KEY || '',
-    emailFrom: process.env.EMAIL_FROM || 'Maison Aurelia <concierge@aureliajewels.com>',
-    adminEmail: process.env.ADMIN_EMAIL || 'admin@aureliajewels.com',
+    emailFrom: process.env.EMAIL_FROM || 'Maison Aurelia <concierge@auralic-jewels.vercel.app>',
+    adminEmail: process.env.ADMIN_EMAIL || 'admin@auralic-jewels.vercel.app',
   },
 
   stripe: {

@@ -53,7 +53,7 @@ Maison Aurelia is engineered with a strict **two-tier full-stack architecture** 
 
 | Component | Target Platform | Local Development | Production Environment |
 | :--- | :--- | :--- | :--- |
-| **Frontend** | **Vercel** | `http://localhost:3000` | `https://aureliajewels.com` |
+| **Frontend** | **Vercel** | `http://localhost:3000` | `https://auralic-jewels.vercel.app` |
 | **Backend REST API** | **Render** | `http://localhost:5000` | `https://auralic-jewels.onrender.com` |
 | **Database** | **Neon PostgreSQL** | Neon Connection Pool | Neon High-Availability Replica Pool |
 
@@ -171,7 +171,7 @@ NODE_ENV="production"
 PORT=5000
 
 # Client Application URL for CORS Whitelist
-FRONTEND_URL="https://aureliajewels.com"
+FRONTEND_URL="https://auralic-jewels.vercel.app"
 
 # PostgreSQL Database Connection URL (from Neon)
 DATABASE_URL="postgres://neondb_owner:password@ep-sweet-dawn-123456.us-east-2.aws.neon.tech/neondb?sslmode=require"
@@ -190,7 +190,7 @@ STRIPE_WEBHOOK_SECRET="whsec_..."
 
 # Resend Transactional Email
 RESEND_API_KEY="re_..."
-EMAIL_FROM="Maison Aurelia <concierge@aureliajewels.com>"
+EMAIL_FROM="Maison Aurelia <concierge@auralic-jewels.vercel.app>"
 
 # Cloudinary Media Storage
 CLOUDINARY_CLOUD_NAME="your-cloud-name"
@@ -294,7 +294,7 @@ The Next.js frontend is structured for deployment on **Vercel**:
    - `NEXT_PUBLIC_GOOGLE_CLIENT_ID`: `your-google-client-id.apps.googleusercontent.com`
    - `NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY`: `pk_live_...`
 6. Click **Deploy**.
-7. Under **Project Settings > Domains**, assign your custom production domain (e.g. `aureliajewels.com`).
+7. Under **Project Settings > Domains**, assign your custom production domain (e.g. `auralic-jewels.vercel.app`).
 
 ### Option B: Deploy via Vercel CLI
 ```bash
@@ -314,7 +314,7 @@ The Express backend can be deployed to **Render** using a Web Service:
 2. Select your repository. Render will automatically read `/backend/render.yaml`.
 3. Configure the required environment variables:
    - `DATABASE_URL` (from Neon)
-   - `FRONTEND_URL` (`https://aureliajewels.com`)
+   - `FRONTEND_URL` (`https://auralic-jewels.vercel.app`)
    - `JWT_SECRET`
    - `STRIPE_SECRET_KEY`
    - `RESEND_API_KEY`
@@ -344,12 +344,12 @@ The Express backend can be deployed to **Render** using a Web Service:
 3. Navigate to **APIs & Services > OAuth Consent Screen**:
    - User Type: **External**
    - App Name: `Maison Aurelia`
-   - User Support Email: `concierge@aureliajewels.com`
+   - User Support Email: `concierge@auralic-jewels.vercel.app`
 4. Navigate to **Credentials > Create Credentials > OAuth 2.0 Client ID**:
    - Application Type: **Web application**
    - **Authorized JavaScript Origins**:
      - `http://localhost:3000`
-     - `https://aureliajewels.com`
+     - `https://auralic-jewels.vercel.app`
    - **Authorized Redirect URIs**:
      - `http://localhost:5000/api/auth/google/callback`
      - `https://auralic-jewels.onrender.com/api/auth/google/callback`
@@ -374,10 +374,10 @@ The Express backend can be deployed to **Render** using a Web Service:
 ### Resend Transactional Email Engine
 
 1. Create an account at [Resend](https://resend.com).
-2. Go to **Domains > Add Domain** (e.g., `aureliajewels.com`).
+2. Go to **Domains > Add Domain** (e.g., `auralic-jewels.vercel.app`).
 3. Add the required DNS records (DKIM, SPF, MX) to your domain registrar.
 4. Generate an API Key under **API Keys** with *Full Access*.
-5. Set `RESEND_API_KEY` and `EMAIL_FROM="Maison Aurelia <concierge@aureliajewels.com>"`.
+5. Set `RESEND_API_KEY` and `EMAIL_FROM="Maison Aurelia <concierge@auralic-jewels.vercel.app>"`.
 
 ---
 
