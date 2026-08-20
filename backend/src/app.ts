@@ -3,7 +3,7 @@ import cors from 'cors';
 import helmet from 'helmet';
 import morgan from 'morgan';
 import cookieParser from 'cookie-parser';
-import { config } from './config';
+import { config } from './config/index';
 import { errorHandler } from './middleware/errorHandler';
 import apiRoutes from './routes/api.routes';
 

@@ -1,5 +1,5 @@
 import { createApp } from './app';
-import { config } from './config';
+import { config } from './config/index';
 import { getDbPool } from './db/connection';
 
 const app = createApp();
