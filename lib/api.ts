@@ -14,8 +14,8 @@ import {
 } from './types';
 
 // Centralized API Base URL
-// In development within Next.js, relative '/api' calls the integrated Next.js API Routes.
-// When deploying independently with separate backend, NEXT_PUBLIC_API_URL can be set to 'https://api.yourdomain.com/api'.
+// In development within Next.js, relative '/api' calls the integrated Next.js API proxy routes.
+// In production on Vercel, NEXT_PUBLIC_API_URL points to the Render backend API.
 const API_BASE = process.env.NEXT_PUBLIC_API_URL || '/api';
 
 export interface ProductQueryParams {
@@ -33,15 +33,50 @@ export interface ProductQueryParams {
   limit?: number;
 }
 
-export async function fetchApi<T>(endpoint: string, options: RequestInit = {}): Promise<{ success: boolean; data?: T; message?: string; error?: string; total?: number }> {
+export function getAuthToken(): string | null {
+  if (typeof window === 'undefined') return null;
   try {
-    const url = endpoint.startsWith('http') ? endpoint : `${API_BASE}${endpoint.startsWith('/') ? '' : '/'}${endpoint}`;
+    return localStorage.getItem('aurelia_jwt_token');
+  } catch {
+    return null;
+  }
+}
+
+export function setAuthToken(token: string | null) {
+  if (typeof window === 'undefined') return;
+  try {
+    if (token) {
+      localStorage.setItem('aurelia_jwt_token', token);
+    } else {
+      localStorage.removeItem('aurelia_jwt_token');
+    }
+  } catch {
+    // ignore write errors
+  }
+}
+
+export async function fetchApi<T>(
+  endpoint: string, 
+  options: RequestInit = {}
+): Promise<{ success: boolean; data?: T; message?: string; error?: string; total?: number }> {
+  try {
+    const url = endpoint.startsWith('http') 
+      ? endpoint 
+      : `${API_BASE}${endpoint.startsWith('/') ? '' : '/'}${endpoint}`;
+
+    const headers: Record<string, string> = {
+      'Content-Type': 'application/json',
+      ...(options.headers as Record<string, string>),
+    };
+
+    const token = getAuthToken();
+    if (token && !headers['Authorization']) {
+      headers['Authorization'] = `Bearer ${token}`;
+    }
+
     const response = await fetch(url, {
       ...options,
-      headers: {
-        'Content-Type': 'application/json',
-        ...options.headers,
-      },
+      headers,
     });
 
     const data = await response.json();
@@ -97,7 +132,7 @@ export async function getCollections() {
   return await fetchApi<Collection[]>('/collections');
 }
 
-// Coupon / Promotion
+// Coupon / Promotion Validation
 export async function validateCoupon(code: string, orderSubtotalUSD: number) {
   return await fetchApi<{ coupon: Coupon; discountUSD: number }>('/coupons/validate', {
     method: 'POST',
@@ -131,24 +166,40 @@ export async function trackOrder(orderNumber: string, email?: string) {
 
 // Auth API
 export async function loginUser(email: string, password?: string) {
-  return await fetchApi<{ user: User; token: string }>('/auth/login', {
+  const res = await fetchApi<{ user: User; token: string }>('/auth/login', {
     method: 'POST',
     body: JSON.stringify({ email, password }),
   });
+  if (res.success && res.data?.token) {
+    setAuthToken(res.data.token);
+  }
+  return res;
 }
 
 export async function registerUser(userData: { name: string; email: string; password?: string; phone?: string }) {
-  return await fetchApi<{ user: User; token: string }>('/auth/register', {
+  const res = await fetchApi<{ user: User; token: string }>('/auth/register', {
     method: 'POST',
     body: JSON.stringify(userData),
   });
+  if (res.success && res.data?.token) {
+    setAuthToken(res.data.token);
+  }
+  return res;
 }
 
-export async function loginWithGoogle(payload?: { email?: string; name?: string }) {
-  return await fetchApi<{ user: User; token: string }>('/auth/google', {
+export async function loginWithGoogle(payload?: { credential?: string; idToken?: string; email?: string; name?: string }) {
+  const res = await fetchApi<{ user: User; token: string }>('/auth/google', {
     method: 'POST',
     body: JSON.stringify(payload || {}),
   });
+  if (res.success && res.data?.token) {
+    setAuthToken(res.data.token);
+  }
+  return res;
+}
+
+export async function getCurrentUserProfile() {
+  return await fetchApi<User>('/auth/me');
 }
 
 // Reviews
@@ -285,4 +336,3 @@ export async function updateConversation(
 export async function getStaffDirectory() {
   return await fetchApi<AtelierStaff[]>('/admin/staff');
 }
-

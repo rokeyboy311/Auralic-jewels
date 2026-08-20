@@ -20,6 +20,7 @@ import { brandConfig } from '@/lib/brandConfig';
 import { useToast } from '@/context/ToastContext';
 import { mockProducts } from '@/lib/db/mockDb';
 import { Product } from '@/lib/types';
+import ImageUploader from '@/components/ImageUploader';
 
 interface CustomDesignModalProps {
   isOpen: boolean;
@@ -52,6 +53,7 @@ export default function CustomDesignModal({
   const [scratchCarats, setScratchCarats] = useState('2.50 Carats');
   const [budgetRange, setBudgetRange] = useState('$5,000 – $15,000');
   const [scratchDescription, setScratchDescription] = useState('');
+  const [scratchImages, setScratchImages] = useState<string[]>([]);
   const [uploadedFileName, setUploadedFileName] = useState('');
 
   // Consultation State
@@ -455,31 +457,25 @@ export default function CustomDesignModal({
                   </div>
 
                   {/* Upload Design Sketch / Reference Photo */}
-                  <div>
-                    <label className="block text-[11px] uppercase tracking-wider text-[#4a4237] mb-1 font-medium">
-                      Upload Sketch, Photo Reference, or CAD Drawing (Optional)
-                    </label>
-                    <label className="flex flex-col items-center justify-center p-4 border border-dashed border-[#c5b49e] bg-white cursor-pointer hover:border-[#9b7e46] transition-colors">
-                      <Upload className="w-5 h-5 text-[#9b7e46] mb-1" />
-                      <span className="text-xs text-[#73685a]">
-                        {uploadedFileName ? (
-                          <span className="text-[#141210] font-medium">{uploadedFileName} (Attached)</span>
-                        ) : (
-                          'Click to upload design image or sketch (PNG, JPG, PDF up to 25MB)'
-                        )}
-                      </span>
-                      <input
-                        type="file"
-                        accept="image/*,.pdf"
-                        className="hidden"
-                        onChange={(e) => {
-                          if (e.target.files && e.target.files[0]) {
-                            setUploadedFileName(e.target.files[0].name);
-                          }
-                        }}
-                      />
-                    </label>
-                  </div>
+                  <ImageUploader
+                    label="Upload Sketch, Photo Reference, or CAD Drawing (Optional)"
+                    helperText="Upload sketches or reference photos directly from your device (JPG, PNG, WEBP, up to 15MB)"
+                    multiple={true}
+                    maxFiles={3}
+                    value={scratchImages}
+                    onMultipleChange={(imgs) => {
+                      setScratchImages(imgs);
+                      if (imgs.length > 0) setUploadedFileName(`${imgs.length} image(s) attached`);
+                      else setUploadedFileName('');
+                    }}
+                    onChange={(img) => {
+                      if (img && !scratchImages.includes(img)) {
+                        const updated = [...scratchImages, img];
+                        setScratchImages(updated);
+                        setUploadedFileName(`${updated.length} image(s) attached`);
+                      }
+                    }}
+                  />
 
                   <div>
                     <label className="block text-[11px] uppercase tracking-wider text-[#4a4237] mb-1 font-medium">

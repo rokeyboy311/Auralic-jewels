@@ -17,6 +17,7 @@ import {
   Gem,
   Plus,
   Package,
+  Image as ImageIcon,
 } from 'lucide-react';
 import { useChat } from '@/context/ChatContext';
 import { useAuth } from '@/context/AuthContext';
@@ -40,6 +41,7 @@ export default function AtelierConciergeChat() {
 
   const { user } = useAuth();
   const [inputText, setInputText] = useState('');
+  const [pendingAttachment, setPendingAttachment] = useState<{ id: string; name: string; url: string; type: string; size: number } | null>(null);
   const [isComposingNew, setIsComposingNew] = useState(false);
   const [newSubject, setNewSubject] = useState('');
   const [newType, setNewType] = useState<ConversationType>('product_modification');
@@ -47,6 +49,7 @@ export default function AtelierConciergeChat() {
   const [isSending, setIsSending] = useState(false);
 
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const chatFileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     if (isOpen && activeConversation) {
@@ -54,14 +57,38 @@ export default function AtelierConciergeChat() {
     }
   }, [isOpen, activeConversation?.messages]);
 
+  const handleImageFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files[0]) {
+      const file = e.target.files[0];
+      const reader = new FileReader();
+      reader.onload = (uploadEvent) => {
+        const dataUrl = uploadEvent.target?.result as string;
+        if (dataUrl) {
+          setPendingAttachment({
+            id: `att-${Date.now()}`,
+            name: file.name,
+            url: dataUrl,
+            type: file.type || 'image/jpeg',
+            size: file.size,
+          });
+        }
+      };
+      reader.readAsDataURL(file);
+    }
+    if (chatFileInputRef.current) chatFileInputRef.current.value = '';
+  };
+
   const handleSend = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!inputText.trim() || isSending) return;
+    if ((!inputText.trim() && !pendingAttachment) || isSending) return;
 
     setIsSending(true);
-    const sent = await sendMessage(inputText.trim());
+    const attachments = pendingAttachment ? [pendingAttachment] : [];
+    const textToSend = inputText.trim() || (pendingAttachment ? 'Attached image from device.' : '');
+    const sent = await sendMessage(textToSend, attachments);
     if (sent) {
       setInputText('');
+      setPendingAttachment(null);
     }
     setIsSending(false);
   };
@@ -447,16 +474,31 @@ export default function AtelierConciergeChat() {
 
                         {/* Attachments */}
                         {msg.attachments && msg.attachments.length > 0 && (
-                          <div className="mt-2.5 pt-2 border-t border-[#ebdccd]/50 space-y-1.5">
-                            {msg.attachments.map((att) => (
-                              <div
-                                key={att.id}
-                                className="flex items-center gap-2 p-1.5 bg-[#faf8f5] border border-[#ebdccd] text-[11px] text-[#141210]"
-                              >
-                                <Paperclip className="w-3 h-3 text-[#9b7e46]" />
-                                <span className="truncate font-mono">{att.name}</span>
-                              </div>
-                            ))}
+                          <div className="mt-2.5 pt-2 border-t border-[#ebdccd]/50 space-y-2">
+                            {msg.attachments.map((att) => {
+                              const isImg = att.type?.startsWith('image/') || att.url?.startsWith('data:image') || att.url?.match(/\.(jpeg|jpg|png|webp|gif)/i);
+                              return (
+                                <div key={att.id} className="space-y-1">
+                                  {isImg && att.url && (
+                                    <div className="relative aspect-4/3 w-full max-w-[220px] rounded-xs overflow-hidden border border-[#ebdccd] bg-[#f0e9df]">
+                                      <Image
+                                        src={att.url}
+                                        alt={att.name || 'Chat attachment'}
+                                        fill
+                                        className="object-cover cursor-pointer hover:scale-105 transition-transform"
+                                        referrerPolicy="no-referrer"
+                                        unoptimized={att.url.startsWith('data:')}
+                                        onClick={() => window.open(att.url, '_blank')}
+                                      />
+                                    </div>
+                                  )}
+                                  <div className="flex items-center gap-1.5 text-[10px] text-[#73685a] font-mono">
+                                    <Paperclip className="w-3 h-3 text-[#9b7e46]" />
+                                    <span className="truncate max-w-[180px]">{att.name}</span>
+                                  </div>
+                                </div>
+                              );
+                            })}
                           </div>
                         )}
                       </div>
@@ -482,8 +524,53 @@ export default function AtelierConciergeChat() {
                 </div>
               )}
 
+              {/* Pending Image Attachment Thumbnail Preview */}
+              {pendingAttachment && (
+                <div className="px-3 py-2 bg-[#f6f0e6] border-t border-[#ebdccd] flex items-center justify-between animate-in fade-in duration-200">
+                  <div className="flex items-center gap-2">
+                    <div className="w-9 h-9 relative border border-[#c5b49e] overflow-hidden bg-white shrink-0">
+                      <Image
+                        src={pendingAttachment.url}
+                        alt={pendingAttachment.name}
+                        fill
+                        className="object-cover"
+                        referrerPolicy="no-referrer"
+                        unoptimized={true}
+                      />
+                    </div>
+                    <div className="text-[11px] truncate max-w-[200px]">
+                      <p className="font-medium text-[#141210] truncate">{pendingAttachment.name}</p>
+                      <p className="text-[9px] text-[#73685a] uppercase font-mono">Ready to dispatch</p>
+                    </div>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => setPendingAttachment(null)}
+                    className="p-1 hover:bg-white text-[#73685a] hover:text-red-700 transition-colors"
+                    title="Remove attached photo"
+                  >
+                    <X className="w-3.5 h-3.5" />
+                  </button>
+                </div>
+              )}
+
               {/* Message Composer */}
               <form onSubmit={handleSend} className="p-3 bg-white border-t border-[#ebdccd] flex items-center gap-2">
+                <input
+                  ref={chatFileInputRef}
+                  type="file"
+                  accept="image/jpeg,image/png,image/webp,image/gif"
+                  onChange={handleImageFileSelect}
+                  className="hidden"
+                />
+                <button
+                  type="button"
+                  onClick={() => chatFileInputRef.current?.click()}
+                  className="p-2.5 text-[#73685a] hover:text-[#9b7e46] hover:bg-[#faf8f5] transition-colors shrink-0 border border-[#ebdccd]"
+                  title="Attach Photo or Design Sketch"
+                >
+                  <ImageIcon className="w-4 h-4" />
+                </button>
                 <input
                   type="text"
                   placeholder="Inquire with the Master Jeweller..."
@@ -493,7 +580,7 @@ export default function AtelierConciergeChat() {
                 />
                 <button
                   type="submit"
-                  disabled={!inputText.trim() || isSending}
+                  disabled={(!inputText.trim() && !pendingAttachment) || isSending}
                   className="p-2.5 bg-[#141210] text-[#faf8f5] hover:bg-[#9b7e46] transition-colors disabled:opacity-40 cursor-pointer shrink-0"
                   title="Send Message"
                 >

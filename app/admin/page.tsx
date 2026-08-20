@@ -46,6 +46,7 @@ import {
 import { useAuth } from '@/context/AuthContext';
 import { useCurrency } from '@/context/CurrencyContext';
 import { useToast } from '@/context/ToastContext';
+import ImageUploader from '@/components/ImageUploader';
 
 export default function AdminDashboardPage() {
   const { user, isAdmin, login } = useAuth();
@@ -89,6 +90,7 @@ export default function AdminDashboardPage() {
   const [prodStock, setProdStock] = useState<number>(5);
   const [prodGrossWeight, setProdGrossWeight] = useState<number>(4.8);
   const [prodImage, setProdImage] = useState('');
+  const [prodImages, setProdImages] = useState<string[]>([]);
   const [prodDesc, setProdDesc] = useState('');
 
   const loadAll = async () => {
@@ -269,15 +271,17 @@ export default function AdminDashboardPage() {
         estimatedDispatchHours: 24,
         countryOfOrigin: 'France (Paris Place Vendôme Atelier)',
         status: 'active' as const,
-        images: [
-          {
-            id: `img-${Date.now()}`,
-            url: prodImage || 'https://images.unsplash.com/photo-1605100804763-247f67b3557e?auto=format&fit=crop&w=1200&q=85',
-            alt: prodName,
-            type: 'main' as const,
-            sortOrder: 1,
-          },
-        ],
+        images: (
+          prodImages.length > 0
+            ? prodImages
+            : [prodImage || 'https://images.unsplash.com/photo-1605100804763-247f67b3557e?auto=format&fit=crop&w=1200&q=85']
+        ).map((imgUrl, idx) => ({
+          id: `img-${Date.now()}-${idx}`,
+          url: imgUrl,
+          alt: prodName,
+          type: (idx === 0 ? 'main' : 'gallery') as any,
+          sortOrder: idx + 1,
+        })),
         careInstructions: 'Clean gently with lukewarm soapy water and soft-bristled brush.',
         shippingInformation: 'Complimentary insured worldwide armored courier (Ferrari Group / FedEx Priority).',
         returnEligibility: '30-Day Insured Return with security tags intact.',
@@ -290,6 +294,7 @@ export default function AdminDashboardPage() {
         setShowProductModal(false);
         setProdName('');
         setProdImage('');
+        setProdImages([]);
         setProdDesc('');
         success('Product Published', `${res.data.name} is now active in the international catalogue.`);
       }
@@ -1308,18 +1313,24 @@ export default function AdminDashboardPage() {
               </div>
             </div>
 
-            <div>
-              <label className="block text-[11px] uppercase tracking-wider text-[#4a4237] mb-1">
-                High-Resolution Image URL
-              </label>
-              <input
-                type="url"
-                value={prodImage}
-                onChange={(e) => setProdImage(e.target.value)}
-                placeholder="https://images.unsplash.com/photo-..."
-                className="w-full bg-white border border-[#c5b49e]/60 px-3 py-2 text-xs text-[#141210]"
-              />
-            </div>
+            <ImageUploader
+              label="Haute Joaillerie Photographs"
+              helperText="Upload primary cover and gallery photos directly from your device (JPG, PNG, WEBP up to 15MB)"
+              multiple={true}
+              maxFiles={6}
+              value={prodImages.length > 0 ? prodImages : (prodImage ? [prodImage] : [])}
+              onMultipleChange={(imgs) => {
+                setProdImages(imgs);
+                if (imgs.length > 0) setProdImage(imgs[0]);
+                else setProdImage('');
+              }}
+              onChange={(img) => {
+                setProdImage(img);
+                if (img && !prodImages.includes(img)) {
+                  setProdImages([img, ...prodImages]);
+                }
+              }}
+            />
 
             <div>
               <label className="block text-[11px] uppercase tracking-wider text-[#4a4237] mb-1">

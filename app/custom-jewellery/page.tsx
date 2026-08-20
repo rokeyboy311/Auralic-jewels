@@ -23,6 +23,7 @@ import { mockProducts } from '@/lib/db/mockDb';
 import { brandConfig } from '@/lib/brandConfig';
 import { useToast } from '@/context/ToastContext';
 import { useCurrency } from '@/context/CurrencyContext';
+import ImageUploader from '@/components/ImageUploader';
 
 export default function CustomJewelleryPage() {
   const [activeTab, setActiveTab] = useState<'modify' | 'new' | 'consultation'>('modify');
@@ -44,6 +45,7 @@ export default function CustomJewelleryPage() {
   const [scratchCarats, setScratchCarats] = useState('2.50 Carats');
   const [scratchBudget, setScratchBudget] = useState('$7,500 – $15,000');
   const [scratchDescription, setScratchDescription] = useState('');
+  const [scratchImages, setScratchImages] = useState<string[]>([]);
   const [uploadedFile, setUploadedFile] = useState<string | null>(null);
 
   // Consultation State
@@ -533,30 +535,25 @@ export default function CustomJewelleryPage() {
                 </div>
 
                 {/* Upload Sketch/Photo */}
-                <div>
-                  <label className="block text-[11px] uppercase tracking-wider text-[#4a4237] font-medium mb-1">
-                    Upload Sketch, Inspiration Photo, or CAD Drawing (Optional)
-                  </label>
-                  <label className="flex flex-col items-center justify-center p-6 border-2 border-dashed border-[#c5b49e] bg-white cursor-pointer hover:border-[#9b7e46] transition-colors">
-                    <Upload className="w-6 h-6 text-[#9b7e46] mb-2" />
-                    <span className="text-xs text-[#141210] font-medium">
-                      {uploadedFile ? `${uploadedFile} (Attached)` : 'Click to select or drop image/sketch file'}
-                    </span>
-                    <span className="text-[10px] text-[#73685a] mt-0.5">
-                      Supports JPG, PNG, WEBP, PDF up to 30MB
-                    </span>
-                    <input
-                      type="file"
-                      accept="image/*,.pdf"
-                      className="hidden"
-                      onChange={(e) => {
-                        if (e.target.files && e.target.files[0]) {
-                          setUploadedFile(e.target.files[0].name);
-                        }
-                      }}
-                    />
-                  </label>
-                </div>
+                <ImageUploader
+                  label="Upload Sketches, Inspiration Photos, or CAD Drawings (Optional)"
+                  helperText="Attach your own sketches, reference photos, or heirloom jewellery concepts (JPG, PNG, WEBP, up to 15MB)"
+                  multiple={true}
+                  maxFiles={4}
+                  value={scratchImages}
+                  onMultipleChange={(imgs) => {
+                    setScratchImages(imgs);
+                    if (imgs.length > 0) setUploadedFile(`${imgs.length} image(s) attached`);
+                    else setUploadedFile(null);
+                  }}
+                  onChange={(img) => {
+                    if (img && !scratchImages.includes(img)) {
+                      const updated = [...scratchImages, img];
+                      setScratchImages(updated);
+                      setUploadedFile(`${updated.length} image(s) attached`);
+                    }
+                  }}
+                />
 
                 <div>
                   <label className="block text-[11px] uppercase tracking-wider text-[#4a4237] font-medium mb-1">
