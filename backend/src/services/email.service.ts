@@ -32,7 +32,7 @@ export class EmailService {
         }),
       });
 
-      const data = await response.json();
+      const data = await response.json() as any;
       if (!response.ok) {
         throw new Error(data.message || 'Failed to dispatch email via Resend');
       }

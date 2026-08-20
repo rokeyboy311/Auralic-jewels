@@ -172,7 +172,7 @@ router.post('/auth/google', async (req: Request, res: Response) => {
       try {
         const googleRes = await fetch(`https://oauth2.googleapis.com/tokeninfo?id_token=${tokenToVerify}`);
         if (googleRes.ok) {
-          const payload = await googleRes.json();
+          const payload = await googleRes.json() as any;
           verifiedEmail = payload.email;
           verifiedName = payload.name || payload.email.split('@')[0];
           verifiedGoogleId = payload.sub;
@@ -806,7 +806,7 @@ router.post('/bespoke', optionalAuth, async (req: AuthenticatedRequest, res: Res
   }
 
   // Send email to Atelier Jeweller
-  EmailService.sendCustomEmail({
+  EmailService.sendEmail({
     to: config.resend.adminEmail || 'atelier@aureliajewels.com',
     subject: `New Haute Joaillerie Commission Inquiry [${refNum}] from ${customerName}`,
     html: `
@@ -820,7 +820,7 @@ router.post('/bespoke', optionalAuth, async (req: AuthenticatedRequest, res: Res
       <p><strong>Aesthetic Description:</strong></p>
       <blockquote style="background: #faf8f5; padding: 16px; border-left: 3px solid #9b7e46;">${designDescription}</blockquote>
     `,
-  }).catch((err) => console.warn('[Aurelia Bespoke] Email error:', err.message));
+  }).catch((err: any) => console.warn('[Aurelia Bespoke] Email error:', err.message));
 
   return res.status(201).json({
     success: true,
