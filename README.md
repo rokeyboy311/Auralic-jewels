@@ -493,3 +493,13 @@ npm run build
 
 © 2026 Maison Aurelia Paris. All Rights Reserved.  
 *Haute Joaillerie, Fine Gemology & High Horology.*
+
+## Production Documentation
+
+We have prepared comprehensive documentation for deploying and running Maison Aurelia in a production environment:
+
+* [Production Setup & Architecture](docs/PRODUCTION_SETUP.md)
+* [Database Initialization](docs/DATABASE_SETUP.md)
+* [Environment Variables](docs/ENVIRONMENT_VARIABLES.md)
+* [API Reference](docs/API_REFERENCE.md)
+* [Deployment Guide](docs/DEPLOYMENT.md)

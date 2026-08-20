@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useId } from 'react';
+import React, { useState, useId, useEffect } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import {
@@ -19,7 +19,8 @@ import {
   Award,
   RefreshCw,
 } from 'lucide-react';
-import { mockProducts } from '@/lib/db/mockDb';
+import api from '@/lib/api';
+import { Product } from '@/lib/types';
 import { brandConfig } from '@/lib/brandConfig';
 import { useToast } from '@/context/ToastContext';
 import { useCurrency } from '@/context/CurrencyContext';
@@ -27,7 +28,27 @@ import ImageUploader from '@/components/ImageUploader';
 
 export default function CustomJewelleryPage() {
   const [activeTab, setActiveTab] = useState<'modify' | 'new' | 'consultation'>('modify');
-  const [selectedProductId, setSelectedProductId] = useState(mockProducts[0].id);
+  
+  const [products, setProducts] = useState<Product[]>([]);
+  const [selectedProductId, setSelectedProductId] = useState<string>('');
+  const [isLoadingProducts, setIsLoadingProducts] = useState(true);
+
+  useEffect(() => {
+    const fetchProducts = async () => {
+      try {
+        const res = await api.get('/products?limit=12');
+        if (res.success && res.data) {
+          setProducts(res.data);
+          if (res.data.length > 0) setSelectedProductId(res.data[0].id);
+        }
+      } catch (err) {
+        console.error('Failed to load catalog', err);
+      } finally {
+        setIsLoadingProducts(false);
+      }
+    };
+    fetchProducts();
+  }, []);
 
   // Modification Form State
   const [selectedMetal, setSelectedMetal] = useState('18K Solid Yellow Gold');
@@ -62,31 +83,51 @@ export default function CustomJewelleryPage() {
   const [submittedRef, setSubmittedRef] = useState('');
 
   const { formatPrice } = useCurrency();
-  const { success } = useToast();
+  const { success, error } = useToast();
 
-  const selectedProduct = mockProducts.find((p) => p.id === selectedProductId) || mockProducts[0];
+  const selectedProduct = products.find((p) => p.id === selectedProductId) || products[0];
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    const ref = `AUR-BESPOKE-${Math.floor(100000 + Math.random() * 900000)}`;
-    setSubmittedRef(ref);
-    setIsSubmitted(true);
-
-    if (activeTab === 'modify') {
-      success(
-        'Design Modification Request Entrusted',
-        `Reference ${ref}: Our Master Goldsmiths will prepare your customized CAD rendering for ${selectedProduct.name}.`
-      );
-    } else if (activeTab === 'new') {
-      success(
-        'Bespoke Design Brief Registered',
-        `Reference ${ref}: Master Gemologists are preparing initial gouache sketches and gemstone allocations.`
-      );
-    } else {
-      success(
-        'Atelier Consultation Confirmed',
-        `Reference ${ref}: Senior Master Jeweller will contact you within 4 hours.`
-      );
+    try {
+      // In a real integration, submit to bespoke API route
+      const payload = {
+        category: activeTab,
+        customerName: patronName,
+        customerEmail: patronEmail,
+        customerPhone: patronPhone,
+        metalPreference: activeTab === 'modify' ? selectedMetal : scratchMetal,
+        stonePreference: activeTab === 'modify' ? selectedGemstone : scratchStone,
+        designDescription: activeTab === 'new' ? scratchDescription : modificationNotes,
+        referenceImageUrl: scratchImages[0] || (selectedProduct?.images?.[0]?.url || ''),
+      };
+      
+      const res = await api.post('/bespoke', payload);
+      
+      if (res.success) {
+        setSubmittedRef(res.data.referenceNumber);
+        setIsSubmitted(true);
+        if (activeTab === 'modify') {
+          success(
+            'Design Modification Request Entrusted',
+            `Reference ${res.data.referenceNumber}: Our Master Goldsmiths will prepare your customized CAD rendering.`
+          );
+        } else if (activeTab === 'new') {
+          success(
+            'Bespoke Design Brief Registered',
+            `Reference ${res.data.referenceNumber}: Master Gemologists are preparing initial gouache sketches.`
+          );
+        } else {
+          success(
+            'Atelier Consultation Confirmed',
+            `Reference ${res.data.referenceNumber}: Senior Master Jeweller will contact you within 4 hours.`
+          );
+        }
+      } else {
+        error('Submission Failed', res.error || 'Please try again.');
+      }
+    } catch (err: any) {
+      error('Error', err.message);
     }
   };
 
@@ -238,13 +279,13 @@ export default function CustomJewelleryPage() {
                       <h3 className="font-serif text-2xl text-[#141210]">Select Base Piece from Catalog</h3>
                     </div>
                     <span className="text-xs text-[#73685a]">
-                      Showing {mockProducts.length} Ready-to-Wear Creations
+                      Showing {products.length} Ready-to-Wear Creations
                     </span>
                   </div>
 
                   {/* Horizontal Scroll / Grid of Catalog Items */}
                   <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-                    {mockProducts.map((prod) => {
+                    {products.map((prod) => {
                       const isSelected = prod.id === selectedProductId;
                       return (
                         <button

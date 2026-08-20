@@ -19,12 +19,19 @@ import { useCart } from '@/context/CartContext';
 import { useCurrency } from '@/context/CurrencyContext';
 import { useAuth } from '@/context/AuthContext';
 import { useToast } from '@/context/ToastContext';
-import { getShippingMethods, createOrder, validateCoupon } from '@/lib/api';
+import { getShippingMethods, createOrder, validateCoupon, createPaymentIntent } from '@/lib/api';
 import { ShippingMethod } from '@/lib/types';
 import { brandConfig } from '@/lib/brandConfig';
 
-export default function CheckoutPage() {
+import { loadStripe } from '@stripe/stripe-js';
+import { Elements, CardElement, useStripe, useElements } from '@stripe/react-stripe-js';
+
+const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY || 'pk_test_123');
+
+function CheckoutContent() {
   const router = useRouter();
+  const stripe = useStripe();
+  const elements = useElements();
   const {
     items,
     subtotalUSD,
@@ -55,10 +62,7 @@ export default function CheckoutPage() {
   const [country, setCountry] = useState('United States');
   const [orderNotes, setOrderNotes] = useState('');
 
-  // Card Simulation Details
-  const [cardNumber, setCardNumber] = useState('');
-  const [cardExpiry, setCardExpiry] = useState('');
-  const [cardCvc, setCardCvc] = useState('');
+  // Card Holder 
   const [cardHolder, setCardHolder] = useState('');
 
   const [promoInput, setPromoInput] = useState('');
@@ -123,6 +127,40 @@ export default function CheckoutPage() {
     setIsProcessing(true);
 
     try {
+      if (paymentMethod === 'stripe') {
+        if (!stripe || !elements) {
+          error('Checkout Error', 'Stripe has not loaded yet.');
+          setIsProcessing(false);
+          return;
+        }
+
+        const intentRes = await createPaymentIntent(finalTotalUSD, currentCurrency);
+        if (!intentRes.success || !intentRes.data?.clientSecret) {
+          throw new Error('Failed to initialize secure payment session.');
+        }
+
+        const cardElement = elements.getElement(CardElement);
+        if (!cardElement) throw new Error('Card element missing');
+
+        const { error: stripeError, paymentIntent } = await stripe.confirmCardPayment(intentRes.data.clientSecret, {
+          payment_method: {
+            card: cardElement,
+            billing_details: {
+              name: cardHolder || `${firstName} ${lastName}`,
+              email,
+            },
+          },
+        });
+
+        if (stripeError) {
+          throw new Error(stripeError.message);
+        }
+
+        if (paymentIntent.status !== 'succeeded') {
+          throw new Error('Payment was not successful.');
+        }
+      }
+
       const orderPayload = {
         userId: user?.id,
         customerEmail: email,
@@ -479,50 +517,29 @@ export default function CheckoutPage() {
                     value={cardHolder}
                     onChange={(e) => setCardHolder(e.target.value)}
                     placeholder="Lady Catherine Sterling"
-                    className="w-full bg-white border border-[#c5b49e]/60 px-3 py-2 text-xs text-[#141210] focus:outline-none"
+                    className="w-full bg-white border border-[#c5b49e]/60 px-3 py-2 text-xs text-[#141210] focus:outline-none mb-3"
                   />
-                </div>
-
-                <div>
+                  
                   <label className="block text-[11px] uppercase tracking-wider text-[#4a4237] mb-1">
-                    Card Number (Encrypted)
+                    Card Details
                   </label>
-                  <input
-                    type="text"
-                    value={cardNumber}
-                    onChange={(e) => setCardNumber(e.target.value)}
-                    placeholder="4000 1234 5678 9010"
-                    maxLength={19}
-                    className="w-full bg-white border border-[#c5b49e]/60 px-3 py-2 text-xs font-mono text-[#141210] focus:outline-none"
-                  />
-                </div>
-
-                <div className="grid grid-cols-2 gap-3">
-                  <div>
-                    <label className="block text-[11px] uppercase tracking-wider text-[#4a4237] mb-1">
-                      Expiry Date
-                    </label>
-                    <input
-                      type="text"
-                      value={cardExpiry}
-                      onChange={(e) => setCardExpiry(e.target.value)}
-                      placeholder="MM / YY"
-                      maxLength={5}
-                      className="w-full bg-white border border-[#c5b49e]/60 px-3 py-2 text-xs font-mono text-[#141210] focus:outline-none"
-                    />
-                  </div>
-
-                  <div>
-                    <label className="block text-[11px] uppercase tracking-wider text-[#4a4237] mb-1">
-                      CVV / CVC
-                    </label>
-                    <input
-                      type="password"
-                      value={cardCvc}
-                      onChange={(e) => setCardCvc(e.target.value)}
-                      placeholder="•••"
-                      maxLength={4}
-                      className="w-full bg-white border border-[#c5b49e]/60 px-3 py-2 text-xs font-mono text-[#141210] focus:outline-none"
+                  <div className="p-3 bg-white border border-[#c5b49e]/60">
+                    <CardElement 
+                      options={{
+                        style: {
+                          base: {
+                            fontSize: '14px',
+                            color: '#141210',
+                            fontFamily: 'monospace',
+                            '::placeholder': {
+                              color: '#aab7c4',
+                            },
+                          },
+                          invalid: {
+                            color: '#9e2146',
+                          },
+                        },
+                      }}
                     />
                   </div>
                 </div>
@@ -694,5 +711,13 @@ export default function CheckoutPage() {
         </aside>
       </div>
     </div>
+  );
+}
+
+export default function CheckoutPage() {
+  return (
+    <Elements stripe={stripePromise}>
+      <CheckoutContent />
+    </Elements>
   );
 }

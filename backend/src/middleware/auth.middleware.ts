@@ -43,8 +43,14 @@ export function requireAuth(req: AuthenticatedRequest, res: Response, next: Next
  */
 export function optionalAuth(req: AuthenticatedRequest, res: Response, next: NextFunction) {
   const authHeader = req.headers.authorization;
+  const cookieToken = (req as any).cookies?.aurelia_auth_token;
+  
+  let token = cookieToken;
   if (authHeader && authHeader.startsWith('Bearer ')) {
-    const token = authHeader.substring(7);
+    token = authHeader.substring(7);
+  }
+
+  if (token) {
     try {
       req.user = jwt.verify(token, config.jwtSecret) as AuthenticatedUser;
     } catch {

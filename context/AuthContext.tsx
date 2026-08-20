@@ -134,9 +134,15 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   };
 
-  const logout = () => {
+  const logout = async () => {
     setUser(null);
     setAuthToken(null);
+    try {
+      const { logoutUser } = await import('@/lib/api');
+      await logoutUser();
+    } catch {
+      // ignore
+    }
     success('Session Concluded', 'You have been safely signed out.');
   };
 

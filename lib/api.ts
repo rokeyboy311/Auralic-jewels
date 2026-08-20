@@ -75,6 +75,7 @@ export async function fetchApi<T>(
     }
 
     const response = await fetch(url, {
+      credentials: 'include',
       ...options,
       headers,
     });
@@ -146,6 +147,13 @@ export async function getShippingMethods() {
 }
 
 // Orders & Checkout
+export async function createPaymentIntent(amountUSD: number, currency: string = 'USD') {
+  return await fetchApi<{ clientSecret: string }>('/stripe/intent', {
+    method: 'POST',
+    body: JSON.stringify({ amountUSD, currency }),
+  });
+}
+
 export async function createOrder(orderPayload: Partial<Order>) {
   return await fetchApi<Order>('/orders', {
     method: 'POST',
@@ -200,6 +208,11 @@ export async function loginWithGoogle(payload?: { credential?: string; idToken?:
 
 export async function getCurrentUserProfile() {
   return await fetchApi<User>('/auth/me');
+}
+
+export async function logoutUser() {
+  setAuthToken(null);
+  return await fetchApi<{ success: boolean }>('/auth/logout', { method: 'POST' });
 }
 
 // Reviews

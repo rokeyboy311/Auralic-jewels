@@ -1,7 +1,8 @@
 import { MetadataRoute } from 'next';
-import { mockProducts } from '@/lib/db/mockDb';
+import api from '@/lib/api';
+import { Product } from '@/lib/types';
 
-export default function sitemap(): MetadataRoute.Sitemap {
+export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://aureliajewels.com';
 
   const staticRoutes = [
@@ -26,12 +27,20 @@ export default function sitemap(): MetadataRoute.Sitemap {
     priority: route === '' ? 1.0 : 0.8,
   }));
 
-  const productRoutes = mockProducts.map((p) => ({
-    url: `${baseUrl}/product/${p.slug}`,
-    lastModified: new Date(),
-    changeFrequency: 'daily' as const,
-    priority: 0.9,
-  }));
+  let productRoutes: any[] = [];
+  try {
+    const res = await api.get('/products?limit=100');
+    if (res.success && res.data) {
+      productRoutes = (res.data as Product[]).map((p) => ({
+        url: `${baseUrl}/product/${p.slug}`,
+        lastModified: new Date(p.updatedAt || new Date()),
+        changeFrequency: 'daily' as const,
+        priority: 0.9,
+      }));
+    }
+  } catch (err) {
+    console.error('Failed to fetch products for sitemap:', err);
+  }
 
   return [...staticRoutes, ...productRoutes];
 }

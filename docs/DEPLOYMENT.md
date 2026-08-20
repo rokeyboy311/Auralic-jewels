@@ -1,75 +1,45 @@
-# STEP-BY-STEP PRODUCTION DEPLOYMENT GUIDE
+# Deployment Guide
 
-This guide provides end-to-end instructions for deploying Maison Aurelia to **Vercel** (Frontend), **Render** (Backend), and **Neon** (PostgreSQL Database).
+Maison Aurelia is designed as a decoupled architecture:
+1. **Frontend**: Next.js App Router (Deploy on Vercel)
+2. **Backend**: Node.js Express Server (Deploy on Render, Heroku, AWS, etc.)
+3. **Database**: Managed PostgreSQL (Cloud SQL, Neon, Supabase, RDS)
 
----
+## 1. Deploying the Backend (Render / General)
 
-## 1. Database Provisioning (Neon PostgreSQL)
+The backend handles API routing, authentication (JWT/Cookies), Stripe payments, and database connections.
 
-1. Navigate to [https://neon.tech](https://neon.tech) and create an account.
-2. Click **Create Project**, name it `maison-aurelia-db`, and choose your preferred cloud region.
-3. In the project dashboard, copy the **Connection String** (Pooled connection mode recommended).
-4. Run migrations and seed data from your local terminal:
-   ```bash
-   cd backend
-   # In backend/.env, set DATABASE_URL to your Neon connection string:
-   DATABASE_URL="postgres://username:password@ep-sample-123456-pooler.us-east-2.aws.neon.tech/neondb?sslmode=require"
+1. Create a Web Service on your hosting provider.
+2. Set the Root Directory to `/backend` (or build from root if supported).
+3. **Build Command**: `npm install && npm run build`
+4. **Start Command**: `npm start`
+5. Ensure all **Environment Variables** (see `ENVIRONMENT_VARIABLES.md`) are injected, especially `DATABASE_URL` and `STRIPE_SECRET_KEY`.
+6. Configure your hosting provider to support secure cookies (`Secure` flag is enforced in production).
 
-   # Execute schema migration and demo high-jewellery inventory seed
-   npm run db:migrate
-   npm run db:seed
-   ```
+### Render Configuration (`render.yaml`)
+A `render.yaml` file is provided in the `/backend` folder for Infrastructure-as-Code deployment on Render.
 
----
+## 2. Deploying the Frontend (Vercel)
 
-## 2. Backend Deployment (Render)
+The Next.js frontend is static/SSR and should be deployed to Vercel or similar.
 
-### Option A: Using Blueprint (`render.yaml`)
-1. Log in to [https://render.com](https://render.com).
-2. Click **Blueprints > New Blueprint Instance**.
-3. Select your repository. Render will automatically detect `backend/render.yaml`.
-4. Fill in the environment variables:
-   - `DATABASE_URL` (From Neon)
-   - `FRONTEND_URL` (Your Vercel URL, e.g. `https://aureliajewels.com`)
-   - `JWT_SECRET` (A strong 64-character random string)
-   - `STRIPE_SECRET_KEY` & `STRIPE_WEBHOOK_SECRET`
-   - `RESEND_API_KEY` & `EMAIL_FROM`
-5. Click **Apply**.
+1. Connect your Git repository to Vercel.
+2. Set the Framework Preset to **Next.js**.
+3. **Environment Variables**:
+   * `NEXT_PUBLIC_API_URL`: Set this to your deployed backend URL (e.g., `https://api.domainname.com/api`).
+   * `NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY`
+4. Deploy.
 
-### Option B: Manual Web Service Setup
-1. On Render, click **New > Web Service**.
-2. Connect your GitHub repository.
-3. Set the following configuration:
-   - **Name**: `maison-aurelia-api`
-   - **Root Directory**: `backend`
-   - **Runtime**: `Node`
-   - **Build Command**: `npm install && npm run build`
-   - **Start Command**: `npm start`
-   - **Health Check Path**: `/api/health`
-4. Add the environment variables from `backend/.env.example`.
-5. Click **Create Web Service**.
-6. Copy your live API URL (e.g. `https://maison-aurelia-api.onrender.com`).
+## 3. Stripe Webhooks
 
----
+Once both are deployed, configure Stripe to send webhooks to your backend:
+1. Go to Stripe Dashboard -> Developers -> Webhooks.
+2. Add endpoint: `https://api.domainname.com/api/stripe/webhook`
+3. Listen for events: `payment_intent.succeeded`.
+4. Copy the Webhook Signing Secret and add it as `STRIPE_WEBHOOK_SECRET` in the backend environment variables.
 
-## 3. Frontend Deployment (Vercel)
+## 4. Domain Setup
 
-1. Log in to [https://vercel.com](https://vercel.com).
-2. Click **Add New > Project** and import your repository.
-3. Keep the **Root Directory** as `./` (Root).
-4. Add the following **Environment Variables**:
-   - `NEXT_PUBLIC_API_URL`: Your Render backend URL (e.g. `https://maison-aurelia-api.onrender.com`) without a trailing slash.
-   - `NEXT_PUBLIC_GOOGLE_CLIENT_ID`: Your Google OAuth Client ID.
-   - `NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY`: Your Stripe Publishable Key.
-5. Click **Deploy**.
-6. In **Project Settings > Domains**, connect your custom production domain (e.g. `aureliajewels.com`).
-
----
-
-## 4. Post-Deployment Verification Checklist
-
-- [ ] Visit `https://your-frontend.vercel.app` and confirm homepage loads smoothly.
-- [ ] Visit `https://your-backend.onrender.com/api/health` and verify `status: healthy`.
-- [ ] Test adding items to the shopping bag and proceeding to checkout.
-- [ ] Test the **Live Atelier Concierge Chat** drawer on a product detail page.
-- [ ] Log in to `/admin` to verify the Haute Joaillerie Concierge & Chat Desk.
+* **Primary**: `https://domainname.com` (Points to Vercel Frontend)
+* **Admin Portal**: `https://domainname.com/admin` (Handled by the same Next.js application; protected via JWT HttpOnly cookies).
+* **API**: `https://api.domainname.com` (Points to Render Backend). Ensure `FRONTEND_URL` is set to `https://domainname.com` on the backend to allow CORS.

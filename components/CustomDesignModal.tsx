@@ -18,7 +18,7 @@ import {
 } from 'lucide-react';
 import { brandConfig } from '@/lib/brandConfig';
 import { useToast } from '@/context/ToastContext';
-import { mockProducts } from '@/lib/db/mockDb';
+import api from '@/lib/api';
 import { Product } from '@/lib/types';
 import ImageUploader from '@/components/ImageUploader';
 
@@ -36,7 +36,28 @@ export default function CustomDesignModal({
   initialTab = 'modify',
 }: CustomDesignModalProps) {
   const [activeTab, setActiveTab] = useState<'modify' | 'new' | 'consultation'>(initialTab);
-  const [selectedProduct, setSelectedProduct] = useState<Product | null>(initialProduct || mockProducts[0]);
+  
+  const [products, setProducts] = useState<Product[]>([]);
+  const [selectedProduct, setSelectedProduct] = useState<Product | null>(initialProduct || null);
+
+  useEffect(() => {
+    const fetchProducts = async () => {
+      try {
+        const res = await api.get('/products?limit=24');
+        if (res.success && res.data) {
+          setProducts(res.data);
+          if (!selectedProduct && res.data.length > 0) {
+            setSelectedProduct(res.data[0]);
+          }
+        }
+      } catch (err) {
+        console.error('Failed to load products', err);
+      }
+    };
+    if (isOpen) {
+      fetchProducts();
+    }
+  }, [isOpen]);
 
   // Modification Form State
   const [metalChoice, setMetalChoice] = useState('18K Yellow Gold');
@@ -68,7 +89,7 @@ export default function CustomDesignModal({
 
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [referenceId, setReferenceId] = useState('');
-  const { success } = useToast();
+  const { success, error } = useToast();
 
   const [prevInitialProduct, setPrevInitialProduct] = useState(initialProduct);
   if (initialProduct !== prevInitialProduct) {
@@ -81,27 +102,46 @@ export default function CustomDesignModal({
 
   if (!isOpen) return null;
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    const ref = `AUR-BESPOKE-${Math.floor(100000 + Math.random() * 900000)}`;
-    setReferenceId(ref);
-    setIsSubmitted(true);
-
-    if (activeTab === 'modify') {
-      success(
-        'Design Modification Dossier Registered',
-        `Reference ${ref}: Our Master Jewellers have received your customization request for ${selectedProduct?.name}.`
-      );
-    } else if (activeTab === 'new') {
-      success(
-        'Bespoke Design Inquiry Entrusted',
-        `Reference ${ref}: Our Senior Gemologists and CAD designers will review your sketch and prepare 3D gouache renderings.`
-      );
-    } else {
-      success(
-        'Atelier Consultation Scheduled',
-        `Reference ${ref}: A Senior Master Jeweller will contact you within 4 hours.`
-      );
+    try {
+      const payload = {
+        category: activeTab,
+        customerName: patronName,
+        customerEmail: patronEmail,
+        customerPhone: patronPhone,
+        metalPreference: activeTab === 'modify' ? metalChoice : scratchMetal,
+        stonePreference: activeTab === 'modify' ? gemstoneChoice : scratchStone,
+        designDescription: activeTab === 'new' ? scratchDescription : modificationNotes,
+        referenceImageUrl: scratchImages[0] || (selectedProduct?.images?.[0]?.url || ''),
+      };
+      
+      const res = await api.post('/bespoke', payload);
+      
+      if (res.success) {
+        setReferenceId(res.data.referenceNumber);
+        setIsSubmitted(true);
+        if (activeTab === 'modify') {
+          success(
+            'Design Modification Dossier Registered',
+            `Reference ${res.data.referenceNumber}: Our Master Jewellers have received your customization request.`
+          );
+        } else if (activeTab === 'new') {
+          success(
+            'Bespoke Design Inquiry Entrusted',
+            `Reference ${res.data.referenceNumber}: Our Senior Gemologists and CAD designers will review your sketch.`
+          );
+        } else {
+          success(
+            'Atelier Consultation Scheduled',
+            `Reference ${res.data.referenceNumber}: A Senior Master Jeweller will contact you within 4 hours.`
+          );
+        }
+      } else {
+        error('Submission Failed', res.error || 'Please try again.');
+      }
+    } catch (err: any) {
+      error('Error', err.message);
     }
   };
 
@@ -241,12 +281,12 @@ export default function CustomDesignModal({
                     <select
                       value={selectedProduct?.id || ''}
                       onChange={(e) => {
-                        const found = mockProducts.find((p) => p.id === e.target.value);
+                        const found = products.find((p) => p.id === e.target.value);
                         if (found) setSelectedProduct(found);
                       }}
                       className="w-full bg-white border border-[#c5b49e]/60 px-3 py-2 text-xs text-[#141210] focus:outline-none focus:border-[#9b7e46]"
                     >
-                      {mockProducts.map((p) => (
+                      {products.map((p) => (
                         <option key={p.id} value={p.id}>
                           {p.name} ({p.category}) — Base: ${p.priceUSD.toLocaleString()}
                         </option>

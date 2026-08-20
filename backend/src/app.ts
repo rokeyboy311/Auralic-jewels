@@ -2,6 +2,7 @@ import express from 'express';
 import cors from 'cors';
 import helmet from 'helmet';
 import morgan from 'morgan';
+import cookieParser from 'cookie-parser';
 import { config } from './config';
 import { errorHandler } from './middleware/errorHandler';
 import apiRoutes from './routes/api.routes';
@@ -25,6 +26,7 @@ export function createApp() {
 
   app.use(express.json({ limit: '10mb' }));
   app.use(express.urlencoded({ extended: true, limit: '10mb' }));
+  app.use(cookieParser());
 
   // Mount Primary REST API Router
   app.use('/api', apiRoutes);

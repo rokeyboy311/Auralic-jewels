@@ -72,7 +72,13 @@ router.post('/auth/register', async (req: Request, res: Response) => {
       config.jwtSecret,
       { expiresIn: '7d' }
     );
-
+    res.cookie('aurelia_auth_token', token, {
+      httpOnly: true,
+      secure: config.env === 'production',
+      maxAge: 7 * 24 * 60 * 60 * 1000,
+      sameSite: 'lax',
+      path: '/'
+    });
     return res.status(201).json({
       success: true,
       data: { user, token },
@@ -128,6 +134,13 @@ router.post('/auth/login', async (req: Request, res: Response) => {
     );
 
     delete user.password_hash;
+    res.cookie('aurelia_auth_token', token, {
+      httpOnly: true,
+      secure: config.env === 'production',
+      maxAge: 7 * 24 * 60 * 60 * 1000,
+      sameSite: 'lax',
+      path: '/'
+    });
     return res.json({
       success: true,
       data: { user, token },
@@ -198,7 +211,13 @@ router.post('/auth/google', async (req: Request, res: Response) => {
       config.jwtSecret,
       { expiresIn: '7d' }
     );
-
+    res.cookie('aurelia_auth_token', token, {
+      httpOnly: true,
+      secure: config.env === 'production',
+      maxAge: 7 * 24 * 60 * 60 * 1000,
+      sameSite: 'lax',
+      path: '/'
+    });
     return res.json({
       success: true,
       data: { user, token },
