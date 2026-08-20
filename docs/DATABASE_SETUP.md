@@ -1,6 +1,6 @@
 # Database Setup (PostgreSQL)
 
-Maison Aurelia uses PostgreSQL as the authoritative, production database. 
+Maison Auralic uses PostgreSQL as the authoritative, production database. 
 
 ## Initialization
 
@@ -9,7 +9,7 @@ The schema is defined in `/backend/src/db/schema.sql`.
 To initialize the database locally or in production:
 
 1. Create a new PostgreSQL database.
-2. Obtain the connection string (e.g., \`postgres://postgres:password@localhost:5432/aurelia\`).
+2. Obtain the connection string (e.g., \`postgres://postgres:password@localhost:5432/auralic\`).
 3. Set the \`DATABASE_URL\` environment variable in `/backend/.env`.
 4. Run the schema creation script.
 

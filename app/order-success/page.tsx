@@ -43,7 +43,7 @@ function OrderSuccessContent() {
           Thank You for Your Patronage
         </h1>
         <p className="text-xs sm:text-sm text-[#73685a] max-w-md mx-auto leading-relaxed">
-          Your order has been recorded in the Maison Aurelia archives. Our master gemologists and hallmarking artisans are preparing your creations.
+          Your order has been recorded in the Maison Auralic archives. Our master gemologists and hallmarking artisans are preparing your creations.
         </p>
       </div>
 

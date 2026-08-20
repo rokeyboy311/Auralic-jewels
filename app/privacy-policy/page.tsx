@@ -19,7 +19,7 @@ export default function PrivacyPolicyPage() {
             1. Patron Data Confidentiality
           </h2>
           <p>
-            Maison Aurelia Paris (&quot;Aurelia&quot;, &quot;we&quot;, &quot;our&quot;) is committed to safeguarding the confidentiality and privacy of our global patrons. We collect only information required to fulfill fine jewellery acquisitions, coordinate insured delivery logistics, and provide bespoke concierge consultations.
+            Maison Auralic Paris (&quot;Auralic&quot;, &quot;we&quot;, &quot;our&quot;) is committed to safeguarding the confidentiality and privacy of our global patrons. We collect only information required to fulfill fine jewellery acquisitions, coordinate insured delivery logistics, and provide bespoke concierge consultations.
           </p>
         </section>
 
@@ -28,7 +28,7 @@ export default function PrivacyPolicyPage() {
             2. Payment Information Security
           </h2>
           <p>
-            Payment transactions are processed through PCI-DSS Level 1 certified gateways (Stripe). Maison Aurelia never stores raw credit card numbers or banking passwords on our local servers.
+            Payment transactions are processed through PCI-DSS Level 1 certified gateways (Stripe). Maison Auralic never stores raw credit card numbers or banking passwords on our local servers.
           </p>
         </section>
 

@@ -7,10 +7,10 @@ This document details how to configure third-party services for Google OAuth, St
 ## 1. Google OAuth 2.0 Configuration
 
 1. Open the [Google Cloud Console](https://console.cloud.google.com).
-2. Create or select a project named **Maison Aurelia**.
+2. Create or select a project named **Maison Auralic**.
 3. Under **APIs & Services > OAuth Consent Screen**:
    - Set **User Type** to `External`.
-   - Set **App Name** to `Maison Aurelia Haute Joaillerie`.
+   - Set **App Name** to `Maison Auralic Haute Joaillerie`.
    - Set **User Support Email** to `concierge@auralic-jewels.vercel.app`.
 4. Under **APIs & Services > Credentials > Create Credentials > OAuth 2.0 Client ID**:
    - **Application Type**: `Web application`
@@ -52,7 +52,7 @@ This document details how to configure third-party services for Google OAuth, St
 4. Configure in `backend/.env`:
    ```bash
    RESEND_API_KEY="re_123456789"
-   EMAIL_FROM="Maison Aurelia <concierge@auralic-jewels.vercel.app>"
+   EMAIL_FROM="Maison Auralic <concierge@auralic-jewels.vercel.app>"
    ```
 
 ---

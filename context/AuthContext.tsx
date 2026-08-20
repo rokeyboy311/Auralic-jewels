@@ -23,17 +23,17 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 function subscribeAuth(callback: () => void) {
   if (typeof window === 'undefined') return () => {};
   window.addEventListener('storage', callback);
-  window.addEventListener('aurelia_user_change', callback);
+  window.addEventListener('auralic_user_change', callback);
   return () => {
     window.removeEventListener('storage', callback);
-    window.removeEventListener('aurelia_user_change', callback);
+    window.removeEventListener('auralic_user_change', callback);
   };
 }
 
 function getAuthSnapshot(): string {
   if (typeof window === 'undefined') return '';
   try {
-    return localStorage.getItem('aurelia_user') || '';
+    return localStorage.getItem('auralic_user') || '';
   } catch {
     return '';
   }
@@ -61,12 +61,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     if (typeof window !== 'undefined') {
       try {
         if (u) {
-          localStorage.setItem('aurelia_user', JSON.stringify(u));
+          localStorage.setItem('auralic_user', JSON.stringify(u));
         } else {
-          localStorage.removeItem('aurelia_user');
+          localStorage.removeItem('auralic_user');
           setAuthToken(null);
         }
-        window.dispatchEvent(new Event('aurelia_user_change'));
+        window.dispatchEvent(new Event('auralic_user_change'));
       } catch {
         // ignore write errors
       }
@@ -78,7 +78,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       const res = await loginUser(email, password);
       if (res.success && res.data?.user) {
         setUser(res.data.user);
-        success('Welcome to Maison Aurelia', `Authenticated as ${res.data.user.name}`);
+        success('Welcome to Maison Auralic', `Authenticated as ${res.data.user.name}`);
         return true;
       } else {
         error('Authentication Failed', res.error || 'Invalid credentials');

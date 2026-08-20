@@ -20,13 +20,13 @@ export default function SizeGuidePage() {
     <div className="max-w-4xl mx-auto px-4 sm:px-8 py-12 space-y-10">
       <div className="text-center space-y-3">
         <span className="text-[10px] tracking-[0.35em] text-[#9b7e46] uppercase font-medium">
-          Maison Aurelia Fit & Proportion
+          Maison Auralic Fit & Proportion
         </span>
         <h1 className="font-serif text-3xl sm:text-5xl text-[#141210] uppercase font-light">
           International Ring & Jewellery Size Guide
         </h1>
         <p className="text-xs sm:text-sm text-[#73685a] max-w-lg mx-auto font-light leading-relaxed">
-          Ensure a flawless fit for your fine jewellery acquisition. Maison Aurelia provides one complimentary ring resizing within 90 days of order receipt.
+          Ensure a flawless fit for your fine jewellery acquisition. Maison Auralic provides one complimentary ring resizing within 90 days of order receipt.
         </p>
       </div>
 

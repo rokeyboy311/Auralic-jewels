@@ -15,7 +15,7 @@ export default function Footer() {
     e.preventDefault();
     if (!newsletterEmail.trim()) return;
     setIsSubscribed(true);
-    success('Maison Aurelia Gazette', 'You have been enrolled for private collection previews and salon invitations.');
+    success('Maison Auralic Gazette', 'You have been enrolled for private collection previews and salon invitations.');
     setNewsletterEmail('');
   };
 
@@ -66,7 +66,7 @@ export default function Footer() {
               {brandConfig.name}
             </h3>
             <p className="text-xs sm:text-sm text-white/70 max-w-lg leading-relaxed font-light">
-              Founded at Place Vendôme, Maison Aurelia curates exceptional certified natural diamonds, rare untreated Colombian emeralds, and bespoke 18K/22K gold heirlooms. Each piece is hallmarked with individual serial certification and lifetime authenticity.
+              Founded at Place Vendôme, Maison Auralic curates exceptional certified natural diamonds, rare untreated Colombian emeralds, and bespoke 18K/22K gold heirlooms. Each piece is hallmarked with individual serial certification and lifetime authenticity.
             </p>
           </div>
 

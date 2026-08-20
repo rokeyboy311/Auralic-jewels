@@ -171,7 +171,7 @@ export default function CustomDesignModal({
           <div className="text-center mb-6">
             <div className="inline-flex items-center gap-1.5 text-[10px] tracking-[0.35em] text-[#9b7e46] uppercase font-medium">
               <Sparkles className="w-3.5 h-3.5" />
-              <span>Maison Aurelia Bespoke Atelier</span>
+              <span>Maison Auralic Bespoke Atelier</span>
             </div>
             <h2 className="font-serif text-2xl sm:text-3xl text-[#141210] mt-1 font-light uppercase">
               Custom Jewellery & Design Modifications
@@ -367,7 +367,7 @@ export default function CustomDesignModal({
                         className="w-full bg-white border border-[#c5b49e]/60 px-3 py-2 text-xs text-[#141210] focus:outline-none focus:border-[#9b7e46]"
                       >
                         <option>Classic 4-Claw Cathedral</option>
-                        <option>Iconic 6-Claw Aurelia Crown</option>
+                        <option>Iconic 6-Claw Auralic Crown</option>
                         <option>Modern Full Bezel Protective Mount</option>
                         <option>Hidden Diamond Halo Undermount</option>
                         <option>Vintage Hand-Milgrain Pavé</option>

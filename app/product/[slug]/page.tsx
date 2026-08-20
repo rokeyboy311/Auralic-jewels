@@ -398,7 +398,7 @@ export default function ProductDetailPage({ params }: { params: Promise<{ slug: 
             </div>
 
             <p className="text-[11px] text-[#73685a] text-center">
-              Includes GIA/IGI Gemological Dossier, Lacquered Aurelia Presentation Chest & Travel Pouch.
+              Includes GIA/IGI Gemological Dossier, Lacquered Auralic Presentation Chest & Travel Pouch.
             </p>
           </div>
 
@@ -510,9 +510,9 @@ export default function ProductDetailPage({ params }: { params: Promise<{ slug: 
         {/* Tab 4: Care */}
         {activeTab === 'care' && (
           <div className="space-y-4 text-xs sm:text-sm text-[#4a4237] leading-relaxed max-w-4xl bg-white p-6 border border-[#c5b49e]/30">
-            <p>{product.careInstructions || 'Clean gently with lukewarm water and a soft micro-bristle brush. Store individually in your Aurelia velvet pouch.'}</p>
+            <p>{product.careInstructions || 'Clean gently with lukewarm water and a soft micro-bristle brush. Store individually in your Auralic velvet pouch.'}</p>
             <p>
-              Maison Aurelia provides complimentary lifetime ultrasonic cleaning and annual prong inspection at any of our global boutiques.
+              Maison Auralic provides complimentary lifetime ultrasonic cleaning and annual prong inspection at any of our global boutiques.
             </p>
           </div>
         )}

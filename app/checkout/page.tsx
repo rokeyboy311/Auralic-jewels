@@ -520,7 +520,7 @@ function CheckoutContent() {
 
             {paymentMethod === 'wire' && (
               <div className="p-4 bg-white border border-[#c5b49e]/60 text-xs text-[#4a4237] space-y-2">
-                <p className="font-semibold text-[#141210]">Maison Aurelia Private Client Escrow Account:</p>
+                <p className="font-semibold text-[#141210]">Maison Auralic Private Client Escrow Account:</p>
                 <p>Bank: BNP Paribas Paris Place Vendôme</p>
                 <p>IBAN: FR76 3000 4001 2345 6789 0123 456</p>
                 <p>BIC/SWIFT: BNPAFRPP</p>

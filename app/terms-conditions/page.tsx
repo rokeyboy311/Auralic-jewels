@@ -10,7 +10,7 @@ export default function TermsConditionsPage() {
         <h1 className="font-serif text-3xl sm:text-4xl text-[#141210] uppercase font-light">
           Terms & Conditions of Sale
         </h1>
-        <p className="text-[#73685a]">Maison Aurelia Fine Jewellery International</p>
+        <p className="text-[#73685a]">Maison Auralic Fine Jewellery International</p>
       </div>
 
       <div className="space-y-6 leading-relaxed bg-[#faf8f5] border border-[#c5b49e]/40 p-6 sm:p-10">
@@ -19,7 +19,7 @@ export default function TermsConditionsPage() {
             1. Scope of Terms
           </h2>
           <p>
-            These General Terms and Conditions govern all orders, acquisitions, design modifications, and bespoke commissions placed through the Maison Aurelia website or via our Private Atelier Concierge.
+            These General Terms and Conditions govern all orders, acquisitions, design modifications, and bespoke commissions placed through the Maison Auralic website or via our Private Atelier Concierge.
           </p>
         </section>
 
@@ -28,7 +28,7 @@ export default function TermsConditionsPage() {
             2. Product Authenticity & Gemological Dossiers
           </h2>
           <p>
-            All fine jewellery pieces sold by Maison Aurelia are guaranteed 100% genuine and hallmarked in accordance with French and international assay standards. Solitaire diamonds are accompanied by official GIA or IGI certificates.
+            All fine jewellery pieces sold by Maison Auralic are guaranteed 100% genuine and hallmarked in accordance with French and international assay standards. Solitaire diamonds are accompanied by official GIA or IGI certificates.
           </p>
         </section>
 
@@ -37,7 +37,7 @@ export default function TermsConditionsPage() {
             3. Currency & Pricing Integrity
           </h2>
           <p>
-            Prices are displayed in your chosen currency and re-calculated dynamically at prevailing real-time exchange rates. Maison Aurelia reserves the right to correct manifest typographical or pricing errors before order processing.
+            Prices are displayed in your chosen currency and re-calculated dynamically at prevailing real-time exchange rates. Maison Auralic reserves the right to correct manifest typographical or pricing errors before order processing.
           </p>
         </section>
 

@@ -14,7 +14,7 @@ export default function ShippingPolicyPage() {
           International Insured Shipping Policy
         </h1>
         <p className="text-xs sm:text-sm text-[#73685a] max-w-lg mx-auto font-light leading-relaxed">
-          All Maison Aurelia consignments travel under 100% armored insurance via Ferrari Group, Malca-Amit, or FedEx Valuables with mandatory adult signature verification.
+          All Maison Auralic consignments travel under 100% armored insurance via Ferrari Group, Malca-Amit, or FedEx Valuables with mandatory adult signature verification.
         </p>
       </div>
 
@@ -51,7 +51,7 @@ export default function ShippingPolicyPage() {
             4. White-Glove Private Residence Delivery
           </h2>
           <p className="leading-relaxed">
-            For acquisitions exceeding $50,000 USD, Maison Aurelia offers private courier handover by an armed, uniformed security officer directly to your residence, private bank vault, or hotel suite.
+            For acquisitions exceeding $50,000 USD, Maison Auralic offers private courier handover by an armed, uniformed security officer directly to your residence, private bank vault, or hotel suite.
           </p>
         </div>
       </div>

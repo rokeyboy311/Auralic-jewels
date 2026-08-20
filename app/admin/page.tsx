@@ -137,7 +137,7 @@ export default function AdminDashboardPage() {
     try {
       const res = await sendConversationMessage(selectedConversation.id, {
         senderId: user?.id || 'usr-admin-01',
-        senderName: user?.name || 'Maison Aurelia Atelier Director',
+        senderName: user?.name || 'Maison Auralic Atelier Director',
         senderRole: 'master_jeweller',
         content: adminReplyText.trim(),
         isInternalNote,
@@ -237,7 +237,7 @@ export default function AdminDashboardPage() {
         name: prodName,
         slug,
         sku: `AUR-JW-${Date.now().toString().slice(-4)}`,
-        brand: 'Maison Aurelia',
+        brand: 'Maison Auralic',
         category: prodCategory as any,
         collection: 'Solitaire Masterpieces',
         gender: 'Women' as const,
@@ -324,7 +324,7 @@ export default function AdminDashboardPage() {
         </div>
         <h1 className="font-serif text-3xl text-[#141210]">Atelier Administration Portal</h1>
         <p className="text-xs text-[#73685a] leading-relaxed">
-          Access is strictly restricted to Maison Aurelia Gemologists, Directors, and Logistics Coordinators.
+          Access is strictly restricted to Maison Auralic Gemologists, Directors, and Logistics Coordinators.
         </p>
         <button
           onClick={handleAdminAuth}

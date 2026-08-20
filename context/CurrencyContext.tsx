@@ -20,17 +20,17 @@ const DEFAULT_CURRENCY: CurrencyCode = 'USD';
 function subscribeCurrency(callback: () => void) {
   if (typeof window === 'undefined') return () => {};
   window.addEventListener('storage', callback);
-  window.addEventListener('aurelia_currency_change', callback);
+  window.addEventListener('auralic_currency_change', callback);
   return () => {
     window.removeEventListener('storage', callback);
-    window.removeEventListener('aurelia_currency_change', callback);
+    window.removeEventListener('auralic_currency_change', callback);
   };
 }
 
 function getCurrencySnapshot(): CurrencyCode {
   if (typeof window === 'undefined') return DEFAULT_CURRENCY;
   try {
-    const saved = localStorage.getItem('aurelia_currency') as CurrencyCode;
+    const saved = localStorage.getItem('auralic_currency') as CurrencyCode;
     if (saved && brandConfig.currencies.some((c) => c.code === saved)) {
       return saved;
     }
@@ -54,8 +54,8 @@ export function CurrencyProvider({ children }: { children: React.ReactNode }) {
   const handleSetCurrency = (code: CurrencyCode) => {
     if (typeof window !== 'undefined') {
       try {
-        localStorage.setItem('aurelia_currency', code);
-        window.dispatchEvent(new Event('aurelia_currency_change'));
+        localStorage.setItem('auralic_currency', code);
+        window.dispatchEvent(new Event('auralic_currency_change'));
       } catch {
         // ignore write errors
       }

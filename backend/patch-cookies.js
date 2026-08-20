@@ -2,7 +2,7 @@ const fs = require('fs');
 
 let content = fs.readFileSync('src/routes/api.routes.ts', 'utf8');
 
-const cookieStr = `    res.cookie('aurelia_auth_token', token, {
+const cookieStr = `    res.cookie('auralic_auth_token', token, {
       httpOnly: true,
       secure: config.env === 'production',
       maxAge: 7 * 24 * 60 * 60 * 1000,

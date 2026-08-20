@@ -18,7 +18,7 @@ export interface AuthenticatedRequest extends Request {
  */
 export function requireAuth(req: AuthenticatedRequest, res: Response, next: NextFunction) {
   const authHeader = req.headers.authorization;
-  const cookieToken = (req as any).cookies?.aurelia_auth_token;
+  const cookieToken = (req as any).cookies?.auralic_auth_token;
 
   let token = cookieToken;
   if (authHeader && authHeader.startsWith('Bearer ')) {
@@ -43,7 +43,7 @@ export function requireAuth(req: AuthenticatedRequest, res: Response, next: Next
  */
 export function optionalAuth(req: AuthenticatedRequest, res: Response, next: NextFunction) {
   const authHeader = req.headers.authorization;
-  const cookieToken = (req as any).cookies?.aurelia_auth_token;
+  const cookieToken = (req as any).cookies?.auralic_auth_token;
   
   let token = cookieToken;
   if (authHeader && authHeader.startsWith('Bearer ')) {

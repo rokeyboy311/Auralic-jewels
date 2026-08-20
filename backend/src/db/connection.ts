@@ -7,7 +7,7 @@ export function getDbPool(): Pool | null {
   if (pool) return pool;
 
   if (!config.databaseUrl) {
-    console.warn('[Aurelia Database] DATABASE_URL not set. Running in development memory-fallback mode.');
+    console.warn('[Auralic Database] DATABASE_URL not set. Running in development memory-fallback mode.');
     return null;
   }
 
@@ -21,12 +21,12 @@ export function getDbPool(): Pool | null {
     });
 
     pool.on('error', (err) => {
-      console.error('[Aurelia Database] Unexpected error on idle PostgreSQL client', err);
+      console.error('[Auralic Database] Unexpected error on idle PostgreSQL client', err);
     });
 
     return pool;
   } catch (err) {
-    console.error('[Aurelia Database] Failed to initialize PostgreSQL pool', err);
+    console.error('[Auralic Database] Failed to initialize PostgreSQL pool', err);
     return null;
   }
 }
@@ -38,7 +38,7 @@ export async function checkDbHealth(): Promise<boolean> {
     const res = await p.query('SELECT 1');
     return (res.rowCount ?? 0) > 0;
   } catch (err) {
-    console.error('[Aurelia Database] Health check query failed', err);
+    console.error('[Auralic Database] Health check query failed', err);
     return false;
   }
 }

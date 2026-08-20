@@ -1,7 +1,7 @@
-# MAISON AURELIA — MASTER ARCHITECTURE DOCUMENTATION
+# MAISON AURALIC — MASTER ARCHITECTURE DOCUMENTATION
 
 ## 1. Executive Summary
-Maison Aurelia is a modern, modular, production-ready International Haute Joaillerie E-Commerce platform.
+Maison Auralic is a modern, modular, production-ready International Haute Joaillerie E-Commerce platform.
 The architecture is strictly divided into three primary standalone pillars:
 
 1. **Frontend (`/` or `/frontend`)** — Next.js 15+ App Router, React 19, TypeScript, Tailwind CSS v4, Framer Motion. Engineered for deployment on **Vercel**.

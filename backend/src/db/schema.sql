@@ -1,5 +1,5 @@
 -- ==========================================================
--- MAISON AURELIA / AURALIC JEWELS — POSTGRESQL PRODUCTION DDL
+-- MAISON AURALIC / AURALIC JEWELS — POSTGRESQL PRODUCTION DDL
 -- Compatible with Neon PostgreSQL, AWS RDS, Supabase, Google Cloud SQL
 -- ==========================================================
 

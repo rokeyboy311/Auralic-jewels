@@ -1,6 +1,6 @@
 # Production Readiness Audit & Implementation
 
-This document covers the steps executed to transition Maison Aurelia from a mock-driven prototype to a fully decoupled, secure, production-ready e-commerce platform.
+This document covers the steps executed to transition Maison Auralic from a mock-driven prototype to a fully decoupled, secure, production-ready e-commerce platform.
 
 ## Architecture
 

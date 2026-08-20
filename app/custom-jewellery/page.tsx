@@ -381,7 +381,7 @@ export default function CustomJewelleryPage() {
                         className="w-full bg-white border border-[#c5b49e]/60 px-3 py-2.5 text-xs text-[#141210] focus:outline-none focus:border-[#9b7e46]"
                       >
                         <option>Classic 4-Claw Cathedral</option>
-                        <option>Iconic 6-Claw Aurelia Crown</option>
+                        <option>Iconic 6-Claw Auralic Crown</option>
                         <option>Protective Full Bezel Mount</option>
                         <option>Hidden Diamond Halo Undermount</option>
                         <option>Vintage Hand-Milgrain Pavé</option>

@@ -38,12 +38,12 @@ export interface BrandConfig {
 }
 
 export const brandConfig: BrandConfig = {
-  name: 'AURELIA FINE JEWELLERY',
-  shortName: 'AURELIA',
+  name: 'AURALIC FINE JEWELLERY',
+  shortName: 'AURALIC',
   tagline: 'Haute Joaillerie & High Fine Jewellery',
   subTagline: 'Handcrafted heirlooms, certified conflict-free diamonds, and timeless bespoke gold artistry.',
   foundedYear: 1988,
-  founder: 'Maison Aurelia Artisans',
+  founder: 'Maison Auralic Artisans',
   headquarters: '12 Place Vendôme, 75001 Paris, France',
   supportEmail: 'care@auralic-jewels.vercel.app',
   conciergeEmail: 'concierge@auralic-jewels.vercel.app',
@@ -51,10 +51,10 @@ export const brandConfig: BrandConfig = {
   phone: '+1 (800) 842-8930',
   conciergeWhatsApp: '+33 1 42 68 00 00',
   socials: {
-    instagram: 'https://instagram.com/aurelia.finejewellery',
-    pinterest: 'https://pinterest.com/aureliajewels',
-    facebook: 'https://facebook.com/aureliajewels',
-    youtube: 'https://youtube.com/aureliajewellery',
+    instagram: 'https://instagram.com/auralic.finejewellery',
+    pinterest: 'https://pinterest.com/auralicjewels',
+    facebook: 'https://facebook.com/auralicjewels',
+    youtube: 'https://youtube.com/auralicjewellery',
   },
   boutiques: [
     {

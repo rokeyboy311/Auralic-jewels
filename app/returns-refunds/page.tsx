@@ -13,7 +13,7 @@ export default function ReturnsRefundsPage() {
           30-Day Privilege Returns & Exchanges
         </h1>
         <p className="text-xs sm:text-sm text-[#73685a] max-w-lg mx-auto font-light leading-relaxed">
-          Maison Aurelia provides 30-day complimentary insured return pickup for all non-custom catalog pieces in their pristine, unworn condition with security tags intact.
+          Maison Auralic provides 30-day complimentary insured return pickup for all non-custom catalog pieces in their pristine, unworn condition with security tags intact.
         </p>
       </div>
 

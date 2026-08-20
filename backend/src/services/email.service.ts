@@ -13,7 +13,7 @@ export class EmailService {
    */
   static async sendEmail(payload: EmailPayload): Promise<{ success: boolean; messageId?: string; error?: string }> {
     if (!config.resend.apiKey) {
-      console.log(`[Aurelia Email Service (Dev Fallback)] To: ${payload.to} | Subject: "${payload.subject}"`);
+      console.log(`[Auralic Email Service (Dev Fallback)] To: ${payload.to} | Subject: "${payload.subject}"`);
       return { success: true, messageId: `mock-email-${Date.now()}` };
     }
 
@@ -39,7 +39,7 @@ export class EmailService {
 
       return { success: true, messageId: data.id };
     } catch (err: any) {
-      console.error('[Aurelia Email Service] Delivery error:', err.message);
+      console.error('[Auralic Email Service] Delivery error:', err.message);
       return { success: false, error: err.message };
     }
   }
@@ -48,7 +48,7 @@ export class EmailService {
     const html = `
       <div style="font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; max-width: 600px; margin: 0 auto; color: #1a1a1a; background: #faf8f5; padding: 40px 24px;">
         <div style="text-align: center; margin-bottom: 30px;">
-          <h1 style="letter-spacing: 3px; font-size: 24px; font-weight: 400; text-transform: uppercase; margin: 0;">AURELIA</h1>
+          <h1 style="letter-spacing: 3px; font-size: 24px; font-weight: 400; text-transform: uppercase; margin: 0;">AURALIC</h1>
           <p style="font-size: 11px; letter-spacing: 2px; color: #9b7e46; text-transform: uppercase; margin-top: 6px;">Haute Joaillerie Paris</p>
         </div>
         <div style="background: #ffffff; padding: 32px; border: 1px solid #e8e2d9; border-radius: 4px;">
@@ -80,7 +80,7 @@ export class EmailService {
 
     await this.sendEmail({
       to: order.customerEmail,
-      subject: `Acquisition Confirmation — Order ${order.orderNumber} | Maison Aurelia`,
+      subject: `Acquisition Confirmation — Order ${order.orderNumber} | Maison Auralic`,
       html,
     });
   }

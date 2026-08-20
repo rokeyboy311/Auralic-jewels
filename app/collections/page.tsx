@@ -32,7 +32,7 @@ export default function CollectionsPage() {
           Haute Joaillerie Collections
         </h1>
         <p className="text-xs sm:text-sm text-[#73685a] font-light">
-          Each Aurelia collection explores a dedicated gemological discipline, from exceptional GIA certified solitaires to hand-carved 22K heritage gold.
+          Each Auralic collection explores a dedicated gemological discipline, from exceptional GIA certified solitaires to hand-carved 22K heritage gold.
         </p>
       </div>
 

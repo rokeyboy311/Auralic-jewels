@@ -18,17 +18,17 @@ const WishlistContext = createContext<WishlistContextType | undefined>(undefined
 function subscribeWishlist(callback: () => void) {
   if (typeof window === 'undefined') return () => {};
   window.addEventListener('storage', callback);
-  window.addEventListener('aurelia_wishlist_change', callback);
+  window.addEventListener('auralic_wishlist_change', callback);
   return () => {
     window.removeEventListener('storage', callback);
-    window.removeEventListener('aurelia_wishlist_change', callback);
+    window.removeEventListener('auralic_wishlist_change', callback);
   };
 }
 
 function getWishlistSnapshot(): string {
   if (typeof window === 'undefined') return '[]';
   try {
-    return localStorage.getItem('aurelia_wishlist') || '[]';
+    return localStorage.getItem('auralic_wishlist') || '[]';
   } catch {
     return '[]';
   }
@@ -54,8 +54,8 @@ export function WishlistProvider({ children }: { children: React.ReactNode }) {
   const saveWishlist = (items: Product[]) => {
     if (typeof window !== 'undefined') {
       try {
-        localStorage.setItem('aurelia_wishlist', JSON.stringify(items));
-        window.dispatchEvent(new Event('aurelia_wishlist_change'));
+        localStorage.setItem('auralic_wishlist', JSON.stringify(items));
+        window.dispatchEvent(new Event('auralic_wishlist_change'));
       } catch {
         // ignore write error
       }

@@ -36,7 +36,7 @@ export interface ProductQueryParams {
 export function getAuthToken(): string | null {
   if (typeof window === 'undefined') return null;
   try {
-    return localStorage.getItem('aurelia_jwt_token');
+    return localStorage.getItem('auralic_jwt_token');
   } catch {
     return null;
   }
@@ -46,9 +46,9 @@ export function setAuthToken(token: string | null) {
   if (typeof window === 'undefined') return;
   try {
     if (token) {
-      localStorage.setItem('aurelia_jwt_token', token);
+      localStorage.setItem('auralic_jwt_token', token);
     } else {
-      localStorage.removeItem('aurelia_jwt_token');
+      localStorage.removeItem('auralic_jwt_token');
     }
   } catch {
     // ignore write errors

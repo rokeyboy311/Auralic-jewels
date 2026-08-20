@@ -23,7 +23,7 @@ export default function ContactPage() {
     <div className="max-w-7xl mx-auto px-4 sm:px-8 py-12 space-y-16">
       <div className="text-center space-y-3 max-w-2xl mx-auto">
         <span className="text-[10px] tracking-[0.35em] text-[#9b7e46] uppercase font-medium">
-          Maison Aurelia Private Concierge
+          Maison Auralic Private Concierge
         </span>
         <h1 className="font-serif text-3xl sm:text-5xl text-[#141210] uppercase font-light">
           Contact Our Master Gemologists
@@ -99,7 +99,7 @@ export default function ContactPage() {
               </div>
               <h3 className="font-serif text-xl text-[#141210]">Inquiry Entrusted to Atelier</h3>
               <p className="text-xs text-[#73685a] max-w-sm mx-auto">
-                Thank you for contacting Maison Aurelia. Our senior gemological team will review your message and reply promptly.
+                Thank you for contacting Maison Auralic. Our senior gemological team will review your message and reply promptly.
               </p>
             </div>
           ) : (

@@ -22,7 +22,7 @@ router.get('/health', (req: Request, res: Response) => {
   const pool = getDbPool();
   res.json({
     status: 'healthy',
-    service: 'Auralic Jewels / Maison Aurelia High Jewellery REST API',
+    service: 'Auralic Jewels / Maison Auralic High Jewellery REST API',
     uptime: process.uptime(),
     databaseConnected: !!pool,
     timestamp: new Date().toISOString(),
@@ -72,7 +72,7 @@ router.post('/auth/register', async (req: Request, res: Response) => {
       config.jwtSecret,
       { expiresIn: '7d' }
     );
-    res.cookie('aurelia_auth_token', token, {
+    res.cookie('auralic_auth_token', token, {
       httpOnly: true,
       secure: config.env === 'production',
       maxAge: 7 * 24 * 60 * 60 * 1000,
@@ -134,7 +134,7 @@ router.post('/auth/login', async (req: Request, res: Response) => {
     );
 
     delete user.password_hash;
-    res.cookie('aurelia_auth_token', token, {
+    res.cookie('auralic_auth_token', token, {
       httpOnly: true,
       secure: config.env === 'production',
       maxAge: 7 * 24 * 60 * 60 * 1000,
@@ -178,7 +178,7 @@ router.post('/auth/google', async (req: Request, res: Response) => {
           verifiedGoogleId = payload.sub;
         }
       } catch (err) {
-        console.warn('[Aurelia Auth] Google token verification fallback used.');
+        console.warn('[Auralic Auth] Google token verification fallback used.');
       }
     }
 
@@ -211,7 +211,7 @@ router.post('/auth/google', async (req: Request, res: Response) => {
       config.jwtSecret,
       { expiresIn: '7d' }
     );
-    res.cookie('aurelia_auth_token', token, {
+    res.cookie('auralic_auth_token', token, {
       httpOnly: true,
       secure: config.env === 'production',
       maxAge: 7 * 24 * 60 * 60 * 1000,
@@ -640,7 +640,7 @@ router.post('/orders', optionalAuth, async (req: AuthenticatedRequest, res: Resp
 
     // Send transactional confirmation email asynchronously
     EmailService.sendOrderConfirmation(createdOrder).catch((err) => {
-      console.warn('[Aurelia Order] Email dispatch error:', err.message);
+      console.warn('[Auralic Order] Email dispatch error:', err.message);
     });
 
     return res.status(201).json({
@@ -801,7 +801,7 @@ router.post('/bespoke', optionalAuth, async (req: AuthenticatedRequest, res: Res
         ]
       );
     } catch (err: any) {
-      console.warn('[Aurelia Bespoke] DB persistence error:', err.message);
+      console.warn('[Auralic Bespoke] DB persistence error:', err.message);
     }
   }
 
@@ -820,7 +820,7 @@ router.post('/bespoke', optionalAuth, async (req: AuthenticatedRequest, res: Res
       <p><strong>Aesthetic Description:</strong></p>
       <blockquote style="background: #faf8f5; padding: 16px; border-left: 3px solid #9b7e46;">${designDescription}</blockquote>
     `,
-  }).catch((err: any) => console.warn('[Aurelia Bespoke] Email error:', err.message));
+  }).catch((err: any) => console.warn('[Auralic Bespoke] Email error:', err.message));
 
   return res.status(201).json({
     success: true,

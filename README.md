@@ -1,4 +1,4 @@
-# MAISON AURELIA — INTERNATIONAL LUXURY FINE JEWELLERY E-COMMERCE
+# MAISON AURALIC — INTERNATIONAL LUXURY FINE JEWELLERY E-COMMERCE
 
 > **Maison de Haute Joaillerie & High Gemology**  
 > Certified Conflict-Free Natural Diamonds • 18K/22K Solid Gold • Colombian Emeralds & Ceylon Sapphires • Worldwide Armored Valuables Courier • Live Atelier Concierge Chat & Bespoke Commissions
@@ -29,11 +29,11 @@
 
 ## 1. Project Overview & Architecture
 
-Maison Aurelia is engineered with a strict **two-tier full-stack architecture** designed for independent scalability, high availability, and zero-downtime deployment:
+Maison Auralic is engineered with a strict **two-tier full-stack architecture** designed for independent scalability, high availability, and zero-downtime deployment:
 
 ```
 ┌────────────────────────────────────────────────────────┐
-│               MAISON AURELIA ARCHITECTURE              │
+│               MAISON AURALIC ARCHITECTURE              │
 ├──────────────────────────┬─────────────────────────────┤
 │   FRONTEND (Vercel)      │   BACKEND (Render)          │
 │   Next.js 15+ App Router │   Express + TypeScript REST │
@@ -190,7 +190,7 @@ STRIPE_WEBHOOK_SECRET="whsec_..."
 
 # Resend Transactional Email
 RESEND_API_KEY="re_..."
-EMAIL_FROM="Maison Aurelia <concierge@auralic-jewels.vercel.app>"
+EMAIL_FROM="Maison Auralic <concierge@auralic-jewels.vercel.app>"
 
 # Cloudinary Media Storage
 CLOUDINARY_CLOUD_NAME="your-cloud-name"
@@ -204,8 +204,8 @@ CLOUDINARY_API_SECRET="your-cloudinary-secret"
 
 ### Step 1: Clone the Repository
 ```bash
-git clone https://github.com/your-username/maison-aurelia-jewellery.git
-cd maison-aurelia-jewellery
+git clone https://github.com/your-username/maison-auralic-jewellery.git
+cd maison-auralic-jewellery
 ```
 
 ### Step 2: Set Up & Run Frontend
@@ -241,11 +241,11 @@ The REST API will be available at [http://localhost:5000](http://localhost:5000)
 
 ## 5. Database Setup & Migration (Neon PostgreSQL)
 
-Maison Aurelia is optimized for **Neon Serverless PostgreSQL**.
+Maison Auralic is optimized for **Neon Serverless PostgreSQL**.
 
 ### Step 1: Create a Neon Project
 1. Log in to [Neon Console](https://console.neon.tech).
-2. Click **Create Project**, name it `maison-aurelia-db`, and choose your nearest region.
+2. Click **Create Project**, name it `maison-auralic-db`, and choose your nearest region.
 3. In the project dashboard, copy the **Connection String** (Pooled connection mode recommended).
 
 ### Step 2: Run Database Schema Migrations
@@ -287,7 +287,7 @@ The Next.js frontend is structured for deployment on **Vercel**:
 ### Option A: Deploy via Vercel Dashboard (Recommended)
 1. Push your repository to GitHub / GitLab.
 2. Go to [Vercel Dashboard](https://vercel.com/dashboard) and click **Add New > Project**.
-3. Import your `maison-aurelia-jewellery` repository.
+3. Import your `maison-auralic-jewellery` repository.
 4. Keep the **Root Directory** as `./` (Root).
 5. In **Environment Variables**, add:
    - `NEXT_PUBLIC_API_URL`: `https://your-backend-api.onrender.com`
@@ -331,7 +331,7 @@ The Express backend can be deployed to **Render** using a Web Service:
    - **Health Check Path**: `/api/health`
 4. Add the Environment Variables listed in Section 3.
 5. Click **Create Web Service**.
-6. Copy your Render service URL (e.g. `https://maison-aurelia-api.onrender.com`) and paste it as `NEXT_PUBLIC_API_URL` on your Vercel frontend.
+6. Copy your Render service URL (e.g. `https://maison-auralic-api.onrender.com`) and paste it as `NEXT_PUBLIC_API_URL` on your Vercel frontend.
 
 ---
 
@@ -340,10 +340,10 @@ The Express backend can be deployed to **Render** using a Web Service:
 ### Google OAuth 2.0 Setup
 
 1. Open [Google Cloud Console](https://console.cloud.google.com).
-2. Create a new project named **Maison Aurelia**.
+2. Create a new project named **Maison Auralic**.
 3. Navigate to **APIs & Services > OAuth Consent Screen**:
    - User Type: **External**
-   - App Name: `Maison Aurelia`
+   - App Name: `Maison Auralic`
    - User Support Email: `concierge@auralic-jewels.vercel.app`
 4. Navigate to **Credentials > Create Credentials > OAuth 2.0 Client ID**:
    - Application Type: **Web application**
@@ -377,7 +377,7 @@ The Express backend can be deployed to **Render** using a Web Service:
 2. Go to **Domains > Add Domain** (e.g., `auralic-jewels.vercel.app`).
 3. Add the required DNS records (DKIM, SPF, MX) to your domain registrar.
 4. Generate an API Key under **API Keys** with *Full Access*.
-5. Set `RESEND_API_KEY` and `EMAIL_FROM="Maison Aurelia <concierge@auralic-jewels.vercel.app>"`.
+5. Set `RESEND_API_KEY` and `EMAIL_FROM="Maison Auralic <concierge@auralic-jewels.vercel.app>"`.
 
 ---
 
@@ -491,12 +491,12 @@ npm run build
 
 ---
 
-© 2026 Maison Aurelia Paris. All Rights Reserved.  
+© 2026 Maison Auralic Paris. All Rights Reserved.  
 *Haute Joaillerie, Fine Gemology & High Horology.*
 
 ## Production Documentation
 
-We have prepared comprehensive documentation for deploying and running Maison Aurelia in a production environment:
+We have prepared comprehensive documentation for deploying and running Maison Auralic in a production environment:
 
 * [Production Setup & Architecture](docs/PRODUCTION_SETUP.md)
 * [Database Initialization](docs/DATABASE_SETUP.md)

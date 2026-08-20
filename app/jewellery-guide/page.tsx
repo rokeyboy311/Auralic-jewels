@@ -7,7 +7,7 @@ export default function JewelleryGuidePage() {
     <div className="max-w-5xl mx-auto px-4 sm:px-8 py-12 space-y-12">
       <div className="text-center space-y-3">
         <span className="text-[10px] tracking-[0.35em] text-[#9b7e46] uppercase font-medium">
-          Maison Aurelia Gemological Dossier
+          Maison Auralic Gemological Dossier
         </span>
         <h1 className="font-serif text-3xl sm:text-5xl text-[#141210] uppercase font-light">
           The Fine Jewellery Connoisseur&apos;s Guide
@@ -28,7 +28,7 @@ export default function JewelleryGuidePage() {
           <div className="space-y-1.5">
             <h3 className="font-serif text-base text-[#141210] font-medium">1. Cut (Proportions & Brilliance)</h3>
             <p className="leading-relaxed">
-              The cut dictates how light refracts within the diamond facets. Maison Aurelia exclusively selects &apos;Excellent&apos; and &apos;Ideal&apos; cuts to deliver unparalleled brilliance and rainbow fire.
+              The cut dictates how light refracts within the diamond facets. Maison Auralic exclusively selects &apos;Excellent&apos; and &apos;Ideal&apos; cuts to deliver unparalleled brilliance and rainbow fire.
             </p>
           </div>
 

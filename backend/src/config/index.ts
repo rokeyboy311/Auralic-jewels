@@ -9,7 +9,7 @@ export const config = {
 
   databaseUrl: process.env.DATABASE_URL || '',
 
-  jwtSecret: process.env.JWT_SECRET || 'aurelia_default_development_secret_32_bytes_min',
+  jwtSecret: process.env.JWT_SECRET || 'auralic_default_development_secret_32_bytes_min',
   jwtExpiresIn: process.env.JWT_EXPIRES_IN || '7d',
 
   google: {
@@ -26,7 +26,7 @@ export const config = {
 
   resend: {
     apiKey: process.env.RESEND_API_KEY || '',
-    emailFrom: process.env.EMAIL_FROM || 'Maison Aurelia <concierge@auralic-jewels.vercel.app>',
+    emailFrom: process.env.EMAIL_FROM || 'Maison Auralic <concierge@auralic-jewels.vercel.app>',
     adminEmail: process.env.ADMIN_EMAIL || 'admin@auralic-jewels.vercel.app',
   },
 
