@@ -19,7 +19,7 @@ import {
   Award,
   RefreshCw,
 } from 'lucide-react';
-import api from '@/lib/api';
+import * as api from '@/lib/api';
 import { Product } from '@/lib/types';
 import { brandConfig } from '@/lib/brandConfig';
 import { useToast } from '@/context/ToastContext';
@@ -36,7 +36,7 @@ export default function CustomJewelleryPage() {
   useEffect(() => {
     const fetchProducts = async () => {
       try {
-        const res = await api.get('/products?limit=12');
+        const res = await api.getProducts();
         if (res.success && res.data) {
           setProducts(res.data);
           if (res.data.length > 0) setSelectedProductId(res.data[0].id);
@@ -102,9 +102,9 @@ export default function CustomJewelleryPage() {
         referenceImageUrl: scratchImages[0] || (selectedProduct?.images?.[0]?.url || ''),
       };
       
-      const res = await api.post('/bespoke', payload);
+      const res = await api.submitBespokeInquiry(payload as any);
       
-      if (res.success) {
+      if (res.success && res.data) {
         setSubmittedRef(res.data.referenceNumber);
         setIsSubmitted(true);
         if (activeTab === 'modify') {
@@ -232,7 +232,7 @@ export default function CustomJewelleryPage() {
               {activeTab === 'modify' && (
                 <div className="flex justify-between text-[#73685a]">
                   <span>Selected Creation:</span>
-                  <span className="font-medium text-[#141210]">{selectedProduct.name}</span>
+                  <span className="font-medium text-[#141210]">{selectedProduct?.name}</span>
                 </div>
               )}
               <div className="flex justify-between text-[#73685a]">
@@ -721,7 +721,7 @@ export default function CustomJewelleryPage() {
                 <Sparkles className="w-4 h-4 text-[#d4af37]" />
                 <span>
                   {activeTab === 'modify'
-                    ? `Submit Customization Request for ${selectedProduct.name}`
+                    ? `Submit Customization Request for ${selectedProduct?.name}`
                     : activeTab === 'new'
                     ? 'Submit Bespoke Design Brief'
                     : 'Schedule Master Jeweller Consultation'}

@@ -52,8 +52,8 @@ function CheckoutContent() {
   // Patron Contact & Address Form
   const [email, setEmail] = useState(user?.email || '');
   const [phone, setPhone] = useState(user?.phone || '');
-  const [firstName, setFirstName] = useState(user?.name.split(' ')[0] || '');
-  const [lastName, setLastName] = useState(user?.name.split(' ').slice(1).join(' ') || '');
+  const [firstName, setFirstName] = useState((user?.name || '').split(' ')[0] || '');
+  const [lastName, setLastName] = useState((user?.name || '').split(' ').slice(1).join(' ') || '');
   const [addressLine1, setAddressLine1] = useState('');
   const [addressLine2, setAddressLine2] = useState('');
   const [city, setCity] = useState('');

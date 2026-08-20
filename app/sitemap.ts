@@ -1,5 +1,5 @@
 import { MetadataRoute } from 'next';
-import api from '@/lib/api';
+import * as api from '@/lib/api';
 import { Product } from '@/lib/types';
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
@@ -29,7 +29,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 
   let productRoutes: any[] = [];
   try {
-    const res = await api.get('/products?limit=100');
+    const res = await api.getProducts({ limit: 100 });
     if (res.success && res.data) {
       productRoutes = (res.data as Product[]).map((p) => ({
         url: `${baseUrl}/product/${p.slug}`,

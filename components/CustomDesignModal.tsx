@@ -18,7 +18,7 @@ import {
 } from 'lucide-react';
 import { brandConfig } from '@/lib/brandConfig';
 import { useToast } from '@/context/ToastContext';
-import api from '@/lib/api';
+import * as api from '@/lib/api';
 import { Product } from '@/lib/types';
 import ImageUploader from '@/components/ImageUploader';
 
@@ -43,7 +43,7 @@ export default function CustomDesignModal({
   useEffect(() => {
     const fetchProducts = async () => {
       try {
-        const res = await api.get('/products?limit=24');
+        const res = await api.getProducts();
         if (res.success && res.data) {
           setProducts(res.data);
           if (!selectedProduct && res.data.length > 0) {
@@ -116,9 +116,9 @@ export default function CustomDesignModal({
         referenceImageUrl: scratchImages[0] || (selectedProduct?.images?.[0]?.url || ''),
       };
       
-      const res = await api.post('/bespoke', payload);
+      const res = await api.submitBespokeInquiry(payload as any);
       
-      if (res.success) {
+      if (res.success && res.data) {
         setReferenceId(res.data.referenceNumber);
         setIsSubmitted(true);
         if (activeTab === 'modify') {
@@ -248,7 +248,7 @@ export default function CustomDesignModal({
                 {activeTab === 'modify' && selectedProduct && (
                   <div className="flex justify-between text-[#73685a]">
                     <span>Base Piece:</span>
-                    <span className="font-medium text-[#141210] truncate max-w-[180px]">{selectedProduct.name}</span>
+                    <span className="font-medium text-[#141210] truncate max-w-[180px]">{selectedProduct?.name}</span>
                   </div>
                 )}
                 <div className="flex justify-between text-[#73685a]">
@@ -298,10 +298,10 @@ export default function CustomDesignModal({
                   {selectedProduct && (
                     <div className="p-3 bg-[#f2ece2] border border-[#c5b49e]/40 flex items-center gap-3">
                       <div className="relative w-12 h-12 bg-white shrink-0 overflow-hidden border border-[#c5b49e]/30">
-                        {selectedProduct.images[0] && (
+                        {selectedProduct?.images[0] && (
                           <Image
-                            src={selectedProduct.images[0].url}
-                            alt={selectedProduct.name}
+                            src={selectedProduct?.images[0].url}
+                            alt={selectedProduct?.name}
                             fill
                             className="object-cover"
                             referrerPolicy="no-referrer"
@@ -310,7 +310,7 @@ export default function CustomDesignModal({
                       </div>
                       <div className="text-xs space-y-0.5 flex-1 min-w-0">
                         <div className="font-serif font-medium text-[#141210] truncate">
-                          {selectedProduct.name}
+                          {selectedProduct?.name}
                         </div>
                         <div className="text-[11px] text-[#73685a] truncate">
                           Original: {selectedProduct.purity} {selectedProduct.metalType} • {selectedProduct.stoneType}
