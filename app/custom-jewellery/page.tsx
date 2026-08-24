@@ -393,10 +393,12 @@ export default function CustomJewelleryPage() {
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                     {/* Custom Sizing */}
                     <div>
-                      <label className="block text-[11px] uppercase tracking-wider text-[#4a4237] font-medium mb-1">
+                      <label htmlFor="custom-page-size-input" className="block text-[11px] uppercase tracking-wider text-[#4a4237] font-medium mb-1">
                         Custom Size / Dimensions
                       </label>
                       <input
+                        id="custom-page-size-input"
+                        name="customSize"
                         type="text"
                         value={customSize}
                         onChange={(e) => setCustomSize(e.target.value)}
@@ -407,10 +409,12 @@ export default function CustomJewelleryPage() {
 
                     {/* Surface Finish */}
                     <div>
-                      <label className="block text-[11px] uppercase tracking-wider text-[#4a4237] font-medium mb-1">
+                      <label htmlFor="custom-page-finish-select" className="block text-[11px] uppercase tracking-wider text-[#4a4237] font-medium mb-1">
                         Metal Surface Finish
                       </label>
                       <select
+                        id="custom-page-finish-select"
+                        name="surfaceFinish"
                         value={surfaceFinish}
                         onChange={(e) => setSurfaceFinish(e.target.value)}
                         className="w-full bg-white border border-[#c5b49e]/60 px-3 py-2.5 text-xs text-[#141210] focus:outline-none focus:border-[#9b7e46]"
@@ -424,10 +428,12 @@ export default function CustomJewelleryPage() {
 
                     {/* Laser Engraving */}
                     <div>
-                      <label className="block text-[11px] uppercase tracking-wider text-[#4a4237] font-medium mb-1">
+                      <label htmlFor="custom-page-engraving-input" className="block text-[11px] uppercase tracking-wider text-[#4a4237] font-medium mb-1">
                         Laser Engraving (Complimentary)
                       </label>
                       <input
+                        id="custom-page-engraving-input"
+                        name="customEngraving"
                         type="text"
                         maxLength={35}
                         value={customEngraving}
@@ -562,10 +568,12 @@ export default function CustomJewelleryPage() {
                   </div>
 
                   <div>
-                    <label className="block text-[11px] uppercase tracking-wider text-[#4a4237] font-medium mb-1">
+                    <label htmlFor="custom-scratch-carats-input" className="block text-[11px] uppercase tracking-wider text-[#4a4237] font-medium mb-1">
                       Target Carat Weight
                     </label>
                     <input
+                      id="custom-scratch-carats-input"
+                      name="scratchCarats"
                       type="text"
                       value={scratchCarats}
                       onChange={(e) => setScratchCarats(e.target.value)}
@@ -597,10 +605,12 @@ export default function CustomJewelleryPage() {
                 />
 
                 <div>
-                  <label className="block text-[11px] uppercase tracking-wider text-[#4a4237] font-medium mb-1">
+                  <label htmlFor="custom-scratch-description-textarea" className="block text-[11px] uppercase tracking-wider text-[#4a4237] font-medium mb-1">
                     Describe Your Vision in Detail
                   </label>
                   <textarea
+                    id="custom-scratch-description-textarea"
+                    name="scratchDescription"
                     rows={4}
                     value={scratchDescription}
                     onChange={(e) => setScratchDescription(e.target.value)}
@@ -626,10 +636,12 @@ export default function CustomJewelleryPage() {
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-[11px] uppercase tracking-wider text-[#4a4237] font-medium mb-1">
+                    <label htmlFor="custom-consultation-format-select" className="block text-[11px] uppercase tracking-wider text-[#4a4237] font-medium mb-1">
                       Consultation Format
                     </label>
                     <select
+                      id="custom-consultation-format-select"
+                      name="consultationFormat"
                       value={consultationFormat}
                       onChange={(e) => setConsultationFormat(e.target.value)}
                       className="w-full bg-white border border-[#c5b49e]/60 px-3 py-2.5 text-xs text-[#141210] focus:outline-none focus:border-[#9b7e46]"
@@ -643,10 +655,12 @@ export default function CustomJewelleryPage() {
                   </div>
 
                   <div>
-                    <label className="block text-[11px] uppercase tracking-wider text-[#4a4237] font-medium mb-1">
+                    <label htmlFor="custom-consultation-date-input" className="block text-[11px] uppercase tracking-wider text-[#4a4237] font-medium mb-1">
                       Preferred Date
                     </label>
                     <input
+                      id="custom-consultation-date-input"
+                      name="consultationDate"
                       type="date"
                       value={consultationDate}
                       onChange={(e) => setConsultationDate(e.target.value)}
@@ -671,11 +685,14 @@ export default function CustomJewelleryPage() {
 
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                 <div>
-                  <label className="block text-[11px] uppercase tracking-wider text-[#4a4237] mb-1">
+                  <label htmlFor="custom-patron-name-input-full" className="block text-[11px] uppercase tracking-wider text-[#4a4237] mb-1">
                     Full Name *
                   </label>
                   <input
+                    id="custom-patron-name-input-full"
+                    name="name"
                     type="text"
+                    autoComplete="name"
                     required
                     value={patronName}
                     onChange={(e) => setPatronName(e.target.value)}
@@ -685,11 +702,14 @@ export default function CustomJewelleryPage() {
                 </div>
 
                 <div>
-                  <label className="block text-[11px] uppercase tracking-wider text-[#4a4237] mb-1">
+                  <label htmlFor="custom-patron-email-input-full" className="block text-[11px] uppercase tracking-wider text-[#4a4237] mb-1">
                     Email Address *
                   </label>
                   <input
+                    id="custom-patron-email-input-full"
+                    name="email"
                     type="email"
+                    autoComplete="email"
                     required
                     value={patronEmail}
                     onChange={(e) => setPatronEmail(e.target.value)}
@@ -699,11 +719,14 @@ export default function CustomJewelleryPage() {
                 </div>
 
                 <div>
-                  <label className="block text-[11px] uppercase tracking-wider text-[#4a4237] mb-1">
+                  <label htmlFor="custom-patron-phone-input-full" className="block text-[11px] uppercase tracking-wider text-[#4a4237] mb-1">
                     Telephone Number *
                   </label>
                   <input
+                    id="custom-patron-phone-input-full"
+                    name="tel"
                     type="tel"
+                    autoComplete="tel"
                     required
                     value={patronPhone}
                     onChange={(e) => setPatronPhone(e.target.value)}
