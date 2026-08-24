@@ -6,12 +6,14 @@ import Image from 'next/image';
 import { notFound } from 'next/navigation';
 import { ChevronRight, ArrowRight } from 'lucide-react';
 import { Product, Category } from '@/lib/types';
-import { getProducts, getCategories } from '@/lib/api';
+import { getProducts, getCategories, FALLBACK_CATEGORIES } from '@/lib/api';
 import ProductCard from '@/components/ProductCard';
 
 export default function CategoryDetailPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = use(params);
-  const [category, setCategory] = useState<Category | null>(null);
+  const [category, setCategory] = useState<Category | null>(() => {
+    return FALLBACK_CATEGORIES.find((c) => c.slug === slug || c.id === slug || c.name.toLowerCase() === slug.toLowerCase()) || null;
+  });
   const [products, setProducts] = useState<Product[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
@@ -24,7 +26,11 @@ export default function CategoryDetailPage({ params }: { params: Promise<{ slug:
       ]);
 
       if (catsRes.success && catsRes.data) {
-        const found = catsRes.data.find((c) => c.slug === slug || c.id === slug);
+        const found = catsRes.data.find(
+          (c) => c.slug === slug || c.id === slug || c.name.toLowerCase() === slug.toLowerCase()
+        ) || FALLBACK_CATEGORIES.find(
+          (c) => c.slug === slug || c.id === slug || c.name.toLowerCase() === slug.toLowerCase()
+        );
         if (found) {
           setCategory(found);
         }

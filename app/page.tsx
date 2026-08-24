@@ -6,35 +6,35 @@ import Image from 'next/image';
 import { motion } from 'motion/react';
 import { Sparkles, ShieldCheck, Gem, Award, ArrowRight, Star, ChevronRight, Check } from 'lucide-react';
 import { Product, Category, Collection } from '@/lib/types';
-import { getProducts, getCategories, getCollections } from '@/lib/api';
+import { getProducts, getCategories, getCollections, FALLBACK_CATEGORIES, FALLBACK_COLLECTIONS, FALLBACK_PRODUCTS } from '@/lib/api';
 import ProductCard from '@/components/ProductCard';
 import { useCurrency } from '@/context/CurrencyContext';
 import { brandConfig } from '@/lib/brandConfig';
 
 export default function HomePage() {
-  const [products, setProducts] = useState<Product[]>([]);
-  const [categories, setCategories] = useState<Category[]>([]);
-  const [collections, setCollections] = useState<Collection[]>([]);
+  const [products, setProducts] = useState<Product[]>(FALLBACK_PRODUCTS);
+  const [categories, setCategories] = useState<Category[]>(FALLBACK_CATEGORIES);
+  const [collections, setCollections] = useState<Collection[]>(FALLBACK_COLLECTIONS);
   const [activeTab, setActiveTab] = useState<'featured' | 'new' | 'bestsellers'>('featured');
   const { formatPrice } = useCurrency();
 
   useEffect(() => {
     async function loadData() {
       const [prodRes, catRes, colRes] = await Promise.all([
-        getProducts({ limit: 8 }),
+        getProducts({ limit: 12 }),
         getCategories(),
         getCollections(),
       ]);
-      if (prodRes.success && prodRes.data) setProducts(prodRes.data);
-      if (catRes.success && catRes.data) setCategories(catRes.data);
-      if (colRes.success && colRes.data) setCollections(colRes.data);
+      if (prodRes.success && prodRes.data && prodRes.data.length > 0) setProducts(prodRes.data);
+      if (catRes.success && catRes.data && catRes.data.length > 0) setCategories(catRes.data);
+      if (colRes.success && colRes.data && colRes.data.length > 0) setCollections(colRes.data);
     }
     loadData();
   }, []);
 
   const displayedProducts = products.filter((p) => {
     if (activeTab === 'new') return p.isNewArrival;
-    if (activeTab === 'bestsellers') return p.isBestSeller;
+    if (activeTab === 'bestsellers') return p.isBestSeller || (p as any).isBestseller;
     return p.isFeatured;
   });
 
@@ -192,7 +192,7 @@ export default function HomePage() {
               className="group relative aspect-3/4 overflow-hidden bg-[#F5F2ED] border border-black/5"
             >
               <Image
-                src={cat.imageUrl}
+                src={cat.imageUrl || (cat as any).image || (cat as any).image_url || 'https://images.unsplash.com/photo-1605100804763-247f67b3557e?auto=format&fit=crop&w=1000&q=80'}
                 alt={cat.name}
                 fill
                 sizes="(max-width: 640px) 50vw, 20vw"

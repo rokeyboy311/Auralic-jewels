@@ -4,7 +4,7 @@ import React, { useState, useEffect, useMemo, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { SlidersHorizontal, X, RefreshCw } from 'lucide-react';
 import { Product, Category, Collection } from '@/lib/types';
-import { getProducts, getCategories, getCollections } from '@/lib/api';
+import { getProducts, getCategories, getCollections, FALLBACK_PRODUCTS, FALLBACK_CATEGORIES, FALLBACK_COLLECTIONS } from '@/lib/api';
 import ProductCard from '@/components/ProductCard';
 import { useCurrency } from '@/context/CurrencyContext';
 
@@ -14,10 +14,10 @@ function ShopContent() {
   const initialCollection = searchParams.get('collection') || 'all';
   const initialSearch = searchParams.get('search') || '';
 
-  const [products, setProducts] = useState<Product[]>([]);
-  const [categories, setCategories] = useState<Category[]>([]);
-  const [collections, setCollections] = useState<Collection[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
+  const [products, setProducts] = useState<Product[]>(FALLBACK_PRODUCTS);
+  const [categories, setCategories] = useState<Category[]>(FALLBACK_CATEGORIES);
+  const [collections, setCollections] = useState<Collection[]>(FALLBACK_COLLECTIONS);
+  const [isLoading, setIsLoading] = useState(false);
 
   // Filters State
   const [selectedCategory, setSelectedCategory] = useState<string>(initialCategory);

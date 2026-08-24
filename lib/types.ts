@@ -170,7 +170,11 @@ export interface Collection {
   subtitle: string;
   description: string;
   bannerImage: string;
-  isFeatured: boolean;
+  isFeatured?: boolean;
+  itemCount?: number;
+  heroImage?: string;
+  imageUrl?: string;
+  theme?: string;
 }
 
 export interface CartItem {
