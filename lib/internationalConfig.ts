@@ -1,4 +1,4 @@
-import { CountryTaxDutyRule, ShippingMethodOption, CurrencyCode } from './types';
+import { ShippingMethodOption, CurrencyCode } from './types';
 
 export interface CountryInfo {
   code: string;

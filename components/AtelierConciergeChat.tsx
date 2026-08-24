@@ -7,11 +7,8 @@ import {
   MessageSquare,
   X,
   Send,
-  Sparkles,
   Paperclip,
   ShieldCheck,
-  CheckCircle2,
-  Clock,
   ExternalLink,
   ChevronLeft,
   Gem,
@@ -22,7 +19,6 @@ import {
 } from 'lucide-react';
 import { useChat } from '@/context/ChatContext';
 import { useAuth } from '@/context/AuthContext';
-import { brandConfig } from '@/lib/brandConfig';
 import { ConversationType } from '@/lib/types';
 import { uploadImage } from '@/lib/api';
 

@@ -3,7 +3,7 @@
 import React, { useState } from 'react';
 import Link from 'next/link';
 import { brandConfig } from '@/lib/brandConfig';
-import { ShieldCheck, Sparkles, MapPin, Mail, Phone, ArrowRight, Check } from 'lucide-react';
+import { ShieldCheck, MapPin, ArrowRight, Check } from 'lucide-react';
 import { useToast } from '@/context/ToastContext';
 
 export default function Footer() {

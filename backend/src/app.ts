@@ -17,7 +17,9 @@ export function createApp() {
   }
 
   // Security Headers & Logging
-  app.use(helmet());
+  app.use(helmet({
+    crossOriginResourcePolicy: { policy: 'cross-origin' }, // Allows images served by backend to be displayed on Vercel frontend
+  }));
   app.use(morgan(config.env === 'development' ? 'dev' : 'combined'));
 
   // Strict CORS Configuration
@@ -48,32 +50,23 @@ export function createApp() {
       },
       credentials: true,
       methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
-      allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'stripe-signature'],
+      allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
     })
   );
 
-  // Global rate limiter (200 requests per 15 minutes per IP)
+  // Global rate limiter (300 requests per 15 minutes per IP)
   const globalLimiter = rateLimit({
     windowMs: 15 * 60 * 1000,
-    max: 200,
+    max: 300,
     standardHeaders: true,
     legacyHeaders: false,
     message: { success: false, error: 'Too many requests. Please try again later.' },
   });
   app.use('/api', globalLimiter);
 
-  // Raw body preservation for Stripe webhook verification
-  app.use(
-    express.json({
-      limit: '2mb',
-      verify: (req: any, _res, buf) => {
-        if (req.originalUrl.includes('/webhook') || req.originalUrl.includes('/payments/webhook')) {
-          req.rawBody = buf;
-        }
-      },
-    })
-  );
-  app.use(express.urlencoded({ extended: true, limit: '2mb' }));
+  // Body Parsing with support for high-res images in base64
+  app.use(express.json({ limit: '20mb' }));
+  app.use(express.urlencoded({ extended: true, limit: '20mb' }));
   app.use(cookieParser());
 
   // Normalize multiple slashes in URLs (e.g. //products -> /products)
@@ -90,6 +83,8 @@ export function createApp() {
       success: true,
       service: 'Maison Auralic Haute Joaillerie REST API',
       status: 'online',
+      mediaStorage: 'Neon PostgreSQL Image Vault',
+      payments: 'Direct Atelier Consignment',
       environment: config.env,
       timestamp: new Date().toISOString(),
     });

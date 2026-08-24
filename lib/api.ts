@@ -214,16 +214,25 @@ export async function executePasswordReset(token: string, newPassword: string) {
   });
 }
 
-// Media Upload via Cloudinary
+// Media Upload via Neon Database Image Vault
 export async function uploadImage(file: File, folder: string = 'auralic_jewels') {
   const formData = new FormData();
   formData.append('file', file);
   formData.append('folder', folder);
 
-  return await fetchApi<{ url: string; publicId: string; format: string; bytes: number }>('/uploads/image', {
+  const res = await fetchApi<{ url: string; id: string; format: string; bytes: number }>('/uploads/image', {
     method: 'POST',
     body: formData,
   });
+
+  if (res.success && res.data?.url && res.data.url.startsWith('/api/')) {
+    const base = getApiBaseUrl().replace(/\/api\/?$/, '');
+    if (base && !res.data.url.startsWith('http')) {
+      res.data.url = `${base}${res.data.url}`;
+    }
+  }
+
+  return res;
 }
 
 // Reviews

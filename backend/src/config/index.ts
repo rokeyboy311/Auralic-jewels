@@ -26,18 +26,19 @@ export const config = {
     clientSecret: process.env.GOOGLE_CLIENT_SECRET || '',
     callbackUrl: process.env.GOOGLE_CALLBACK_URL || 'http://localhost:5000/api/auth/google/callback',
   },
-  stripe: {
-    secretKey: process.env.STRIPE_SECRET_KEY || '',
-    webhookSecret: process.env.STRIPE_WEBHOOK_SECRET || '',
+  // Payment integration disabled (Direct invoice / Bank Wire / Vault Escrow)
+  payments: {
+    enabled: false,
+    defaultMethod: 'direct_consignment',
   },
-  cloudinary: {
-    cloudName: process.env.CLOUDINARY_CLOUD_NAME || '',
-    apiKey: process.env.CLOUDINARY_API_KEY || '',
-    apiSecret: process.env.CLOUDINARY_API_SECRET || '',
-  },
-  resend: {
-    apiKey: process.env.RESEND_API_KEY || '',
-    emailFrom: process.env.EMAIL_FROM || 'Maison Auralic <concierge@auralic-jewels.vercel.app>',
+  // Email service temporarily paused
+  email: {
+    enabled: false,
+    from: process.env.EMAIL_FROM || 'Maison Auralic <concierge@auralic-jewels.vercel.app>',
     adminEmail: process.env.ADMIN_EMAIL || 'admin@auralic-jewels.vercel.app',
+  },
+  // Media uploads stored natively in Neon PostgreSQL database
+  media: {
+    storageType: 'neon_postgres',
   },
 };

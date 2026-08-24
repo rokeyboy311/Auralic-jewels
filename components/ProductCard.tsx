@@ -3,7 +3,7 @@
 import React from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
-import { Heart, ShoppingBag, Sparkles, Star } from 'lucide-react';
+import { Heart, ShoppingBag, Star } from 'lucide-react';
 import { Product } from '@/lib/types';
 import { useCurrency } from '@/context/CurrencyContext';
 import { useCart } from '@/context/CartContext';

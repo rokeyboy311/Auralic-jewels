@@ -333,6 +333,17 @@ CREATE TABLE IF NOT EXISTS password_resets (
     created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );
 
+-- 20. NEON DATABASE MEDIA STORAGE (Direct PostgreSQL Image Vault)
+CREATE TABLE IF NOT EXISTS media_uploads (
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    filename VARCHAR(255) NOT NULL,
+    mime_type VARCHAR(100) NOT NULL DEFAULT 'image/jpeg',
+    data_base64 TEXT NOT NULL,
+    file_size INT NOT NULL DEFAULT 0,
+    folder VARCHAR(100) DEFAULT 'auralic_jewels',
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);
+
 -- INDEXES FOR ULTRA-FAST DISCOVERY & QUERIES
 CREATE INDEX IF NOT EXISTS idx_products_category ON products(category_id);
 CREATE INDEX IF NOT EXISTS idx_products_collection ON products(collection_id);
@@ -346,3 +357,4 @@ CREATE INDEX IF NOT EXISTS idx_conversations_status ON conversations(status);
 CREATE INDEX IF NOT EXISTS idx_conversation_messages_convo ON conversation_messages(conversation_id);
 CREATE INDEX IF NOT EXISTS idx_bespoke_email ON bespoke_inquiries(customer_email);
 CREATE INDEX IF NOT EXISTS idx_reviews_product_id ON reviews(product_id);
+CREATE INDEX IF NOT EXISTS idx_media_uploads_created ON media_uploads(created_at DESC);

@@ -41,7 +41,7 @@ function CheckoutContent() {
 
   const [shippingMethods, setShippingMethods] = useState<ShippingMethod[]>([]);
   const [selectedShippingMethodId, setSelectedShippingMethodId] = useState<string>('ship-insured-priority');
-  const [paymentMethod, setPaymentMethod] = useState<'stripe' | 'wire' | 'apple_pay'>('stripe');
+  const [paymentMethod, setPaymentMethod] = useState<'wire' | 'consignment' | 'vault'>('wire');
 
   // Patron Contact & Address Form
   const [email, setEmail] = useState(user?.email || '');
@@ -55,9 +55,6 @@ function CheckoutContent() {
   const [postalCode, setPostalCode] = useState('');
   const [country, setCountry] = useState('United States');
   const [orderNotes, setOrderNotes] = useState('');
-
-  // Card Holder 
-  const [cardHolder, setCardHolder] = useState('');
 
   const [promoInput, setPromoInput] = useState('');
   const [isProcessing, setIsProcessing] = useState(false);
@@ -121,23 +118,6 @@ function CheckoutContent() {
     setIsProcessing(true);
 
     try {
-      if (paymentMethod === 'wire') {
-        const intentRes = await createPaymentIntent(finalTotalUSD, currentCurrency);
-        if (!intentRes.success || !intentRes.data?.clientSecret) {
-          throw new Error('Failed to initialize secure payment session.');
-        }
-
-        const stripeError: any = null; const paymentIntent = { status: "succeeded" };
-
-        if (stripeError) {
-          throw new Error(stripeError.message);
-        }
-
-        if (paymentIntent.status !== 'succeeded') {
-          throw new Error('Payment was not successful.');
-        }
-      }
-
       const orderPayload = {
         userId: user?.id,
         customerEmail: email,
@@ -158,7 +138,7 @@ function CheckoutContent() {
         couponCode: couponCode || undefined,
         shippingMethodId: selectedShippingMethodId,
         currency: currentCurrency,
-        paymentMethod: 'wire_transfer' as any,
+        paymentMethod: paymentMethod === 'wire' ? 'bank_wire' : paymentMethod === 'consignment' ? 'direct_consignment' : 'vault_reservation',
         notes: orderNotes,
       };
 
@@ -469,73 +449,49 @@ function CheckoutContent() {
               <span className="w-6 h-6 bg-[#141210] text-[#d4af37] text-xs flex items-center justify-center font-mono">
                 4
               </span>
-              <span>Payment & Settlement</span>
+              <span>Settlement & Acquisition Privilege</span>
             </h2>
 
-            <div className="grid grid-cols-3 gap-2">
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
               <button
                 type="button"
                 onClick={() => setPaymentMethod('wire')}
-                className={`py-3 px-2 text-center border text-xs uppercase tracking-wider flex flex-col items-center gap-1.5 transition-all ${
+                className={`py-3 px-3 text-center border text-xs uppercase tracking-wider flex flex-col items-center gap-1.5 transition-all cursor-pointer ${
                   paymentMethod === 'wire'
                     ? 'bg-[#141210] text-[#d4af37] border-[#141210] font-medium'
-                    : 'bg-white text-[#4a4237] border-[#c5b49e]/60'
-                }`}
-              >
-                <CreditCard className="w-4 h-4" />
-                <span>Credit Card</span>
-              </button>
-
-              <button
-                type="button"
-                onClick={() => setPaymentMethod('wire')}
-                className={`py-3 px-2 text-center border text-xs uppercase tracking-wider flex flex-col items-center gap-1.5 transition-all ${
-                  paymentMethod === 'wire'
-                    ? 'bg-[#141210] text-[#d4af37] border-[#141210] font-medium'
-                    : 'bg-white text-[#4a4237] border-[#c5b49e]/60'
+                    : 'bg-white text-[#4a4237] border-[#c5b49e]/60 hover:border-[#9b7e46]'
                 }`}
               >
                 <Building className="w-4 h-4" />
-                <span>Bank Wire</span>
+                <span>Bank Wire Escrow</span>
               </button>
 
               <button
                 type="button"
-                onClick={() => setPaymentMethod('apple_pay')}
-                className={`py-3 px-2 text-center border text-xs uppercase tracking-wider flex flex-col items-center gap-1.5 transition-all ${
-                  paymentMethod === 'apple_pay'
+                onClick={() => setPaymentMethod('consignment')}
+                className={`py-3 px-3 text-center border text-xs uppercase tracking-wider flex flex-col items-center gap-1.5 transition-all cursor-pointer ${
+                  paymentMethod === 'consignment'
                     ? 'bg-[#141210] text-[#d4af37] border-[#141210] font-medium'
-                    : 'bg-white text-[#4a4237] border-[#c5b49e]/60'
+                    : 'bg-white text-[#4a4237] border-[#c5b49e]/60 hover:border-[#9b7e46]'
+                }`}
+              >
+                <CreditCard className="w-4 h-4" />
+                <span>Direct Invoice</span>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => setPaymentMethod('vault')}
+                className={`py-3 px-3 text-center border text-xs uppercase tracking-wider flex flex-col items-center gap-1.5 transition-all cursor-pointer ${
+                  paymentMethod === 'vault'
+                    ? 'bg-[#141210] text-[#d4af37] border-[#141210] font-medium'
+                    : 'bg-white text-[#4a4237] border-[#c5b49e]/60 hover:border-[#9b7e46]'
                 }`}
               >
                 <Lock className="w-4 h-4" />
-                <span>Apple Pay / Vault</span>
+                <span>Vault Reservation</span>
               </button>
             </div>
-
-            {paymentMethod === 'wire' && (
-              <div className="p-4 bg-white border border-[#c5b49e]/60 space-y-3">
-                <div>
-                  <label className="block text-[11px] uppercase tracking-wider text-[#4a4237] mb-1">
-                    Cardholder Name
-                  </label>
-                  <input
-                    type="text"
-                    value={cardHolder}
-                    onChange={(e) => setCardHolder(e.target.value)}
-                    placeholder="Lady Catherine Sterling"
-                    className="w-full bg-white border border-[#c5b49e]/60 px-3 py-2 text-xs text-[#141210] focus:outline-none mb-3"
-                  />
-                  
-                  <label className="block text-[11px] uppercase tracking-wider text-[#4a4237] mb-1">
-                    Card Details
-                  </label>
-                  <div className="p-3 bg-white border border-[#c5b49e]/60">
-                    <div className="p-4 bg-gray-100 text-center text-xs">Payment gateway temporarily bypassed. Orders will be processed manually.</div>
-                  </div>
-                </div>
-              </div>
-            )}
 
             {paymentMethod === 'wire' && (
               <div className="p-4 bg-white border border-[#c5b49e]/60 text-xs text-[#4a4237] space-y-2">
@@ -544,14 +500,28 @@ function CheckoutContent() {
                 <p>IBAN: FR76 3000 4001 2345 6789 0123 456</p>
                 <p>BIC/SWIFT: BNPAFRPP</p>
                 <p className="text-[11px] text-[#73685a] pt-1">
-                  Upon placing this order, our Senior Treasury Officer will issue an official pro-forma invoice and lock your pieces for 48 hours.
+                  Upon placing this acquisition, our Senior Treasury Officer will issue an official pro-forma invoice and lock your pieces for 48 hours.
                 </p>
               </div>
             )}
 
-            {paymentMethod === 'apple_pay' && (
-              <div className="p-4 bg-white border border-[#c5b49e]/60 text-center text-xs text-[#4a4237] space-y-2">
-                <p>Biometric authentication will be initiated upon confirming the acquisition below.</p>
+            {paymentMethod === 'consignment' && (
+              <div className="p-4 bg-white border border-[#c5b49e]/60 text-xs text-[#4a4237] space-y-2">
+                <p className="font-semibold text-[#141210]">Direct Atelier Consignment:</p>
+                <p>An official Maison Auralic itemized VAT invoice will be dispatched directly to your confidential email.</p>
+                <p className="text-[11px] text-[#73685a]">
+                  Payment settlement will be handled by our private client advisor prior to courier dispatch.
+                </p>
+              </div>
+            )}
+
+            {paymentMethod === 'vault' && (
+              <div className="p-4 bg-white border border-[#c5b49e]/60 text-xs text-[#4a4237] space-y-2">
+                <p className="font-semibold text-[#141210]">Place Vendôme Salon Collection:</p>
+                <p>Your fine jewellery creation will be transferred to our private Paris vault for private appointment viewing and handover.</p>
+                <p className="text-[11px] text-[#73685a]">
+                  Concierge appointment confirmation will be dispatched upon order registration.
+                </p>
               </div>
             )}
           </div>

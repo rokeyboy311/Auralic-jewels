@@ -7,13 +7,8 @@ import {
   X,
   Sparkles,
   Wand2,
-  Gem,
-  Palette,
   Check,
-  Upload,
   Calendar,
-  Layers,
-  FileText,
   Sliders,
 } from 'lucide-react';
 import { brandConfig } from '@/lib/brandConfig';
