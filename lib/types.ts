@@ -436,6 +436,7 @@ export interface ConversationMessage {
   senderRole: 'customer' | 'admin' | 'atelier_staff' | 'master_jeweller' | 'gemologist';
   content: string;
   attachments?: ConversationAttachment[];
+  attachmentUrl?: string;
   isInternalNote?: boolean; // Visible only to admins/staff
   createdAt: string;
   isReadByRecipient?: boolean;
@@ -447,7 +448,9 @@ export interface ConversationProductContext {
   productSlug: string;
   sku: string;
   image: string;
+  productImage?: string;
   priceUSD: number;
+  productPriceUSD?: number;
   selectedMetal?: string;
   selectedPurity?: string;
   selectedSize?: string;
@@ -502,7 +505,13 @@ export interface AtelierStaff {
   name: string;
   email: string;
   role: 'SUPER_ADMIN' | 'ADMIN' | 'ATELIER_STAFF' | 'MASTER_JEWELLER' | 'SENIOR_GEMOLOGIST';
+  title?: string;
+  location?: string;
+  avatarUrl?: string;
+  avatar?: string;
   specialty?: string;
+  certifications?: string[];
   activeTicketsCount?: number;
+  activeConversationsCount?: number;
+  isOnline?: boolean;
 }
-
