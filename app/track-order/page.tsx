@@ -90,22 +90,37 @@ function TrackOrderContent() {
         className="max-w-xl mx-auto bg-white p-4 border border-black/10 shadow-xs space-y-3"
       >
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-          <input
-            type="text"
-            required
-            value={orderNumber}
-            onChange={(e) => setOrderNumber(e.target.value)}
-            placeholder="Order Reference (e.g. AUR-2026-00892)"
-            className="w-full px-3 py-2 text-xs font-mono text-[#1A1A1A] uppercase tracking-wider border border-[#c5b49e]/60 focus:outline-none focus:border-[#9b7e46]"
-          />
-          <input
-            type="email"
-            required
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            placeholder="Customer Email"
-            className="w-full px-3 py-2 text-xs text-[#1A1A1A] border border-[#c5b49e]/60 focus:outline-none focus:border-[#9b7e46]"
-          />
+          <div>
+            <label htmlFor="track-order-number-input" className="sr-only">
+              Order Reference Number
+            </label>
+            <input
+              id="track-order-number-input"
+              name="orderNumber"
+              type="text"
+              required
+              value={orderNumber}
+              onChange={(e) => setOrderNumber(e.target.value)}
+              placeholder="Order Reference (e.g. AUR-2026-00892)"
+              className="w-full px-3 py-2 text-xs font-mono text-[#1A1A1A] uppercase tracking-wider border border-[#c5b49e]/60 focus:outline-none focus:border-[#9b7e46]"
+            />
+          </div>
+          <div>
+            <label htmlFor="track-order-email-input" className="sr-only">
+              Customer Email Address
+            </label>
+            <input
+              id="track-order-email-input"
+              name="email"
+              type="email"
+              autoComplete="email"
+              required
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              placeholder="Customer Email"
+              className="w-full px-3 py-2 text-xs text-[#1A1A1A] border border-[#c5b49e]/60 focus:outline-none focus:border-[#9b7e46]"
+            />
+          </div>
         </div>
         <button
           type="submit"
@@ -202,7 +217,7 @@ function TrackOrderContent() {
 export default function TrackOrderPage() {
   return (
     <Suspense
-      fallback={
+      fallback={\r
         <div className="max-w-4xl mx-auto px-4 py-24 text-center text-xs text-[#73685a]">
           Loading logistics tracker...
         </div>
