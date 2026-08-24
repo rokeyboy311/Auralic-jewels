@@ -18,11 +18,13 @@ import {
   Plus,
   Package,
   Image as ImageIcon,
+  Loader2,
 } from 'lucide-react';
 import { useChat } from '@/context/ChatContext';
 import { useAuth } from '@/context/AuthContext';
 import { brandConfig } from '@/lib/brandConfig';
 import { ConversationType } from '@/lib/types';
+import { uploadImage } from '@/lib/api';
 
 export default function AtelierConciergeChat() {
   const {
@@ -41,50 +43,64 @@ export default function AtelierConciergeChat() {
 
   const { user } = useAuth();
   const [inputText, setInputText] = useState('');
-  const [pendingAttachment, setPendingAttachment] = useState<{ id: string; name: string; url: string; type: string; size: number } | null>(null);
+  const [isSending, setIsSending] = useState(false);
+  const [isUploadingAttachment, setIsUploadingAttachment] = useState(false);
   const [isComposingNew, setIsComposingNew] = useState(false);
   const [newSubject, setNewSubject] = useState('');
   const [newType, setNewType] = useState<ConversationType>('product_modification');
   const [newInitialMsg, setNewInitialMsg] = useState('');
-  const [isSending, setIsSending] = useState(false);
+  const [pendingAttachment, setPendingAttachment] = useState<{
+    id: string;
+    name: string;
+    url: string;
+    type: string;
+    size: number;
+  } | null>(null);
 
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const chatFileInputRef = useRef<HTMLInputElement>(null);
 
-  useEffect(() => {
-    if (isOpen && activeConversation) {
-      messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-    }
-  }, [isOpen, activeConversation?.messages]);
+  const scrollToBottom = () => {
+    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+  };
 
-  const handleImageFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+  useEffect(() => {
+    if (isOpen) {
+      scrollToBottom();
+    }
+  }, [activeConversation?.messages, isOpen]);
+
+  const handleImageFileSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
       const file = e.target.files[0];
-      const reader = new FileReader();
-      reader.onload = (uploadEvent) => {
-        const dataUrl = uploadEvent.target?.result as string;
-        if (dataUrl) {
+      setIsUploadingAttachment(true);
+      try {
+        const res = await uploadImage(file, 'auralic_concierge_chat');
+        if (res.success && res.data?.url) {
           setPendingAttachment({
             id: `att-${Date.now()}`,
             name: file.name,
-            url: dataUrl,
+            url: res.data.url,
             type: file.type || 'image/jpeg',
             size: file.size,
           });
         }
-      };
-      reader.readAsDataURL(file);
+      } catch (err) {
+        console.error('Chat attachment upload error:', err);
+      } finally {
+        setIsUploadingAttachment(false);
+      }
     }
     if (chatFileInputRef.current) chatFileInputRef.current.value = '';
   };
 
   const handleSend = async (e: React.FormEvent) => {
     e.preventDefault();
-    if ((!inputText.trim() && !pendingAttachment) || isSending) return;
+    if ((!inputText.trim() && !pendingAttachment) || isSending || isUploadingAttachment) return;
 
     setIsSending(true);
     const attachments = pendingAttachment ? [pendingAttachment] : [];
-    const textToSend = inputText.trim() || (pendingAttachment ? 'Attached image from device.' : '');
+    const textToSend = inputText.trim() || (pendingAttachment ? 'Attached photograph from client.' : '');
     const sent = await sendMessage(textToSend, attachments);
     if (sent) {
       setInputText('');
