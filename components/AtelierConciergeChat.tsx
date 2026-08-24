@@ -431,7 +431,7 @@ export default function AtelierConciergeChat() {
               {activeConversation.orderContext && (
                 <div className="bg-[#faf8f5] p-3 border-b border-[#ebdccd] flex items-center justify-between text-xs">
                   <div className="flex items-center gap-2">
-                    <Package className="w-4 h-4 text-[#9b7e46]" />
+                    <Package className="w-4 h-4 text-[#9b7e46]\" />
                     <span className="font-medium text-[#141210]">
                       Order #{activeConversation.orderContext.orderNumber}
                     </span>
@@ -468,7 +468,15 @@ export default function AtelierConciergeChat() {
                         <span className="text-[10px] font-medium text-[#594f43]">
                           {msg.senderName}
                         </span>
-                        {!isCustomer && (\n                          <span className=\"text-[9px] uppercase tracking-wider px-1.5 py-0.2 bg-[#ebdccd] text-[#73685a] font-medium\">\n                            {msg.senderRole === 'master_jeweller'\n                              ? 'Master Jeweller'\n                              : msg.senderRole === 'gemologist'\n                              ? 'Senior Gemologist'\n                              : 'Atelier Director'}\n                          </span>\n                        )}
+                        {!isCustomer && (
+                          <span className="text-[9px] uppercase tracking-wider px-1.5 py-0.2 bg-[#ebdccd] text-[#73685a] font-medium">
+                            {msg.senderRole === 'master_jeweller'
+                              ? 'Master Jeweller'
+                              : msg.senderRole === 'gemologist'
+                              ? 'Senior Gemologist'
+                              : 'Atelier Director'}
+                          </span>
+                        )}
                         <span className="text-[9px] text-[#a39887]">
                           {new Date(msg.createdAt).toLocaleTimeString([], {
                             hour: '2-digit',
@@ -532,7 +540,7 @@ export default function AtelierConciergeChat() {
                       onClick={() => setInputText(prompt)}
                       className="px-2.5 py-1 bg-[#faf8f5] hover:bg-[#f3ece2] text-[#594f43] border border-[#ebdccd] whitespace-nowrap shrink-0 transition-colors"
                     >
-                      {prompt}
+                      {prompt
                     </button>
                   ))}
                 </div>
