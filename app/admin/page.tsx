@@ -27,6 +27,12 @@ import {
   Clock,
   ExternalLink,
   ChevronRight,
+  Eye,
+  EyeOff,
+  LogOut,
+  KeyRound,
+  Mail,
+  CheckCircle,
 } from 'lucide-react';
 import { Product, Order, BespokeInquiry, Conversation, ConversationMessage, AtelierStaff, ConversationStatus, ConversationPriority } from '@/lib/types';
 import {
@@ -315,79 +321,183 @@ export default function AdminDashboardPage() {
 
   const [adminEmail, setAdminEmail] = useState('');
   const [adminPassword, setAdminPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
   const [isAuthenticating, setIsAuthenticating] = useState(false);
+  const [authErrorMessage, setAuthErrorMessage] = useState('');
+  const [authSuccessMessage, setAuthSuccessMessage] = useState('');
+
+  const { logout } = useAuth();
+
+  const handleQuickFillAdmin = () => {
+    setAdminEmail('admin@auralic.com');
+    setAdminPassword('admin123');
+    setAuthErrorMessage('');
+  };
 
   const handleAdminAuthSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setAuthErrorMessage('');
+    setAuthSuccessMessage('');
     setIsAuthenticating(true);
-    const ok = await login(adminEmail, adminPassword);
-    setIsAuthenticating(false);
-    if (ok) {
-      await loadAll();
+
+    try {
+      const ok = await login(adminEmail, adminPassword);
+      if (ok) {
+        setAuthSuccessMessage('Authentication Successful. Entering Atelier Control Center...');
+        success('Access Granted', 'Welcome back, Atelier Director.');
+        setTimeout(async () => {
+          await loadAll();
+          setIsAuthenticating(false);
+        }, 600);
+      } else {
+        setIsAuthenticating(false);
+        setAuthErrorMessage('Invalid administrator credentials. Please verify email and password.');
+        error('Access Denied', 'Invalid administrator credentials.');
+      }
+    } catch {
+      setIsAuthenticating(false);
+      setAuthErrorMessage('Could not connect to authentication vault.');
     }
   };
 
   if (!isAdmin) {
     return (
-      <div className="max-w-md mx-auto px-4 py-24 text-center space-y-6">
-        <div className="w-14 h-14 bg-[#141210] text-[#d4af37] flex items-center justify-center rounded-full mx-auto shadow-md">
-          <Lock className="w-6 h-6" />
+      <div className="min-h-[80vh] flex items-center justify-center px-4 py-16 bg-[#faf8f5]/60">
+        <div className="w-full max-w-md bg-white border border-[#c5b49e]/50 p-8 sm:p-10 shadow-xl space-y-6">
+          {/* Header Badge */}
+          <div className="text-center space-y-3">
+            <div className="w-14 h-14 bg-[#141210] text-[#d4af37] flex items-center justify-center rounded-full mx-auto shadow-md border border-[#c5b49e]/40">
+              <Lock className="w-6 h-6" />
+            </div>
+            <div>
+              <span className="text-[9px] uppercase tracking-[0.35em] text-[#9b7e46] font-semibold block">
+                Maison Auralic Paris
+              </span>
+              <h1 className="font-serif text-2xl sm:text-3xl text-[#141210] mt-1 font-light">
+                Atelier Admin Portal
+              </h1>
+            </div>
+            <p className="text-xs text-[#73685a] leading-relaxed max-w-xs mx-auto">
+              Please enter your administrator email and password to access the executive dashboard.
+            </p>
+          </div>
+
+          {/* Success Banner */}
+          {authSuccessMessage && (
+            <div className="bg-emerald-50 border border-emerald-300 text-emerald-900 px-4 py-3 text-xs flex items-center gap-2.5 rounded-sm animate-pulse">
+              <CheckCircle className="w-4 h-4 text-emerald-600 shrink-0" />
+              <span>{authSuccessMessage}</span>
+            </div>
+          )}
+
+          {/* Error Banner */}
+          {authErrorMessage && (
+            <div className="bg-rose-50 border border-rose-300 text-rose-900 px-4 py-3 text-xs flex items-center gap-2.5 rounded-sm">
+              <AlertTriangle className="w-4 h-4 text-rose-600 shrink-0" />
+              <span>{authErrorMessage}</span>
+            </div>
+          )}
+
+          {/* Login Form */}
+          <form onSubmit={handleAdminAuthSubmit} className="space-y-4">
+            <div>
+              <label htmlFor="admin-login-email-input" className="block text-[11px] uppercase tracking-wider text-[#4a4237] font-medium mb-1.5 flex items-center justify-between">
+                <span>Staff Email Address</span>
+                <span className="text-[10px] text-[#73685a] lowercase">admin@auralic.com</span>
+              </label>
+              <div className="relative">
+                <Mail className="w-4 h-4 text-[#73685a] absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+                <input
+                  id="admin-login-email-input"
+                  name="email"
+                  type="email"
+                  autoComplete="email"
+                  required
+                  value={adminEmail}
+                  onChange={(e) => {
+                    setAdminEmail(e.target.value);
+                    setAuthErrorMessage('');
+                  }}
+                  placeholder="admin@auralic.com"
+                  className="w-full bg-[#faf8f5] border border-[#c5b49e]/60 pl-10 pr-3.5 py-3 text-xs text-[#141210] focus:outline-none focus:border-[#9b7e46] focus:bg-white transition-colors"
+                />
+              </div>
+            </div>
+
+            <div>
+              <label htmlFor="admin-login-password-input" className="block text-[11px] uppercase tracking-wider text-[#4a4237] font-medium mb-1.5 flex items-center justify-between">
+                <span>Authentication Password</span>
+                <span className="text-[10px] text-[#73685a]">Admin Key</span>
+              </label>
+              <div className="relative">
+                <KeyRound className="w-4 h-4 text-[#73685a] absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+                <input
+                  id="admin-login-password-input"
+                  name="password"
+                  type={showPassword ? 'text' : 'password'}
+                  autoComplete="current-password"
+                  required
+                  value={adminPassword}
+                  onChange={(e) => {
+                    setAdminPassword(e.target.value);
+                    setAuthErrorMessage('');
+                  }}
+                  placeholder="••••••••••••"
+                  className="w-full bg-[#faf8f5] border border-[#c5b49e]/60 pl-10 pr-10 py-3 text-xs text-[#141210] focus:outline-none focus:border-[#9b7e46] focus:bg-white transition-colors"
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-[#73685a] hover:text-[#141210] transition-colors p-1"
+                  aria-label={showPassword ? 'Hide password' : 'Show password'}
+                >
+                  {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                </button>
+              </div>
+            </div>
+
+            {/* Quick-Fill Helper for Testing */}
+            <div className="pt-1">
+              <button
+                type="button"
+                onClick={handleQuickFillAdmin}
+                className="w-full text-center py-2 px-3 bg-[#f4ece1]/70 hover:bg-[#f4ece1] text-[#7d602d] text-[11px] tracking-wide border border-[#c5b49e]/40 transition-colors flex items-center justify-center gap-1.5 cursor-pointer"
+              >
+                <Sparkles className="w-3.5 h-3.5 text-[#d4af37]" />
+                <span>Quick Fill Admin Credentials (admin@auralic.com / admin123)</span>
+              </button>
+            </div>
+
+            <button
+              type="submit"
+              disabled={isAuthenticating}
+              className="w-full py-3.5 bg-[#141210] hover:bg-[#9b7e46] text-[#faf8f5] text-xs uppercase tracking-[0.2em] font-medium transition-colors cursor-pointer disabled:opacity-60 flex items-center justify-center gap-2 mt-4 shadow-sm"
+            >
+              {isAuthenticating ? (
+                <>
+                  <RefreshCw className="w-4 h-4 animate-spin text-[#d4af37]" />
+                  <span>Verifying Credentials...</span>
+                </>
+              ) : (
+                <>
+                  <Lock className="w-4 h-4 text-[#d4af37]" />
+                  <span>Sign In to Admin Dashboard</span>
+                </>
+              )}
+            </button>
+          </form>
+
+          {/* Return link to boutique storefront */}
+          <div className="pt-2 text-center border-t border-[#ebdccd]">
+            <p className="text-[11px] text-[#73685a]">
+              Customer Patron?{' '}
+              <Link href="/" className="text-[#9b7e46] hover:underline font-medium inline-flex items-center gap-1">
+                <span>Return to Maison Boutique</span>
+                <ArrowRight className="w-3 h-3" />
+              </Link>
+            </p>
+          </div>
         </div>
-        <h1 className="font-serif text-3xl text-[#141210]">Atelier Staff & Admin Hub</h1>
-        <p className="text-xs text-[#73685a] leading-relaxed">
-          Access is restricted to authorized Maison Auralic Gemologists, Master Jewellers, and Atelier Directors.
-        </p>
-
-        <form onSubmit={handleAdminAuthSubmit} className="space-y-3.5 text-left bg-[#faf8f5] p-6 border border-[#c5b49e]/60 shadow-sm">
-          <div>
-            <label htmlFor="admin-login-email-input" className="block text-[11px] uppercase tracking-wider text-[#4a4237] font-medium mb-1">
-              Staff Email Address
-            </label>
-            <input
-              id="admin-login-email-input"
-              name="email"
-              type="email"
-              autoComplete="email"
-              required
-              value={adminEmail}
-              onChange={(e) => setAdminEmail(e.target.value)}
-              placeholder="director@domain.com"
-              className="w-full bg-white border border-[#c5b49e]/70 px-3 py-2.5 text-xs text-[#141210] focus:outline-none focus:border-[#9b7e46]"
-            />
-          </div>
-
-          <div>
-            <label htmlFor="admin-login-password-input" className="block text-[11px] uppercase tracking-wider text-[#4a4237] font-medium mb-1">
-              Authentication Key / Password
-            </label>
-            <input
-              id="admin-login-password-input"
-              name="password"
-              type="password"
-              autoComplete="current-password"
-              required
-              value={adminPassword}
-              onChange={(e) => setAdminPassword(e.target.value)}
-              placeholder="••••••••••••"
-              className="w-full bg-white border border-[#c5b49e]/70 px-3 py-2.5 text-xs text-[#141210] focus:outline-none focus:border-[#9b7e46]"
-            />
-          </div>
-
-          <button
-            type="submit"
-            disabled={isAuthenticating}
-            className="w-full py-3.5 bg-[#141210] hover:bg-[#9b7e46] text-[#faf8f5] text-xs uppercase tracking-[0.2em] font-medium transition-colors cursor-pointer disabled:opacity-60 mt-2"
-          >
-            {isAuthenticating ? 'Verifying Credentials...' : 'Authenticate Staff Session'}
-          </button>
-        </form>
-
-        <p className="text-[11px] text-[#73685a]">
-          Client patron? Return to{' '}
-          <Link href="/" className="text-[#9b7e46] hover:underline font-medium">
-            Maison Auralic Boutique
-          </Link>
-        </p>
       </div>
     );
   }
@@ -397,29 +507,54 @@ export default function AdminDashboardPage() {
       {/* Top Header */}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 border-b border-[#ebdccd] pb-6">
         <div>
-          <span className="text-[10px] tracking-[0.35em] text-[#9b7e46] uppercase font-semibold">
-            Maison Atelier Control Center
-          </span>
+          <div className="flex items-center gap-2">
+            <span className="text-[10px] tracking-[0.35em] text-[#9b7e46] uppercase font-semibold">
+              Maison Atelier Control Center
+            </span>
+            <span className="px-2 py-0.5 bg-emerald-100 text-emerald-800 text-[9px] uppercase tracking-wider font-semibold rounded-xs">
+              Live Session
+            </span>
+          </div>
           <h1 className="font-serif text-3xl sm:text-4xl text-[#141210] uppercase font-light">
             Executive Operations
           </h1>
-          <p className="text-xs text-[#73685a] font-mono mt-0.5">Paris Place Vendôme Atelier Node</p>
+          <p className="text-xs text-[#73685a] mt-0.5">
+            Logged in as <strong className="text-[#141210]">{user?.name || 'Maison Atelier Director'}</strong> ({user?.email}) • Paris Place Vendôme Node
+          </p>
         </div>
 
-        <div className="flex items-center gap-3">
+        <div className="flex items-center flex-wrap gap-2.5">
+          <Link
+            href="/"
+            className="px-3.5 py-2 border border-[#c5b49e]/60 text-[#141210] hover:bg-white text-xs uppercase tracking-wider font-medium flex items-center gap-1.5 transition-colors"
+          >
+            <ExternalLink className="w-3.5 h-3.5 text-[#9b7e46]" />
+            <span>Storefront</span>
+          </Link>
           <button
             onClick={() => setShowProductModal(true)}
-            className="px-4 py-2.5 bg-[#141210] hover:bg-[#9b7e46] text-[#faf8f5] text-xs uppercase tracking-wider font-medium flex items-center gap-2 transition-colors cursor-pointer"
+            className="px-4 py-2 bg-[#141210] hover:bg-[#9b7e46] text-[#faf8f5] text-xs uppercase tracking-wider font-medium flex items-center gap-2 transition-colors cursor-pointer"
           >
             <Plus className="w-4 h-4 text-[#d4af37]" />
             <span>Create New Piece</span>
           </button>
           <button
             onClick={loadAll}
-            className="p-2.5 border border-[#c5b49e]/60 text-[#141210] hover:bg-white transition-colors"
+            className="p-2 border border-[#c5b49e]/60 text-[#141210] hover:bg-white transition-colors"
             title="Refresh Ledger"
           >
             <RefreshCw className={`w-4 h-4 ${isLoading ? 'animate-spin' : ''}`} />
+          </button>
+          <button
+            onClick={async () => {
+              await logout();
+              success('Signed Out', 'You have been logged out of the Atelier control center.');
+            }}
+            className="px-3.5 py-2 bg-rose-50 hover:bg-rose-100 text-rose-900 border border-rose-200 text-xs uppercase tracking-wider font-medium flex items-center gap-1.5 transition-colors cursor-pointer"
+            title="Sign out of Admin Portal"
+          >
+            <LogOut className="w-3.5 h-3.5" />
+            <span>Logout</span>
           </button>
         </div>
       </div>
