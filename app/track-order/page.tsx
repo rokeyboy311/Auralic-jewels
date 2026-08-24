@@ -217,7 +217,7 @@ function TrackOrderContent() {
 export default function TrackOrderPage() {
   return (
     <Suspense
-      fallback={\r
+      fallback={
         <div className="max-w-4xl mx-auto px-4 py-24 text-center text-xs text-[#73685a]">
           Loading logistics tracker...
         </div>
