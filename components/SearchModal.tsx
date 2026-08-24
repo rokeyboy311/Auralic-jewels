@@ -63,7 +63,7 @@ export default function SearchModal({ isOpen, onClose }: SearchModalProps) {
 
   const displayedResults = query.trim() ? results : [];
 
-  return (
+  return (\r
     <AnimatePresence>
       {isOpen && (
         <div className="fixed inset-0 z-50 overflow-y-auto bg-black/75 backdrop-blur-sm p-4 sm:p-6 md:p-12 flex justify-center items-start">
@@ -77,8 +77,13 @@ export default function SearchModal({ isOpen, onClose }: SearchModalProps) {
             {/* Search Input Bar */}
             <div className="relative p-6 border-b border-black/5 flex items-center gap-4 bg-[#FDFCF8]">
               <Search className="w-5 h-5 text-[#C5A059] shrink-0" />
+              <label htmlFor="global-search-query-input" className="sr-only">
+                Search Haute Joaillerie Catalogue
+              </label>
               <input
                 ref={inputRef}
+                id="global-search-query-input"
+                name="searchQuery"
                 type="text"
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}

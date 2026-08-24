@@ -129,7 +129,10 @@ export async function getCollections() {
 
 // Coupon / Promotion Validation
 export async function validateCoupon(code: string, orderSubtotalUSD: number) {
-  return await fetchApi<{ coupon: Coupon; discountUSD: number }>('/coupons/validate', {\n    method: 'POST',\n    body: JSON.stringify({ code, orderSubtotalUSD }),\n  });
+  return await fetchApi<{ coupon: Coupon; discountUSD: number }>('/coupons/validate', {
+    method: 'POST',
+    body: JSON.stringify({ code, orderSubtotalUSD }),
+  });
 }
 
 // Shipping Methods

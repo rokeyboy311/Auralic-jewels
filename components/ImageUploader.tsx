@@ -102,7 +102,7 @@ export const ImageUploader: React.FC<ImageUploaderProps> = ({
 
       {imagesList.length > 0 && (
         <div className="grid grid-cols-3 sm:grid-cols-4 gap-2 mb-2">
-          {imagesList.map((imgUrl, idx) => (
+          {imagesList.map((imgUrl, idx) => (\r
             <div key={idx} className="relative aspect-square bg-[#141210]/5 border border-[#c5b49e]/60 overflow-hidden">
               <img src={imgUrl} alt={`Upload ${idx + 1}`} className="w-full h-full object-cover" />
               <button
@@ -131,11 +131,13 @@ export const ImageUploader: React.FC<ImageUploaderProps> = ({
             </span>
             <span className="text-[10px] text-[#73685a] font-sans">{helperText}</span>
             <input
+              name="uploaderFile"
               type="file"
               accept="image/*"
               multiple={multiple}
               onChange={handleFileChange}
               disabled={uploading}
+              aria-label="Upload jewelry photography or sketches"
               className="hidden"
             />
           </label>

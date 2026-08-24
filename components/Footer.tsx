@@ -85,8 +85,14 @@ export default function Footer() {
               </div>
             ) : (
               <form onSubmit={handleNewsletter} className="flex gap-2">
+                <label htmlFor="newsletter-email-input" className="sr-only">
+                  Confidential Email Address for Private Invitations
+                </label>
                 <input
+                  id="newsletter-email-input"
+                  name="email"
                   type="email"
+                  autoComplete="email"
                   required
                   value={newsletterEmail}
                   onChange={(e) => setNewsletterEmail(e.target.value)}
