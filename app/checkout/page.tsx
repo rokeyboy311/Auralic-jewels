@@ -216,11 +216,14 @@ function CheckoutContent() {
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
-                <label className="block text-[11px] uppercase tracking-wider text-[#4a4237] mb-1">
+                <label htmlFor="checkout-email-input" className="block text-[11px] uppercase tracking-wider text-[#4a4237] mb-1">
                   Confidential Email *
                 </label>
                 <input
+                  id="checkout-email-input"
+                  name="email"
                   type="email"
+                  autoComplete="email"
                   required
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
@@ -230,11 +233,14 @@ function CheckoutContent() {
               </div>
 
               <div>
-                <label className="block text-[11px] uppercase tracking-wider text-[#4a4237] mb-1">
+                <label htmlFor="checkout-phone-input" className="block text-[11px] uppercase tracking-wider text-[#4a4237] mb-1">
                   Private Telephone (for courier) *
                 </label>
                 <input
+                  id="checkout-phone-input"
+                  name="tel"
                   type="tel"
+                  autoComplete="tel"
                   required
                   value={phone}
                   onChange={(e) => setPhone(e.target.value)}
@@ -256,11 +262,14 @@ function CheckoutContent() {
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
-                <label className="block text-[11px] uppercase tracking-wider text-[#4a4237] mb-1">
+                <label htmlFor="checkout-firstname-input" className="block text-[11px] uppercase tracking-wider text-[#4a4237] mb-1">
                   First Name *
                 </label>
                 <input
+                  id="checkout-firstname-input"
+                  name="given-name"
                   type="text"
+                  autoComplete="given-name"
                   required
                   value={firstName}
                   onChange={(e) => setFirstName(e.target.value)}
@@ -270,11 +279,14 @@ function CheckoutContent() {
               </div>
 
               <div>
-                <label className="block text-[11px] uppercase tracking-wider text-[#4a4237] mb-1">
+                <label htmlFor="checkout-lastname-input" className="block text-[11px] uppercase tracking-wider text-[#4a4237] mb-1">
                   Last Name *
                 </label>
                 <input
+                  id="checkout-lastname-input"
+                  name="family-name"
                   type="text"
+                  autoComplete="family-name"
                   required
                   value={lastName}
                   onChange={(e) => setLastName(e.target.value)}
@@ -285,11 +297,14 @@ function CheckoutContent() {
             </div>
 
             <div>
-              <label className="block text-[11px] uppercase tracking-wider text-[#4a4237] mb-1">
+              <label htmlFor="checkout-address1-input" className="block text-[11px] uppercase tracking-wider text-[#4a4237] mb-1">
                 Street Address *
               </label>
               <input
+                id="checkout-address1-input"
+                name="address-line1"
                 type="text"
+                autoComplete="address-line1"
                 required
                 value={addressLine1}
                 onChange={(e) => setAddressLine1(e.target.value)}
@@ -299,11 +314,14 @@ function CheckoutContent() {
             </div>
 
             <div>
-              <label className="block text-[11px] uppercase tracking-wider text-[#4a4237] mb-1">
+              <label htmlFor="checkout-address2-input" className="block text-[11px] uppercase tracking-wider text-[#4a4237] mb-1">
                 Apartment, Suite, Penthouse (Optional)
               </label>
               <input
+                id="checkout-address2-input"
+                name="address-line2"
                 type="text"
+                autoComplete="address-line2"
                 value={addressLine2}
                 onChange={(e) => setAddressLine2(e.target.value)}
                 placeholder="Suite 14B"
@@ -313,11 +331,14 @@ function CheckoutContent() {
 
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
               <div>
-                <label className="block text-[11px] uppercase tracking-wider text-[#4a4237] mb-1">
+                <label htmlFor="checkout-city-input" className="block text-[11px] uppercase tracking-wider text-[#4a4237] mb-1">
                   City *
                 </label>
                 <input
+                  id="checkout-city-input"
+                  name="address-level2"
                   type="text"
+                  autoComplete="address-level2"
                   required
                   value={city}
                   onChange={(e) => setCity(e.target.value)}
@@ -327,11 +348,14 @@ function CheckoutContent() {
               </div>
 
               <div>
-                <label className="block text-[11px] uppercase tracking-wider text-[#4a4237] mb-1">
+                <label htmlFor="checkout-state-input" className="block text-[11px] uppercase tracking-wider text-[#4a4237] mb-1">
                   State / Region
                 </label>
                 <input
+                  id="checkout-state-input"
+                  name="address-level1"
                   type="text"
+                  autoComplete="address-level1"
                   value={stateOrProvince}
                   onChange={(e) => setStateOrProvince(e.target.value)}
                   placeholder="NY"
@@ -340,11 +364,14 @@ function CheckoutContent() {
               </div>
 
               <div>
-                <label className="block text-[11px] uppercase tracking-wider text-[#4a4237] mb-1">
+                <label htmlFor="checkout-postalcode-input" className="block text-[11px] uppercase tracking-wider text-[#4a4237] mb-1">
                   Postal Code *
                 </label>
                 <input
+                  id="checkout-postalcode-input"
+                  name="postal-code"
                   type="text"
+                  autoComplete="postal-code"
                   required
                   value={postalCode}
                   onChange={(e) => setPostalCode(e.target.value)}
@@ -355,10 +382,13 @@ function CheckoutContent() {
             </div>
 
             <div>
-              <label className="block text-[11px] uppercase tracking-wider text-[#4a4237] mb-1">
+              <label htmlFor="checkout-country-select" className="block text-[11px] uppercase tracking-wider text-[#4a4237] mb-1">
                 Country / Sovereign Territory *
               </label>
               <select
+                id="checkout-country-select"
+                name="country"
+                autoComplete="country-name"
                 value={country}
                 onChange={(e) => setCountry(e.target.value)}
                 className="w-full bg-white border border-[#c5b49e]/60 px-3 py-2 text-xs text-[#141210] focus:outline-none"
@@ -451,7 +481,7 @@ function CheckoutContent() {
                   paymentMethod === 'wire'
                     ? 'bg-[#141210] text-[#d4af37] border-[#141210] font-medium'
                     : 'bg-white text-[#4a4237] border-[#c5b49e]/60'
-                }`}
+                }`}\r
               >
                 <CreditCard className="w-4 h-4" />
                 <span>Credit Card</span>
@@ -563,7 +593,7 @@ function CheckoutContent() {
 
           {/* Items Preview */}
           <div className="space-y-4 max-h-72 overflow-y-auto pr-1">
-            {items.map((item) => (
+            {items.map((item) => (\r
               <div key={item.id} className="flex gap-3 text-xs">
                 <div className="relative w-16 h-20 bg-[#ede5d8] shrink-0 border border-[#c5b49e]/30">
                   {item.image && (
@@ -606,7 +636,12 @@ function CheckoutContent() {
               </div>
             ) : (
               <div className="flex gap-2">
+                <label htmlFor="checkout-privilege-code-input" className="sr-only">
+                  Patron Privilege Code
+                </label>
                 <input
+                  id="checkout-privilege-code-input"
+                  name="couponCode"
                   type="text"
                   placeholder="Privilege Code (e.g. WELCOME10)"
                   value={promoInput}
