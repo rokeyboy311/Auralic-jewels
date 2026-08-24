@@ -61,30 +61,12 @@ function LoginForm() {
   const handleGoogleSignIn = async () => {
     setErrorMessage('');
     setIsSubmitting(true);
-    const ok = await loginWithGoogle('elena.rostova@gmail.com', 'Elena Rostova');
+    const ok = await loginWithGoogle();
     setIsSubmitting(false);
     if (ok) {
       router.push(redirectPath);
     } else {
       setErrorMessage('Google authentication could not be completed.');
-    }
-  };
-
-  const handleQuickCustomerAccess = async () => {
-    setIsSubmitting(true);
-    const ok = await login('patron@domain.com', 'patron123');
-    setIsSubmitting(false);
-    if (ok) {
-      router.push(redirectPath);
-    }
-  };
-
-  const handleQuickAdminAccess = async () => {
-    setIsSubmitting(true);
-    const ok = await login('admin@auralic-jewels.vercel.app', 'admin123');
-    setIsSubmitting(false);
-    if (ok) {
-      router.push('/admin');
     }
   };
 
@@ -389,32 +371,6 @@ function LoginForm() {
                   <ArrowRight className="w-4 h-4 text-[#d4af37]" />
                 </button>
               </form>
-
-              {/* Instant Access Credentials */}
-              <div className="pt-3 border-t border-[#ebdccd] space-y-2">
-                <div className="flex items-center justify-between text-[11px] text-[#73685a]">
-                  <span>Instant Access:</span>
-                  <span className="text-[10px] text-[#9b7e46] uppercase font-semibold">1-Click</span>
-                </div>
-                <div className="grid grid-cols-2 gap-2">
-                  <button
-                    type="button"
-                    onClick={handleQuickCustomerAccess}
-                    disabled={isSubmitting}
-                    className="py-2 px-2 bg-[#faf8f5] hover:bg-[#f2ece2] border border-[#c5b49e]/60 text-[11px] text-[#141210] font-medium transition-colors text-center truncate cursor-pointer"
-                  >
-                    Patron Account
-                  </button>
-                  <button
-                    type="button"
-                    onClick={handleQuickAdminAccess}
-                    disabled={isSubmitting}
-                    className="py-2 px-2 bg-[#f2ece2] hover:bg-[#ebdccd] border border-[#9b7e46]/60 text-[11px] text-[#9b7e46] font-semibold transition-colors text-center truncate cursor-pointer"
-                  >
-                    Atelier Staff Portal
-                  </button>
-                </div>
-              </div>
 
               {/* Bottom link */}
               <div className="text-center pt-2 text-xs text-[#73685a]">

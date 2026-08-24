@@ -5,7 +5,7 @@ import { useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { CheckCircle2, ShieldCheck, Truck, Package, ArrowRight, Printer } from 'lucide-react';
 import { Order } from '@/lib/types';
-import { trackOrder } from '@/lib/api';
+import { getOrder } from '@/lib/api';
 import { useCurrency } from '@/context/CurrencyContext';
 
 function OrderSuccessContent() {
@@ -21,7 +21,7 @@ function OrderSuccessContent() {
         setIsLoading(false);
         return;
       }
-      const res = await trackOrder(orderNumber);
+      const res = await getOrder(orderNumber);
       if (res.success && res.data) {
         setOrder(res.data);
       }
