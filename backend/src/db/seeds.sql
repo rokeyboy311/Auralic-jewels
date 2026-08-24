@@ -36,8 +36,8 @@ ON CONFLICT (id) DO NOTHING;
 INSERT INTO coupons (code, discount_type, discount_value, min_order_usd, expiry_date, is_active, description)
 VALUES
 ('WELCOME10', 'percentage', 10.00, 1000.00, '2028-12-31 23:59:59Z', TRUE, 'Welcome privileges: 10% complimentary reduction on your first acquisition.'),
-('ROYAL15', 'percentage', 15.00, 5000.00, '2028-12-31 23:59:59Z', TRUE, 'VIP Patronage: 15% reduction on acquisitions over ,000.'),
-('AURALIC500', 'fixed', 500.00, 3000.00, '2028-12-31 23:59:59Z', TRUE, 'Private Invitation: 00 reduction on fine jewellery orders over ,000.')
+('ROYAL15', 'percentage', 15.00, 5000.00, '2028-12-31 23:59:59Z', TRUE, 'VIP Patronage: 15% reduction on acquisitions over $5,000.'),
+('AURALIC500', 'fixed', 500.00, 3000.00, '2028-12-31 23:59:59Z', TRUE, 'Private Invitation: $500 reduction on fine jewellery orders over $3,000.')
 ON CONFLICT (code) DO NOTHING;
 
 -- Insert Products
@@ -135,7 +135,7 @@ INSERT INTO products (
 )
 ON CONFLICT (id) DO NOTHING;
 
--- Insert Product Images (matching schema: product_id, url, alt, type, sort_order)
+-- Insert Product Images
 INSERT INTO product_images (product_id, url, alt, type, sort_order)
 VALUES
 ('prod-solitaire-eternity-ring', 'https://images.unsplash.com/photo-1605100804763-247f67b3557e?auto=format&fit=crop&w=1200&q=85', 'The Celestial Solitaire Diamond Ring Front View', 'main', 1),
@@ -146,3 +146,14 @@ VALUES
 ('prod-diamond-tennis-bracelet', 'https://images.unsplash.com/photo-1599643477877-530eb83abc8e?auto=format&fit=crop&w=1200&q=85', 'The Luminescence 8.00ct Diamond Tennis Bracelet', 'main', 1),
 ('prod-sapphire-chandeliers', 'https://images.unsplash.com/photo-1630019852942-f89202989a59?auto=format&fit=crop&w=1200&q=85', 'The Royal Ceylon Sapphire Cascade Earrings', 'main', 1),
 ('prod-mens-signet-cufflinks', 'https://images.unsplash.com/photo-1622398925373-3f91b1e275f5?auto=format&fit=crop&w=1200&q=85', 'The Sovereign Onyx & Diamond Signet Ring', 'main', 1);
+
+-- Insert Product Variants
+INSERT INTO product_variants (id, product_id, sku, metal_type, purity, size, stone_type, price_usd, stock, weight_grams, lead_time_days, is_ready_to_ship)
+VALUES
+('var-solitaire-18k-yellow-6', 'prod-solitaire-eternity-ring', 'AUR-RNG-001-YG-6', 'Yellow Gold', '18K', 'US 6.0', 'Natural Diamond', 12800.00, 3, 4.80, 7, TRUE),
+('var-solitaire-18k-yellow-7', 'prod-solitaire-eternity-ring', 'AUR-RNG-001-YG-7', 'Yellow Gold', '18K', 'US 7.0', 'Natural Diamond', 12800.00, 4, 4.85, 7, TRUE),
+('var-solitaire-18k-white-6', 'prod-solitaire-eternity-ring', 'AUR-RNG-001-WG-6', 'White Gold', '18K', 'US 6.0', 'Natural Diamond', 12950.00, 2, 4.90, 14, FALSE),
+('var-solitaire-platinum-7', 'prod-solitaire-eternity-ring', 'AUR-RNG-001-PL-7', 'Platinum', '950 Platinum', 'US 7.0', 'Natural Diamond', 14200.00, 2, 6.20, 14, FALSE),
+('var-emerald-necklace-18k-wg', 'prod-royal-emerald-necklace', 'AUR-NCK-002-WG-18', 'White Gold', '18K', '18 inch', 'Colombian Emerald', 38500.00, 2, 32.50, 21, FALSE),
+('var-tennis-bracelet-18k-wg', 'prod-diamond-tennis-bracelet', 'AUR-BRC-004-WG-7', 'White Gold', '18K', '7.0 inch', 'Natural Diamond', 16500.00, 5, 14.20, 5, TRUE)
+ON CONFLICT (id) DO NOTHING;
