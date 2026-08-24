@@ -1,27 +1,23 @@
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 
-export async function middleware(request: NextRequest) {
-  const token = request.cookies.get('aurelia_auth_token')?.value || '';
-  
-  if (request.nextUrl.pathname.startsWith('/admin')) {
-    // If no token, redirect to home with login modal maybe, or a specialized login
-    if (!token) {
-      return NextResponse.redirect(new URL('/', request.url));
+export function middleware(request: NextRequest) {
+  const { pathname } = request.nextUrl;
+
+  // Protect Admin Route with quick role check if cookie exists
+  if (pathname.startsWith('/admin')) {
+    const token = request.cookies.get('auralic_auth_token')?.value;
+
+    // Allow login path
+    if (pathname === '/admin/login' || pathname === '/login') {
+      return NextResponse.next();
     }
-    
-    // Validate token structure (basic check, backend will strictly verify)
-    try {
-      const payloadBase64 = token.split('.')[1];
-      const payloadJson = Buffer.from(payloadBase64, 'base64').toString('utf8');
-      const payload = JSON.parse(payloadJson);
-      
-      const allowedRoles = ['admin', 'superadmin', 'atelier_staff', 'gemologist', 'master_jeweller', 'manager'];
-      if (!payload.role || !allowedRoles.includes(payload.role.toLowerCase())) {
-        return NextResponse.redirect(new URL('/', request.url));
-      }
-    } catch (err) {
-      return NextResponse.redirect(new URL('/', request.url));
+
+    // In Next.js middleware, if no auth token is present, redirect to patron login
+    if (!token) {
+      const loginUrl = new URL('/login', request.url);
+      loginUrl.searchParams.set('redirect', pathname);
+      return NextResponse.redirect(loginUrl);
     }
   }
 
@@ -29,5 +25,5 @@ export async function middleware(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ['/admin/:path*'],
+  matcher: ['/admin/:path*', '/account/:path*'],
 };

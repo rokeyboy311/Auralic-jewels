@@ -1,233 +1,182 @@
 'use client';
 
 import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
-import { Conversation, ConversationProductContext, ConversationOrderContext, ConversationType } from '@/lib/types';
-import { getConversations, getConversation, createConversation, sendConversationMessage } from '@/lib/api';
+import { Conversation, ConversationMessage } from '../lib/types';
+import { 
+  getConversations, 
+  getConversation, 
+  createConversation, 
+  sendConversationMessage, 
+  updateConversation 
+} from '../lib/api';
 import { useAuth } from './AuthContext';
-import { useToast } from './ToastContext';
-
-interface OpenChatParams {
-  subject?: string;
-  type?: ConversationType;
-  initialMessage?: string;
-  productId?: string;
-  productContext?: ConversationProductContext;
-  orderId?: string;
-  orderContext?: ConversationOrderContext;
-  conversationId?: string;
-}
 
 interface ChatContextType {
-  isOpen: boolean;
-  activeConversation: Conversation | null;
   conversations: Conversation[];
-  isLoading: boolean;
-  unreadCount: number;
-  openChat: (params?: OpenChatParams) => void;
-  closeChat: () => void;
+  activeConversation: Conversation | null;
+  loading: boolean;
+  isChatOpen: boolean;
+  setIsChatOpen: (open: boolean) => void;
   setActiveConversation: (conv: Conversation | null) => void;
-  selectConversation: (id: string) => Promise<void>;
-  sendMessage: (content: string, attachments?: any[]) => Promise<boolean>;
-  startNewConversation: (params: {
-    subject: string;
-    type?: ConversationType;
-    initialMessage: string;
-    productId?: string;
-    productContext?: ConversationProductContext;
-    orderId?: string;
-    orderContext?: ConversationOrderContext;
-  }) => Promise<Conversation | null>;
   refreshConversations: () => Promise<void>;
+  selectConversation: (id: string) => Promise<void>;
+  startNewConversation: (payload: {
+    subject: string;
+    initialMessage: string;
+    type?: string;
+    priority?: string;
+    productId?: string;
+    productContext?: any;
+    orderId?: string;
+    orderContext?: any;
+  }) => Promise<Conversation | null>;
+  sendMessage: (content: string, attachments?: any[], isInternalNote?: boolean) => Promise<boolean>;
+  updateStatus: (status: string, internalNotes?: string) => Promise<void>;
 }
 
 const ChatContext = createContext<ChatContextType | undefined>(undefined);
 
-export function ChatProvider({ children }: { children: React.ReactNode }) {
-  const [isOpen, setIsOpen] = useState(false);
+export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  const { user } = useAuth();
   const [conversations, setConversations] = useState<Conversation[]>([]);
   const [activeConversation, setActiveConversation] = useState<Conversation | null>(null);
-  const [isLoading, setIsLoading] = useState(false);
-  const { user } = useAuth();
-  const { success, error } = useToast();
+  const [loading, setLoading] = useState<boolean>(false);
+  const [isChatOpen, setIsChatOpen] = useState<boolean>(false);
 
   const refreshConversations = useCallback(async () => {
     try {
-      const res = await getConversations({
-        userId: user ? user.id : 'usr-client-01',
-      });
+      const res = await getConversations();
       if (res.success && res.data) {
         setConversations(res.data);
-        if (activeConversation) {
-          const current = res.data.find((c) => c.id === activeConversation.id);
-          if (current) setActiveConversation(current);
-        }
       }
-    } catch {
-      // silent refresh fail
+    } catch (err) {
+      console.error('[ChatContext] Failed to load conversations', err);
     }
-  }, [user, activeConversation]);
+  }, []);
 
   useEffect(() => {
-    refreshConversations();
-    // Background polling interval for active messages
-    const interval = setInterval(refreshConversations, 15000);
-    return () => clearInterval(interval);
-  }, [refreshConversations]);
+    if (user) {
+      refreshConversations();
+    }
+  }, [user, refreshConversations]);
 
   const selectConversation = async (id: string) => {
-    setIsLoading(true);
+    setLoading(true);
     try {
-      const res = await getConversation(id, 'user');
+      const res = await getConversation(id);
       if (res.success && res.data) {
         setActiveConversation(res.data);
-        // update unread count locally
-        setConversations((prev) =>
-          prev.map((c) => (c.id === id ? { ...res.data!, unreadByUserCount: 0 } : c))
-        );
       }
-    } catch {
-      error('Communication Error', 'Could not retrieve conversation messages');
+    } catch (err) {
+      console.error('[ChatContext] Failed to select conversation', err);
     } finally {
-      setIsLoading(false);
+      setLoading(false);
     }
   };
 
-  const openChat = async (params?: OpenChatParams) => {
-    setIsOpen(true);
-    if (params?.conversationId) {
-      await selectConversation(params.conversationId);
-      return;
-    }
-
-    if (params?.productId || params?.orderId || params?.initialMessage) {
-      // Check if active conversation already matches this product or order
-      const existing = conversations.find(
-        (c) =>
-          (params.productId && c.productId === params.productId) ||
-          (params.orderId && c.orderId === params.orderId)
-      );
-
-      if (existing) {
-        await selectConversation(existing.id);
-      } else if (params.initialMessage && params.subject) {
-        await startNewConversation({
-          subject: params.subject,
-          type: params.type || 'product_modification',
-          initialMessage: params.initialMessage,
-          productId: params.productId,
-          productContext: params.productContext,
-          orderId: params.orderId,
-          orderContext: params.orderContext,
-        });
-      } else {
-        // Prepare prefilled draft mode
-        setActiveConversation(null);
-      }
-    } else if (!activeConversation && conversations.length > 0) {
-      setActiveConversation(conversations[0]);
-    }
-  };
-
-  const closeChat = () => {
-    setIsOpen(false);
-  };
-
-  const startNewConversation = async (params: {
+  const startNewConversation = async (payload: {
     subject: string;
-    type?: ConversationType;
     initialMessage: string;
+    type?: string;
+    priority?: string;
     productId?: string;
-    productContext?: ConversationProductContext;
+    productContext?: any;
     orderId?: string;
-    orderContext?: ConversationOrderContext;
-  }): Promise<Conversation | null> => {
-    setIsLoading(true);
+    orderContext?: any;
+  }) => {
+    setLoading(true);
     try {
       const res = await createConversation({
-        userId: user?.id || 'usr-client-01',
-        userName: user?.name || 'Valued Patron',
-        userEmail: user?.email || 'patron@domain.com',
+        ...payload,
+        userName: user?.name,
+        userEmail: user?.email,
         userPhone: user?.phone,
-        subject: params.subject,
-        type: params.type || 'general_concierge',
-        initialMessage: params.initialMessage,
-        productId: params.productId,
-        productContext: params.productContext,
-        orderId: params.orderId,
-        orderContext: params.orderContext,
       });
 
       if (res.success && res.data) {
-        setConversations((prev) => [res.data!, ...prev]);
         setActiveConversation(res.data);
-        success('Concierge Connected', 'Your inquiry has reached our Paris Place Vendôme atelier.');
+        await refreshConversations();
+        setIsChatOpen(true);
         return res.data;
-      } else {
-        error('Inquiry Failed', res.error || 'Could not dispatch message to atelier');
-        return null;
       }
-    } catch (err: any) {
-      error('Network Error', err.message || 'Could not connect to atelier');
+      return null;
+    } catch (err) {
+      console.error('[ChatContext] Failed to create conversation', err);
       return null;
     } finally {
-      setIsLoading(false);
+      setLoading(false);
     }
   };
 
-  const sendMessage = async (content: string, attachments: any[] = []): Promise<boolean> => {
+  const sendMessage = async (content: string, attachments: any[] = [], isInternalNote: boolean = false) => {
     if (!activeConversation) return false;
     try {
       const res = await sendConversationMessage(activeConversation.id, {
-        senderId: user?.id || 'usr-client-01',
-        senderName: user?.name || 'Valued Patron',
-        senderRole: 'customer',
         content,
         attachments,
+        isInternalNote,
+        senderRole: user?.role || 'customer',
+        senderName: user?.name || 'Valued Patron',
       });
 
-      if (res.success && res.data) {
-        const updated = res.data.conversation;
-        setActiveConversation(updated);
-        setConversations((prev) =>
-          prev.map((c) => (c.id === updated.id ? updated : c))
-        );
+      if (res.success && res.data?.message) {
+        setActiveConversation((prev) => {
+          if (!prev) return null;
+          return {
+            ...prev,
+            messages: [...(prev.messages || []), res.data!.message],
+          };
+        });
         return true;
       }
       return false;
-    } catch {
-      error('Delivery Failed', 'Unable to transmit message to atelier');
+    } catch (err) {
+      console.error('[ChatContext] Send message failed', err);
       return false;
     }
   };
 
-  const unreadCount = conversations.reduce((sum, c) => sum + (c.unreadByUserCount || 0), 0);
+  const updateStatus = async (status: string, internalNotes?: string) => {
+    if (!activeConversation) return;
+    try {
+      const res = await updateConversation(activeConversation.id, {
+        status,
+        internalNotes,
+      });
+      if (res.success && res.data) {
+        setActiveConversation(res.data);
+        await refreshConversations();
+      }
+    } catch (err) {
+      console.error('[ChatContext] Update conversation status failed', err);
+    }
+  };
 
   return (
     <ChatContext.Provider
       value={{
-        isOpen,
-        activeConversation,
         conversations,
-        isLoading,
-        unreadCount,
-        openChat,
-        closeChat,
+        activeConversation,
+        loading,
+        isChatOpen,
+        setIsChatOpen,
         setActiveConversation,
-        selectConversation,
-        sendMessage,
-        startNewConversation,
         refreshConversations,
+        selectConversation,
+        startNewConversation,
+        sendMessage,
+        updateStatus,
       }}
     >
       {children}
     </ChatContext.Provider>
   );
-}
+};
 
-export function useChat() {
+export const useChat = () => {
   const context = useContext(ChatContext);
   if (!context) {
     throw new Error('useChat must be used within a ChatProvider');
   }
   return context;
-}
+};

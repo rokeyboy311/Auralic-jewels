@@ -14,9 +14,9 @@ import {
 } from './types';
 
 // Centralized API Base URL
-// In development within Next.js, relative '/api' calls the integrated Next.js API proxy routes.
-// In production on Vercel, NEXT_PUBLIC_API_URL points to the Render backend API.
-const API_BASE = process.env.NEXT_PUBLIC_API_URL || '/api';
+// In production on Vercel, NEXT_PUBLIC_API_URL points to the Render backend API (e.g. https://api.yourdomain.com/api)
+// In local development, falls back to http://localhost:5000/api
+const API_BASE = process.env.NEXT_PUBLIC_API_URL || (typeof window !== 'undefined' && window.location.hostname === 'localhost' ? 'http://localhost:5000/api' : '/api');
 
 export interface ProductQueryParams {
   category?: string;
@@ -33,49 +33,25 @@ export interface ProductQueryParams {
   limit?: number;
 }
 
-export function getAuthToken(): string | null {
-  if (typeof window === 'undefined') return null;
-  try {
-    return localStorage.getItem('auralic_jwt_token');
-  } catch {
-    return null;
-  }
-}
-
-export function setAuthToken(token: string | null) {
-  if (typeof window === 'undefined') return;
-  try {
-    if (token) {
-      localStorage.setItem('auralic_jwt_token', token);
-    } else {
-      localStorage.removeItem('auralic_jwt_token');
-    }
-  } catch {
-    // ignore write errors
-  }
-}
-
 export async function fetchApi<T>(
   endpoint: string, 
   options: RequestInit = {}
-): Promise<{ success: boolean; data?: T; message?: string; error?: string; total?: number }> {
+): Promise<{ success: boolean; data?: T; message?: string; error?: string; total?: number; page?: number; limit?: number }> {
   try {
     const url = endpoint.startsWith('http') 
       ? endpoint 
       : `${API_BASE}${endpoint.startsWith('/') ? '' : '/'}${endpoint}`;
 
     const headers: Record<string, string> = {
-      'Content-Type': 'application/json',
       ...(options.headers as Record<string, string>),
     };
 
-    const token = getAuthToken();
-    if (token && !headers['Authorization']) {
-      headers['Authorization'] = `Bearer ${token}`;
+    if (!(options.body instanceof FormData) && !headers['Content-Type']) {
+      headers['Content-Type'] = 'application/json';
     }
 
     const response = await fetch(url, {
-      credentials: 'include',
+      credentials: 'include', // Automatically passes secure HttpOnly auralic_auth_token cookie
       ...options,
       headers,
     });
@@ -117,7 +93,7 @@ export async function getProducts(params: ProductQueryParams = {}) {
 }
 
 export async function getProduct(slugOrId: string) {
-  return await fetchApi<Product>(`/products/${slugOrId}`);
+  return await fetchApi<Product>(`/products/${encodeURIComponent(slugOrId)}`);
 }
 
 export async function getProductBySlug(slug: string) {
@@ -147,26 +123,30 @@ export async function getShippingMethods() {
 }
 
 // Orders & Checkout
-export async function createPaymentIntent(amountUSD: number, currency: string = 'USD') {
-  return await fetchApi<{ clientSecret: string }>('/stripe/intent', {
+export async function createPaymentIntent(amountUSD: number, currency: string = 'USD', orderId?: string) {
+  return await fetchApi<{ clientSecret: string; paymentIntentId: string }>('/payments/create-intent', {
     method: 'POST',
-    body: JSON.stringify({ amountUSD, currency }),
+    body: JSON.stringify({ amountUSD, currency, orderId }),
   });
 }
 
 export async function createOrder(orderPayload: Partial<Order>) {
-  return await fetchApi<Order>('/orders', {
+  return await fetchApi<{ order: Order; clientSecret?: string }>('/orders', {
     method: 'POST',
     body: JSON.stringify(orderPayload),
   });
 }
 
-export async function getOrder(id: string) {
-  return await fetchApi<Order>(`/orders/${id}`);
+export async function getMyOrders() {
+  return await fetchApi<Order[]>('/orders/my');
 }
 
-export async function trackOrder(orderNumber: string, email?: string) {
-  return await fetchApi<Order>('/orders/track', {
+export async function getOrder(id: string) {
+  return await fetchApi<Order>(`/orders/${encodeURIComponent(id)}`);
+}
+
+export async function trackOrder(orderNumber: string, email: string) {
+  return await fetchApi<any>('/orders/track', {
     method: 'POST',
     body: JSON.stringify({ orderNumber, email }),
   });
@@ -174,36 +154,24 @@ export async function trackOrder(orderNumber: string, email?: string) {
 
 // Auth API
 export async function loginUser(email: string, password?: string) {
-  const res = await fetchApi<{ user: User; token: string }>('/auth/login', {
+  return await fetchApi<{ user: User; token: string }>('/auth/login', {
     method: 'POST',
     body: JSON.stringify({ email, password }),
   });
-  if (res.success && res.data?.token) {
-    setAuthToken(res.data.token);
-  }
-  return res;
 }
 
 export async function registerUser(userData: { name: string; email: string; password?: string; phone?: string }) {
-  const res = await fetchApi<{ user: User; token: string }>('/auth/register', {
+  return await fetchApi<{ user: User; token: string }>('/auth/register', {
     method: 'POST',
     body: JSON.stringify(userData),
   });
-  if (res.success && res.data?.token) {
-    setAuthToken(res.data.token);
-  }
-  return res;
 }
 
 export async function loginWithGoogle(payload?: { credential?: string; idToken?: string; email?: string; name?: string }) {
-  const res = await fetchApi<{ user: User; token: string }>('/auth/google', {
+  return await fetchApi<{ user: User; token: string }>('/auth/google', {
     method: 'POST',
     body: JSON.stringify(payload || {}),
   });
-  if (res.success && res.data?.token) {
-    setAuthToken(res.data.token);
-  }
-  return res;
 }
 
 export async function getCurrentUserProfile() {
@@ -211,16 +179,47 @@ export async function getCurrentUserProfile() {
 }
 
 export async function logoutUser() {
-  setAuthToken(null);
   return await fetchApi<{ success: boolean }>('/auth/logout', { method: 'POST' });
+}
+
+export async function requestPasswordReset(email: string) {
+  return await fetchApi<{ success: boolean; message: string }>('/auth/password/forgot', {
+    method: 'POST',
+    body: JSON.stringify({ email }),
+  });
+}
+
+export async function executePasswordReset(token: string, newPassword: string) {
+  return await fetchApi<{ success: boolean; message: string }>('/auth/password/reset', {
+    method: 'POST',
+    body: JSON.stringify({ token, newPassword }),
+  });
+}
+
+// Media Upload via Cloudinary
+export async function uploadImage(file: File, folder: string = 'auralic_jewels') {
+  const formData = new FormData();
+  formData.append('file', file);
+  formData.append('folder', folder);
+
+  return await fetchApi<{ url: string; publicId: string; format: string; bytes: number }>('/uploads/image', {
+    method: 'POST',
+    body: formData,
+  });
 }
 
 // Reviews
 export async function getProductReviews(productId: string) {
-  return await fetchApi<Review[]>(`/reviews?productId=${productId}`);
+  return await fetchApi<Review[]>(`/reviews?productId=${encodeURIComponent(productId)}`);
 }
 
-export async function submitProductReview(review: Omit<Review, 'id' | 'createdAt'>) {
+export async function submitProductReview(review: {
+  productId: string;
+  rating: number;
+  title: string;
+  comment: string;
+  userCountry?: string;
+}) {
   return await fetchApi<Review>('/reviews', {
     method: 'POST',
     body: JSON.stringify(review),
@@ -239,6 +238,28 @@ export async function getBespokeInquiries() {
   return await fetchApi<BespokeInquiry[]>('/bespoke');
 }
 
+// Contact & Newsletter
+export async function submitContactInquiry(inquiry: {
+  name: string;
+  email: string;
+  phone?: string;
+  subject: string;
+  message: string;
+  boutiqueLocation?: string;
+}) {
+  return await fetchApi<{ success: boolean; message: string }>('/contact', {
+    method: 'POST',
+    body: JSON.stringify(inquiry),
+  });
+}
+
+export async function subscribeNewsletter(email: string) {
+  return await fetchApi<{ success: boolean; message: string }>('/newsletter/subscribe', {
+    method: 'POST',
+    body: JSON.stringify({ email }),
+  });
+}
+
 // Admin API
 export async function getAdminStats() {
   return await fetchApi<any>('/admin/stats');
@@ -248,10 +269,10 @@ export async function getAdminOrders() {
   return await fetchApi<Order[]>('/admin/orders');
 }
 
-export async function updateAdminOrderStatus(orderId: string, status: string, trackingNumber?: string, carrierName?: string) {
-  return await fetchApi<Order>(`/admin/orders/${orderId}/status`, {
+export async function updateAdminOrderStatus(orderId: string, status: string, trackingNumber?: string, carrierName?: string, note?: string) {
+  return await fetchApi<Order>(`/admin/orders/${encodeURIComponent(orderId)}/status`, {
     method: 'PUT',
-    body: JSON.stringify({ status, trackingNumber, carrierName }),
+    body: JSON.stringify({ status, trackingNumber, carrierName, note }),
   });
 }
 
@@ -267,7 +288,7 @@ export async function saveProduct(product: Partial<Product>) {
 export const saveAdminProduct = saveProduct;
 
 export async function deleteProduct(productId: string) {
-  return await fetchApi<{ id: string }>(`/admin/products/${productId}`, {
+  return await fetchApi<{ id: string }>(`/admin/products/${encodeURIComponent(productId)}`, {
     method: 'DELETE',
   });
 }
@@ -275,9 +296,8 @@ export async function deleteProduct(productId: string) {
 export const deleteAdminProduct = deleteProduct;
 
 // Conversations & Atelier Chat API
-export async function getConversations(params: { userId?: string; status?: string; priority?: string; search?: string } = {}) {
+export async function getConversations(params: { status?: string; priority?: string; search?: string } = {}) {
   const query = new URLSearchParams();
-  if (params.userId) query.set('userId', params.userId);
   if (params.status) query.set('status', params.status);
   if (params.priority) query.set('priority', params.priority);
   if (params.search) query.set('search', params.search);
@@ -285,16 +305,11 @@ export async function getConversations(params: { userId?: string; status?: strin
   return await fetchApi<Conversation[]>(`/conversations${qs ? `?${qs}` : ''}`);
 }
 
-export async function getConversation(id: string, readBy?: 'user' | 'admin') {
-  const qs = readBy ? `?readBy=${readBy}` : '';
-  return await fetchApi<Conversation>(`/conversations/${id}${qs}`);
+export async function getConversation(id: string) {
+  return await fetchApi<Conversation>(`/conversations/${encodeURIComponent(id)}`);
 }
 
 export async function createConversation(payload: {
-  userId?: string;
-  userName?: string;
-  userEmail?: string;
-  userPhone?: string;
   subject: string;
   type?: string;
   priority?: string;
@@ -303,6 +318,9 @@ export async function createConversation(payload: {
   productContext?: any;
   orderId?: string;
   orderContext?: any;
+  userName?: string;
+  userEmail?: string;
+  userPhone?: string;
 }) {
   return await fetchApi<Conversation>('/conversations', {
     method: 'POST',
@@ -313,16 +331,15 @@ export async function createConversation(payload: {
 export async function sendConversationMessage(
   conversationId: string,
   payload: {
-    senderId: string;
-    senderName: string;
-    senderRole: string;
     content: string;
     attachments?: any[];
     isInternalNote?: boolean;
+    senderRole?: string;
+    senderName?: string;
   }
 ) {
-  return await fetchApi<{ message: ConversationMessage; conversation: Conversation }>(
-    `/conversations/${conversationId}/messages`,
+  return await fetchApi<{ message: ConversationMessage; conversation?: Conversation }>(
+    `/conversations/${encodeURIComponent(conversationId)}/messages`,
     {
       method: 'POST',
       body: JSON.stringify(payload),
@@ -340,7 +357,7 @@ export async function updateConversation(
     internalNotes?: string;
   }
 ) {
-  return await fetchApi<Conversation>(`/conversations/${conversationId}`, {
+  return await fetchApi<Conversation>(`/conversations/${encodeURIComponent(conversationId)}`, {
     method: 'PATCH',
     body: JSON.stringify(payload),
   });
