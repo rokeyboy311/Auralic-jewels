@@ -287,12 +287,14 @@ function ShopContent() {
           {/* Price Range Slider */}
           <div className="space-y-2 pt-3 border-t border-black/5">
             <div className="flex justify-between text-xs">
-              <label className="text-[11px] uppercase tracking-widest text-[#C5A059] font-semibold">
+              <label htmlFor="shop-price-range-slider" className="text-[11px] uppercase tracking-widest text-[#C5A059] font-semibold">
                 Max Price
               </label>
               <span className="serif font-medium text-[#1A1A1A]">{formatPrice(maxPriceUSD)}</span>
             </div>
             <input
+              id="shop-price-range-slider"
+              name="maxPrice"
               type="range"
               min="1000"
               max="30000"
