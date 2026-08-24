@@ -23,7 +23,7 @@ import { useAuth } from '@/context/AuthContext';
 import { useCurrency } from '@/context/CurrencyContext';
 import { useChat } from '@/context/ChatContext';
 import { Order, BespokeInquiry } from '@/lib/types';
-import { getAdminOrders, getBespokeInquiries } from '@/lib/api';
+import { getMyOrders, getBespokeInquiries } from '@/lib/api';
 
 export default function AccountPage() {
   const router = useRouter();
@@ -37,20 +37,21 @@ export default function AccountPage() {
   useEffect(() => {
     async function loadUserData() {
       if (!user) return;
-      const [ordersRes, bespokeRes] = await Promise.all([
-        getAdminOrders(),
-        getBespokeInquiries(),
-      ]);
+      try {
+        const [ordersRes, bespokeRes] = await Promise.all([
+          getMyOrders(),
+          getBespokeInquiries(),
+        ]);
 
-      if (ordersRes.success && ordersRes.data) {
-        const myOrders = ordersRes.data.filter(
-          (o) => o.customerEmail.toLowerCase() === user.email.toLowerCase() || o.userId === user.id
-        );
-        setOrders(myOrders.length > 0 ? myOrders : ordersRes.data.slice(0, 1));
-      }
+        if (ordersRes.success && ordersRes.data) {
+          setOrders(ordersRes.data);
+        }
 
-      if (bespokeRes.success && bespokeRes.data) {
-        setBespokeInquiries(bespokeRes.data);
+        if (bespokeRes.success && bespokeRes.data) {
+          setBespokeInquiries(bespokeRes.data);
+        }
+      } catch (err) {
+        console.error('Error loading account data:', err);
       }
     }
     loadUserData();
