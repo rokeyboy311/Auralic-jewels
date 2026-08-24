@@ -340,11 +340,14 @@ export default function AdminDashboardPage() {
 
         <form onSubmit={handleAdminAuthSubmit} className="space-y-3.5 text-left bg-[#faf8f5] p-6 border border-[#c5b49e]/60 shadow-sm">
           <div>
-            <label className="block text-[11px] uppercase tracking-wider text-[#4a4237] font-medium mb-1">
+            <label htmlFor="admin-login-email-input" className="block text-[11px] uppercase tracking-wider text-[#4a4237] font-medium mb-1">
               Staff Email Address
             </label>
             <input
+              id="admin-login-email-input"
+              name="email"
               type="email"
+              autoComplete="email"
               required
               value={adminEmail}
               onChange={(e) => setAdminEmail(e.target.value)}
@@ -354,11 +357,14 @@ export default function AdminDashboardPage() {
           </div>
 
           <div>
-            <label className="block text-[11px] uppercase tracking-wider text-[#4a4237] font-medium mb-1">
+            <label htmlFor="admin-login-password-input" className="block text-[11px] uppercase tracking-wider text-[#4a4237] font-medium mb-1">
               Authentication Key / Password
             </label>
             <input
+              id="admin-login-password-input"
+              name="password"
               type="password"
+              autoComplete="current-password"
               required
               value={adminPassword}
               onChange={(e) => setAdminPassword(e.target.value)}
@@ -462,7 +468,7 @@ export default function AdminDashboardPage() {
       {/* Tabs */}
       <div className="flex border-b border-[#c5b49e]/40 gap-4 sm:gap-6 text-xs uppercase tracking-widest font-medium overflow-x-auto">
         <button
-          onClick={() => setActiveTab('orders')}
+          onClick={() => setActiveTab('orders')}\r
           className={`pb-3 border-b-2 transition-colors whitespace-nowrap cursor-pointer ${
             activeTab === 'orders'
               ? 'border-[#141210] text-[#141210] font-semibold'
@@ -797,7 +803,12 @@ export default function AdminDashboardPage() {
               <div className="p-3 border-b border-[#ebdccd] bg-white">
                 <div className="relative">
                   <Search className="w-3.5 h-3.5 text-[#73685a] absolute left-3 top-1/2 -translate-y-1/2" />
+                  <label htmlFor="admin-chat-search-input" className="sr-only">
+                    Search Patron Conversations
+                  </label>
                   <input
+                    id="admin-chat-search-input"
+                    name="chatSearch"
                     type="text"
                     placeholder="Search ticket #, patron name, or piece..."
                     value={chatSearch}
@@ -870,7 +881,7 @@ export default function AdminDashboardPage() {
                           {conv.subject}
                         </p>
 
-                        {conv.productContext && (
+                        {conv.productContext && (\r
                           <div className="flex items-center gap-2 p-1.5 bg-[#faf8f5] border border-[#ebdccd]/80 text-[10px] text-[#73685a]">
                             <Sparkles className="w-3 h-3 text-[#9b7e46] shrink-0" />
                             <span className="truncate">{conv.productContext.productName}</span>
@@ -921,121 +932,135 @@ export default function AdminDashboardPage() {
                         >
                           <option value="OPEN">Status: OPEN</option>
                           <option value="IN_PROGRESS">Status: IN_PROGRESS</option>
-                          <option value="WAITING_FOR_USER">Status: WAITING_FOR_USER</option>
-                          <option value="WAITING_FOR_ADMIN">Status: WAITING_FOR_ADMIN</option>
+                          <option value="WAITING_FOR_USER">Status: WAITING FOR PATRON</option>
+                          <option value="WAITING_FOR_ADMIN">Status: ACTION REQUIRED</option>
                           <option value="RESOLVED">Status: RESOLVED</option>
-                          <option value="CLOSED">Status: CLOSED</option>
                         </select>
                       </div>
                     </div>
 
                     {/* Staff Assignment Bar */}
-                    <div className="flex flex-wrap items-center justify-between gap-2 pt-2 border-t border-[#ebdccd]/70 text-xs">
-                      <div className="flex items-center gap-2">
+                    <div className="flex flex-wrap items-center justify-between gap-2 pt-2 border-t border-[#ebdccd]/60 text-xs">
+                      <div className="flex items-center gap-1.5 text-[#73685a]">
                         <UserCheck className="w-3.5 h-3.5 text-[#9b7e46]" />
-                        <span className="text-[#73685a]">Assignee:</span>
+                        <span>Assigned Jeweller:</span>
+                        <strong className="text-[#141210]">
+                          {selectedConversation.assignedStaffName || 'Atelier General Queue'}
+                        </strong>
+                      </div>
+
+                      <div className="flex items-center gap-1">
+                        <span className="text-[11px] text-[#73685a]">Reassign:</span>
                         <select
-                          value={selectedConversation.assignedStaffId || ''}
                           onChange={(e) => {
                             const staff = staffList.find((s) => s.id === e.target.value);
                             if (staff) handleAssignStaff(staff.id, staff.name);
                           }}
-                          className="p-1 bg-white border border-[#ebdccd] text-xs font-medium text-[#141210]"
+                          defaultValue=""
+                          className="text-xs p-1 bg-white border border-[#ebdccd] text-[#141210]"
                         >
-                          {staffList.map((stf) => (
-                            <option key={stf.id} value={stf.id}>
-                              {stf.name} ({stf.role.replace(/_/g, ' ')})
+                          <option value="" disabled>
+                            Select Specialist...
+                          </option>
+                          {staffList.map((s) => (
+                            <option key={s.id} value={s.id}>
+                              {s.name} ({s.specialty})
                             </option>
                           ))}
                         </select>
                       </div>
-
-                      {selectedConversation.productContext && (
-                        <Link
-                          href={`/product/${selectedConversation.productContext.productSlug}`}
-                          target="_blank"
-                          className="text-xs text-[#9b7e46] hover:underline flex items-center gap-1"
-                        >
-                          <span>Inspect Piece Dossier</span>
-                          <ExternalLink className="w-3 h-3" />
-                        </Link>
-                      )}
                     </div>
+
+                    {/* Attached Product Context */}
+                    {selectedConversation.productContext && (
+                      <div className="flex items-center justify-between p-2.5 bg-white border border-[#ebdccd] text-xs">
+                        <div className="flex items-center gap-2.5">
+                          {selectedConversation.productContext.productImage && (
+                            <div className="w-8 h-8 relative shrink-0 border border-[#ebdccd]">
+                              <Image
+                                src={selectedConversation.productContext.productImage}
+                                alt={selectedConversation.productContext.productName}
+                                fill
+                                className="object-cover"
+                                referrerPolicy="no-referrer"
+                              />
+                            </div>
+                          )}
+                          <div>
+                            <span className="text-[10px] uppercase font-mono text-[#9b7e46]">
+                              Referenced Catalogue Jewel:
+                            </span>
+                            <p className="font-serif text-xs text-[#141210] font-medium">
+                              {selectedConversation.productContext.productName}
+                            </p>
+                          </div>
+                        </div>
+
+                        {selectedConversation.productContext.productPriceUSD && (
+                          <span className="font-serif text-xs text-[#141210] font-semibold">
+                            {formatPrice(selectedConversation.productContext.productPriceUSD)}
+                          </span>
+                        )}
+                      </div>
+                    )}
                   </div>
 
-                  {/* Linked Product Context Card */}
-                  {selectedConversation.productContext && (
-                    <div className="p-3 bg-[#faf8f5] border-b border-[#ebdccd] flex items-center gap-3 text-xs">
-                      <div className="w-12 h-12 relative bg-[#ebdccd] shrink-0 border border-[#ebdccd]">
-                        <Image
-                          src={selectedConversation.productContext.image}
-                          alt={selectedConversation.productContext.productName}
-                          fill
-                          className="object-cover"
-                          referrerPolicy="no-referrer"
-                        />
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <p className="font-serif text-sm text-[#141210] font-medium truncate">
-                          {selectedConversation.productContext.productName}
-                        </p>
-                        <p className="text-[11px] text-[#73685a]">
-                          SKU: {selectedConversation.productContext.sku} • Metal:{' '}
-                          {selectedConversation.productContext.selectedMetal || '18K Gold'} • Size:{' '}
-                          {selectedConversation.productContext.selectedSize || 'US 7'} • Price:{' '}
-                          {formatPrice(selectedConversation.productContext.priceUSD)}
-                        </p>
-                      </div>
-                    </div>
-                  )}
-
-                  {/* Messages Feed */}
-                  <div className="flex-1 overflow-y-auto p-4 space-y-3 bg-[#faf8f5]/30 max-h-[360px]">
+                  {/* Messages Stream */}
+                  <div className="flex-1 p-4 overflow-y-auto space-y-4 max-h-[380px] bg-[#faf8f5]/20">
                     {selectedConversation.messages.map((msg) => {
-                      const isCustomer = msg.senderRole === 'customer';
-                      const isInternal = msg.isInternalNote;
+                      const isClient = msg.senderRole === 'user' || msg.senderRole === 'guest';
+                      const isNote = msg.isInternalNote;
 
                       return (
                         <div
                           key={msg.id}
-                          className={`p-3 text-xs leading-relaxed ${
-                            isInternal
-                              ? 'bg-amber-50/80 border border-amber-300 text-amber-950 ml-4'
-                              : isCustomer
-                              ? 'bg-[#f4efe8] border border-[#ebdccd] text-[#141210] mr-4'
-                              : 'bg-white border border-[#9b7e46]/40 text-[#141210] ml-4'
+                          className={`flex flex-col ${
+                            isNote
+                              ? 'items-center'
+                              : isClient
+                              ? 'items-start'
+                              : 'items-end'
                           }`}
                         >
-                          <div className="flex items-center justify-between mb-1.5 pb-1 border-b border-black/5 text-[10px]">
-                            <div className="flex items-center gap-1.5">
-                              <span className="font-bold text-[#141210]">{msg.senderName}</span>
-                              <span className="px-1 py-0.2 bg-stone-200 text-stone-800 uppercase font-mono">
-                                {isInternal ? 'INTERNAL NOTE' : msg.senderRole.replace(/_/g, ' ')}
-                              </span>
+                          {isNote ? (
+                            <div className="w-full bg-amber-50/80 border border-amber-300/80 p-3 text-xs text-amber-950 space-y-1">
+                              <div className="flex items-center justify-between font-mono text-[10px] text-amber-900 font-bold uppercase">
+                                <span className="flex items-center gap-1">
+                                  <Lock className="w-3 h-3 text-amber-800" />
+                                  Internal Atelier Ledger Note • {msg.senderName}
+                                </span>
+                                <span>{new Date(msg.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
+                              </div>
+                              <p className="leading-relaxed font-sans">{msg.content}</p>
                             </div>
-                            <span className="text-[#8c7f70]">
-                              {new Date(msg.createdAt).toLocaleString(undefined, {
-                                month: 'short',
-                                day: 'numeric',
-                                hour: '2-digit',
-                                minute: '2-digit',
-                              })}
-                            </span>
-                          </div>
+                          ) : (
+                            <div
+                              className={`max-w-[85%] p-3.5 space-y-1.5 shadow-xs ${
+                                isClient
+                                  ? 'bg-white border border-[#ebdccd] text-[#141210]'
+                                  : 'bg-[#141210] text-[#faf8f5]'
+                              }`}
+                            >
+                              <div className="flex items-center justify-between gap-4 text-[10px] opacity-75">
+                                <span className="font-semibold">{msg.senderName}</span>
+                                <span>{new Date(msg.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
+                              </div>
 
-                          <p className="whitespace-pre-wrap">{msg.content}</p>
+                              <p className="text-xs leading-relaxed whitespace-pre-wrap">{msg.content}</p>
 
-                          {msg.attachments && msg.attachments.length > 0 && (
-                            <div className="mt-2 pt-2 border-t border-black/5 space-y-1">
-                              {msg.attachments.map((att) => (
-                                <div
-                                  key={att.id}
-                                  className="flex items-center gap-2 p-1.5 bg-white border border-[#ebdccd] text-[11px]"
-                                >
-                                  <Paperclip className="w-3 h-3 text-[#9b7e46]" />
-                                  <span className="font-mono text-[#141210]">{att.name}</span>
+                              {msg.attachmentUrl && (
+                                <div className="mt-2 pt-2 border-t border-current/20">
+                                  <a
+                                    href={msg.attachmentUrl}
+                                    target="_blank"
+                                    rel="noreferrer"
+                                    className="inline-flex items-center gap-1.5 text-[11px] underline hover:opacity-80"
+                                  >
+                                    <Paperclip className="w-3.5 h-3.5" />
+                                    <span>Inspect Attached Image / Sketch</span>
+                                  </a>
                                 </div>
-                              ))}
+                              )}
                             </div>
                           )}
                         </div>
@@ -1064,45 +1089,48 @@ export default function AdminDashboardPage() {
                           onClick={() => setAdminReplyText('Thank you for reaching out. We have confirmed with our Master Goldsmith that this custom modification in Solid 950 Platinum is scheduled.')}
                           className="px-2 py-0.5 bg-[#faf8f5] hover:bg-[#ebdccd] border border-[#ebdccd] text-[#73685a]"
                         >
-                          + Quick 950 Platinum Confirmation
+                          + Quick Macro
                         </button>
                       </div>
                     </div>
 
                     <div className="flex gap-2">
                       <textarea
-                        rows={3}
-                        required
-                        placeholder={
-                          isInternalNote
-                            ? 'Record private atelier technical notes, CAD file updates, or gold melt calculations...'
-                            : 'Compose response to patron regarding jewelry modification or specifications...'
-                        }
+                        rows={2}
                         value={adminReplyText}
                         onChange={(e) => setAdminReplyText(e.target.value)}
-                        className="flex-1 text-xs p-3 bg-[#faf8f5] border border-[#ebdccd] text-[#141210] focus:border-[#9b7e46] outline-none resize-none"
+                        placeholder={
+                          isInternalNote
+                            ? 'Record private staff instructions, workshop updates, or gem sourcing notes...'
+                            : 'Compose response to patron...'
+                        }
+                        className={`flex-1 text-xs p-2.5 border outline-none resize-none ${
+                          isInternalNote
+                            ? 'bg-amber-50/50 border-amber-300 text-amber-950 focus:border-amber-500'
+                            : 'bg-[#faf8f5] border-[#ebdccd] text-[#141210] focus:border-[#9b7e46]'
+                        }`}
                       />
                       <button
                         type="submit"
                         disabled={!adminReplyText.trim() || isSendingReply}
-                        className={`px-5 text-xs uppercase tracking-wider font-medium flex flex-col items-center justify-center gap-1 transition-colors cursor-pointer disabled:opacity-50 ${
+                        className={`px-5 py-2 text-xs uppercase tracking-widest font-medium transition-colors disabled:opacity-40 flex items-center gap-1.5 shrink-0 ${
                           isInternalNote
                             ? 'bg-amber-800 text-white hover:bg-amber-900'
                             : 'bg-[#141210] text-[#faf8f5] hover:bg-[#9b7e46]'
                         }`}
                       >
-                        <Send className="w-4 h-4" />
-                        <span>{isInternalNote ? 'Save Note' : 'Send'}</span>
+                        <span>{isSendingReply ? 'Saving...' : isInternalNote ? 'Save Note' : 'Send'}</span>
+                        <Send className="w-3.5 h-3.5" />
                       </button>
                     </div>
                   </form>
                 </>
               ) : (
-                <div className="flex-1 flex flex-col items-center justify-center p-12 text-center text-[#73685a] space-y-2">
-                  <MessageSquare className="w-10 h-10 text-[#c5b49e]" />
-                  <h4 className="font-serif text-lg text-[#141210]">No Conversation Selected</h4>
-                  <p className="text-xs max-w-xs">
-                    Select an inquiry from the left panel to review client specifications and dispatch responses.
+                <div className="flex-1 flex flex-col items-center justify-center p-8 text-center text-[#73685a]">
+                  <MessageSquare className="w-10 h-10 text-[#ebdccd] mb-3" />
+                  <h4 className="font-serif text-lg text-[#141210]">No Inquiry Selected</h4>
+                  <p className="text-xs max-w-xs mt-1">
+                    Select a patron conversation from the left queue to review inquiries, update ticket status, or reply directly.
                   </p>
                 </div>
               )}
@@ -1111,100 +1139,103 @@ export default function AdminDashboardPage() {
         </div>
       )}
 
-      {/* TAB 5: ATELIER INTERNAL STAFF DIRECTORY */}
+      {/* TAB 5: ATELIER STAFF DIRECTORY */}
       {activeTab === 'staff' && (
         <div className="bg-white border border-[#ebdccd] overflow-hidden">
           <div className="p-4 border-b border-[#ebdccd] flex justify-between items-center bg-[#faf8f5]">
             <div>
-              <h3 className="font-serif text-lg text-[#141210]">Atelier Staff & Master Jewellers Directory</h3>
+              <h3 className="font-serif text-lg text-[#141210]">Maison Atelier Specialists & Gemologists</h3>
               <p className="text-xs text-[#73685a]">
-                Internal staff accounts managed strictly within the admin architecture.
+                Directory of senior goldsmiths and gemological directors active across our salons.
               </p>
             </div>
-            <span className="px-3 py-1 bg-[#141210] text-[#faf8f5] text-xs font-mono">
-              {staffList.length} Active Staff Members
-            </span>
+            <span className="text-xs text-[#73685a] font-mono">{staffList.length} Active Specialists</span>
           </div>
 
-          <div className="overflow-x-auto">
-            <table className="w-full text-left text-xs text-[#141210]">
-              <thead className="bg-[#f5ede3] text-[#73685a] uppercase text-[10px] tracking-wider border-b border-[#ebdccd]">
-                <tr>
-                  <th className="py-3 px-4">Staff Member</th>
-                  <th className="py-3 px-4">Internal Role</th>
-                  <th className="py-3 px-4">Specialty & Department</th>
-                  <th className="py-3 px-4">Active Inquiries Assigned</th>
-                  <th className="py-3 px-4">Access Status</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-[#ebdccd]">
-                {staffList.map((stf) => (
-                  <tr key={stf.id} className="hover:bg-[#faf8f5]">
-                    <td className="py-4 px-4">
-                      <div className="flex items-center gap-3">
-                        <div className="w-8 h-8 rounded-full bg-[#141210] text-[#dfd0b5] flex items-center justify-center font-serif text-sm font-bold">
-                          {stf.name.charAt(0)}
-                        </div>
-                        <div>
-                          <p className="font-serif text-sm text-[#141210] font-medium">{stf.name}</p>
-                          <p className="text-[11px] text-[#73685a] font-mono">{stf.email}</p>
-                        </div>
-                      </div>
-                    </td>
-                    <td className="py-4 px-4">
-                      <span className="px-2 py-0.5 bg-[#f2ece2] text-[#9b7e46] font-mono text-[10px] uppercase font-bold border border-[#ebdccd]">
-                        {stf.role.replace(/_/g, ' ')}
-                      </span>
-                    </td>
-                    <td className="py-4 px-4 text-[#594f43]">
-                      {stf.specialty || 'Haute Joaillerie Execution'}
-                    </td>
-                    <td className="py-4 px-4 font-mono font-medium">
-                      {stf.activeTicketsCount || 2} active tickets
-                    </td>
-                    <td className="py-4 px-4">
-                      <span className="inline-flex items-center gap-1 text-emerald-700 text-xs font-medium">
-                        <CheckCircle2 className="w-3.5 h-3.5" />
-                        <span>Active Node</span>
-                      </span>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 p-6 bg-[#faf8f5]/30">
+            {staffList.map((st) => (
+              <div key={st.id} className="bg-white border border-[#ebdccd] p-4 space-y-3 shadow-xs">
+                <div className="flex items-center gap-3">
+                  <div className="w-12 h-12 relative rounded-full overflow-hidden bg-[#f5ede3] border border-[#ebdccd] shrink-0">
+                    <Image
+                      src={st.avatarUrl || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=400&q=80'}
+                      alt={st.name}
+                      fill
+                      className="object-cover"
+                      referrerPolicy="no-referrer"
+                    />
+                  </div>
+                  <div>
+                    <h4 className="font-serif text-sm font-semibold text-[#141210]">{st.name}</h4>
+                    <p className="text-[11px] text-[#9b7e46] font-medium">{st.title}</p>
+                    <p className="text-[10px] text-[#73685a]">{st.location}</p>
+                  </div>
+                </div>
+
+                <div className="text-xs space-y-1 pt-2 border-t border-[#ebdccd]/60 text-[#594f43]">
+                  <div className="flex justify-between">
+                    <span className="text-[#8c7f70]">Specialty:</span>
+                    <strong className="text-[#141210]">{st.specialty}</strong>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-[#8c7f70]">Certifications:</span>
+                    <span>{st.certifications.join(', ')}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-[#8c7f70]">Active Cases:</span>
+                    <span className="font-mono font-semibold text-[#9b7e46]">{st.activeConversationsCount} active</span>
+                  </div>
+                </div>
+
+                <div className="flex items-center gap-2 pt-1 text-[11px]">
+                  <span
+                    className={`w-2 h-2 rounded-full ${
+                      st.isOnline ? 'bg-emerald-500' : 'bg-stone-300'
+                    }`}
+                  />
+                  <span className="text-[#73685a]">
+                    {st.isOnline ? 'On Duty in Atelier' : 'Away from Bench'}
+                  </span>
+                </div>
+              </div>
+            ))}
           </div>
         </div>
       )}
 
-      {/* Modal: Update Consignment Status */}
+      {/* Modal: Update Order Status */}
       {editingOrderId && (
-        <div className="fixed inset-0 z-50 bg-black/70 flex items-center justify-center p-4">
+        <div className="fixed inset-0 z-50 bg-black/60 flex items-center justify-center p-4">
           <div className="bg-white max-w-md w-full p-6 border border-[#c5b49e] space-y-4 shadow-2xl">
-            <h3 className="font-serif text-xl text-[#141210]">Update Consignment Dispatch</h3>
+            <h3 className="font-serif text-xl text-[#141210]">Update Armored Logistics Status</h3>
 
             <div>
               <label className="block text-[11px] uppercase tracking-wider text-[#4a4237] mb-1">
-                Logistics Status
+                New Logistics Status
               </label>
               <select
                 value={newStatus}
                 onChange={(e) => setNewStatus(e.target.value)}
                 className="w-full bg-white border border-[#c5b49e]/60 px-3 py-2 text-xs text-[#141210]"
               >
-                <option value="confirmed">Confirmed</option>
-                <option value="processing">Atelier In-Production</option>
-                <option value="ready_to_ship">Inspected & Sealed</option>
-                <option value="shipped">Handed to Armored Carrier</option>
-                <option value="in_transit">In Transit (Air Armored)</option>
-                <option value="delivered">Delivered & Signed</option>
+                <option value="processing">Processing in Atelier</option>
+                <option value="in_production">Bespoke Workshop Forging</option>
+                <option value="quality_check">Gemological & Hallmark Assay</option>
+                <option value="shipped">Dispatched with Armored Courier</option>
+                <option value="in_transit">In Transit (High-Security Escort)</option>
+                <option value="out_for_delivery">Armored Courier Out for Delivery</option>
+                <option value="delivered">Delivered to Patron Hand</option>
+                <option value="cancelled">Cancelled & Refunded</option>
               </select>
             </div>
 
             <div>
-              <label className="block text-[11px] uppercase tracking-wider text-[#4a4237] mb-1">
+              <label htmlFor="admin-courier-carrier-input" className="block text-[11px] uppercase tracking-wider text-[#4a4237] mb-1">
                 Security Courier Carrier
               </label>
               <input
+                id="admin-courier-carrier-input"
+                name="courierCarrier"
                 type="text"
                 value={carrierInput}
                 onChange={(e) => setCarrierInput(e.target.value)}
@@ -1214,10 +1245,12 @@ export default function AdminDashboardPage() {
             </div>
 
             <div>
-              <label className="block text-[11px] uppercase tracking-wider text-[#4a4237] mb-1">
+              <label htmlFor="admin-tracking-docket-input" className="block text-[11px] uppercase tracking-wider text-[#4a4237] mb-1">
                 Secure Tracking Docket Number
               </label>
               <input
+                id="admin-tracking-docket-input"
+                name="trackingDocket"
                 type="text"
                 value={trackingInput}
                 onChange={(e) => setTrackingInput(e.target.value)}
@@ -1254,10 +1287,12 @@ export default function AdminDashboardPage() {
             <h3 className="font-serif text-2xl text-[#141210]">Register New High Jewellery Piece</h3>
 
             <div>
-              <label className="block text-[11px] uppercase tracking-wider text-[#4a4237] mb-1">
+              <label htmlFor="admin-new-prod-name-input" className="block text-[11px] uppercase tracking-wider text-[#4a4237] mb-1">
                 Piece Title *
               </label>
               <input
+                id="admin-new-prod-name-input"
+                name="productName"
                 type="text"
                 required
                 value={prodName}
@@ -1269,10 +1304,12 @@ export default function AdminDashboardPage() {
 
             <div className="grid grid-cols-2 gap-3">
               <div>
-                <label className="block text-[11px] uppercase tracking-wider text-[#4a4237] mb-1">
+                <label htmlFor="admin-new-prod-price-input" className="block text-[11px] uppercase tracking-wider text-[#4a4237] mb-1">
                   Price (USD) *
                 </label>
                 <input
+                  id="admin-new-prod-price-input"
+                  name="productPrice"
                   type="number"
                   required
                   value={prodPriceUSD}
@@ -1282,10 +1319,12 @@ export default function AdminDashboardPage() {
               </div>
 
               <div>
-                <label className="block text-[11px] uppercase tracking-wider text-[#4a4237] mb-1">
+                <label htmlFor="admin-new-prod-stock-input" className="block text-[11px] uppercase tracking-wider text-[#4a4237] mb-1">
                   Stock Units *
                 </label>
                 <input
+                  id="admin-new-prod-stock-input"
+                  name="productStock"
                   type="number"
                   value={prodStock}
                   onChange={(e) => setProdStock(Number(e.target.value))}
@@ -1296,28 +1335,31 @@ export default function AdminDashboardPage() {
 
             <div className="grid grid-cols-2 gap-3">
               <div>
-                <label className="block text-[11px] uppercase tracking-wider text-[#4a4237] mb-1">
+                <label htmlFor="admin-new-prod-category-select" className="block text-[11px] uppercase tracking-wider text-[#4a4237] mb-1">
                   Category
                 </label>
                 <select
+                  id="admin-new-prod-category-select"
+                  name="category"
                   value={prodCategory}
                   onChange={(e) => setProdCategory(e.target.value)}
                   className="w-full bg-white border border-[#c5b49e]/60 px-3 py-2 text-xs text-[#141210]"
                 >
                   <option value="Rings">Rings</option>
                   <option value="Necklaces">Necklaces</option>
-                  <option value="Earrings">Earrings</option>
                   <option value="Bracelets">Bracelets</option>
-                  <option value="Bangles">Bangles</option>
-                  <option value="Men's Jewellery">Men&apos;s Jewellery</option>
+                  <option value="Earrings">Earrings</option>
+                  <option value="Bespoke Masterpieces">Bespoke Masterpieces</option>
                 </select>
               </div>
 
               <div>
-                <label className="block text-[11px] uppercase tracking-wider text-[#4a4237] mb-1">
-                  Purity & Metal
+                <label htmlFor="admin-new-prod-metal-select" className="block text-[11px] uppercase tracking-wider text-[#4a4237] mb-1">
+                  Metal Purity
                 </label>
                 <select
+                  id="admin-new-prod-metal-select"
+                  name="metalPurity"
                   value={prodPurity}
                   onChange={(e) => setProdPurity(e.target.value)}
                   className="w-full bg-white border border-[#c5b49e]/60 px-3 py-2 text-xs text-[#141210]"
@@ -1331,10 +1373,12 @@ export default function AdminDashboardPage() {
 
             <div className="grid grid-cols-2 gap-3">
               <div>
-                <label className="block text-[11px] uppercase tracking-wider text-[#4a4237] mb-1">
+                <label htmlFor="admin-new-prod-stone-input" className="block text-[11px] uppercase tracking-wider text-[#4a4237] mb-1">
                   Gemstone & Carats
                 </label>
                 <input
+                  id="admin-new-prod-stone-input"
+                  name="gemstone"
                   type="text"
                   value={prodStone}
                   onChange={(e) => setProdStone(e.target.value)}
@@ -1344,10 +1388,12 @@ export default function AdminDashboardPage() {
               </div>
 
               <div>
-                <label className="block text-[11px] uppercase tracking-wider text-[#4a4237] mb-1">
+                <label htmlFor="admin-new-prod-cert-input" className="block text-[11px] uppercase tracking-wider text-[#4a4237] mb-1">
                   GIA / IGI Cert Number
                 </label>
                 <input
+                  id="admin-new-prod-cert-input"
+                  name="certNumber"
                   type="text"
                   value={prodCertNumber}
                   onChange={(e) => setProdCertNumber(e.target.value)}
@@ -1369,22 +1415,22 @@ export default function AdminDashboardPage() {
                 else setProdImage('');
               }}
               onChange={(img) => {
-                setProdImage(img);
-                if (img && !prodImages.includes(img)) {
-                  setProdImages([img, ...prodImages]);
+                if (img) {
+                  setProdImage(img);
+                  if (!prodImages.includes(img)) setProdImages([...prodImages, img]);
                 }
               }}
             />
 
             <div>
               <label className="block text-[11px] uppercase tracking-wider text-[#4a4237] mb-1">
-                Atelier Description
+                Detailed Artistic Description
               </label>
               <textarea
-                rows={2}
+                rows={3}
                 value={prodDesc}
                 onChange={(e) => setProdDesc(e.target.value)}
-                placeholder="Masterpiece details and craftsmanship specifications..."
+                placeholder="Describe the provenance, cut precision, micro-pavé setting, and aesthetic harmony..."
                 className="w-full bg-white border border-[#c5b49e]/60 px-3 py-2 text-xs text-[#141210]"
               />
             </div>
@@ -1392,14 +1438,14 @@ export default function AdminDashboardPage() {
             <div className="flex gap-2 pt-2">
               <button
                 type="submit"
-                className="flex-1 py-3 bg-[#141210] hover:bg-[#9b7e46] text-[#faf8f5] text-xs uppercase tracking-widest font-medium transition-colors"
+                className="flex-1 py-3 bg-[#141210] hover:bg-[#9b7e46] text-white text-xs uppercase tracking-wider font-semibold transition-colors"
               >
-                Publish to International Catalogue
+                Publish Piece to Boutique
               </button>
               <button
                 type="button"
                 onClick={() => setShowProductModal(false)}
-                className="px-4 py-3 border border-[#c5b49e]/60 text-xs uppercase tracking-widest"
+                className="px-4 py-3 border border-[#c5b49e]/60 text-xs uppercase tracking-wider"
               >
                 Cancel
               </button>
