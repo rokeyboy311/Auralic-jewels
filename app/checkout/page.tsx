@@ -23,14 +23,8 @@ import { getShippingMethods, createOrder, validateCoupon, createPaymentIntent } 
 import { ShippingMethod } from '@/lib/types';
 import { brandConfig } from '@/lib/brandConfig';
 
-
-
-
-
-
 function CheckoutContent() {
   const router = useRouter();
-  
   
   const {
     items,
@@ -128,15 +122,10 @@ function CheckoutContent() {
 
     try {
       if (paymentMethod === 'wire') {
-        
-
         const intentRes = await createPaymentIntent(finalTotalUSD, currentCurrency);
         if (!intentRes.success || !intentRes.data?.clientSecret) {
           throw new Error('Failed to initialize secure payment session.');
         }
-
-        
-        
 
         const stripeError: any = null; const paymentIntent = { status: "succeeded" };
 
@@ -176,9 +165,10 @@ function CheckoutContent() {
       const res = await createOrder(orderPayload);
 
       if (res.success && res.data) {
+        const orderData = (res.data as any).order || res.data;
         clearCart();
-        success('Order Confirmed', `Consignment #${res.data.orderNumber} has been secured.`);
-        router.push(`/order-success?orderNumber=${res.data.orderNumber}`);
+        success('Order Confirmed', `Consignment #${orderData.orderNumber} has been secured.`);
+        router.push(`/order-success?orderNumber=${orderData.orderNumber}`);
       } else {
         error('Acquisition Error', res.error || 'Could not place your order with the atelier.');
       }
