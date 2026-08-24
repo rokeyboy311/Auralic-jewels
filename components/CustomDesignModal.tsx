@@ -376,10 +376,12 @@ export default function CustomDesignModal({
                     </div>
 
                     <div>
-                      <label className="block text-[11px] uppercase tracking-wider text-[#4a4237] mb-1 font-medium">
+                      <label htmlFor="custom-design-size-input" className="block text-[11px] uppercase tracking-wider text-[#4a4237] mb-1 font-medium">
                         Custom Size / Dimensions
                       </label>
                       <input
+                        id="custom-design-size-input"
+                        name="customSize"
                         type="text"
                         value={customSize}
                         onChange={(e) => setCustomSize(e.target.value)}
@@ -390,10 +392,12 @@ export default function CustomDesignModal({
                   </div>
 
                   <div>
-                    <label className="block text-[11px] uppercase tracking-wider text-[#4a4237] mb-1 font-medium">
+                    <label htmlFor="custom-design-engraving-input" className="block text-[11px] uppercase tracking-wider text-[#4a4237] mb-1 font-medium">
                       Custom Laser Engraving (Complimentary)
                     </label>
                     <input
+                      id="custom-design-engraving-input"
+                      name="engravingText"
                       type="text"
                       maxLength={30}
                       value={engravingText}
@@ -404,10 +408,12 @@ export default function CustomDesignModal({
                   </div>
 
                   <div>
-                    <label className="block text-[11px] uppercase tracking-wider text-[#4a4237] mb-1 font-medium">
+                    <label htmlFor="custom-design-notes-textarea" className="block text-[11px] uppercase tracking-wider text-[#4a4237] mb-1 font-medium">
                       Specific Modification Requests & Instructions
                     </label>
                     <textarea
+                      id="custom-design-notes-textarea"
+                      name="modificationNotes"
                       rows={2}
                       value={modificationNotes}
                       onChange={(e) => setModificationNotes(e.target.value)}
@@ -553,10 +559,12 @@ export default function CustomDesignModal({
                   </div>
 
                   <div>
-                    <label className="block text-[11px] uppercase tracking-wider text-[#4a4237] mb-1 font-medium">
+                    <label htmlFor="custom-design-preferred-date" className="block text-[11px] uppercase tracking-wider text-[#4a4237] mb-1 font-medium">
                       Preferred Date / Timeline
                     </label>
                     <input
+                      id="custom-design-preferred-date"
+                      name="preferredDate"
                       type="date"
                       value={preferredDate}
                       onChange={(e) => setPreferredDate(e.target.value)}
@@ -574,8 +582,14 @@ export default function CustomDesignModal({
 
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                   <div>
+                    <label htmlFor="custom-patron-name-input" className="sr-only">
+                      Full Name
+                    </label>
                     <input
+                      id="custom-patron-name-input"
+                      name="name"
                       type="text"
+                      autoComplete="name"
                       required
                       value={patronName}
                       onChange={(e) => setPatronName(e.target.value)}
@@ -584,8 +598,14 @@ export default function CustomDesignModal({
                     />
                   </div>
                   <div>
+                    <label htmlFor="custom-patron-email-input" className="sr-only">
+                      Email Address
+                    </label>
                     <input
+                      id="custom-patron-email-input"
+                      name="email"
                       type="email"
+                      autoComplete="email"
                       required
                       value={patronEmail}
                       onChange={(e) => setPatronEmail(e.target.value)}
@@ -594,8 +614,14 @@ export default function CustomDesignModal({
                     />
                   </div>
                   <div>
+                    <label htmlFor="custom-patron-phone-input" className="sr-only">
+                      Telephone
+                    </label>
                     <input
+                      id="custom-patron-phone-input"
+                      name="tel"
                       type="tel"
+                      autoComplete="tel"
                       required
                       value={patronPhone}
                       onChange={(e) => setPatronPhone(e.target.value)}
@@ -611,7 +637,7 @@ export default function CustomDesignModal({
                 type="submit"
                 className="w-full py-4 bg-[#141210] hover:bg-[#9b7e46] text-[#faf8f5] text-xs uppercase tracking-[0.2em] font-medium transition-all shadow-md flex items-center justify-center gap-2"
               >
-                <Sparkles className="w-4 h-4 text-[#d4af37]" />
+                <Sparkles className="w-4 h-4 text-[#d4af37] text-xs" />
                 <span>
                   {activeTab === 'modify'
                     ? 'Submit Customization Request'
