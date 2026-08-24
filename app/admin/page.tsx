@@ -468,7 +468,7 @@ export default function AdminDashboardPage() {
       {/* Tabs */}
       <div className="flex border-b border-[#c5b49e]/40 gap-4 sm:gap-6 text-xs uppercase tracking-widest font-medium overflow-x-auto">
         <button
-          onClick={() => setActiveTab('orders')}\r
+          onClick={() => setActiveTab('orders')}
           className={`pb-3 border-b-2 transition-colors whitespace-nowrap cursor-pointer ${
             activeTab === 'orders'
               ? 'border-[#141210] text-[#141210] font-semibold'
@@ -881,7 +881,7 @@ export default function AdminDashboardPage() {
                           {conv.subject}
                         </p>
 
-                        {conv.productContext && (\r
+                        {conv.productContext && (
                           <div className="flex items-center gap-2 p-1.5 bg-[#faf8f5] border border-[#ebdccd]/80 text-[10px] text-[#73685a]">
                             <Sparkles className="w-3 h-3 text-[#9b7e46] shrink-0" />
                             <span className="truncate">{conv.productContext.productName}</span>
@@ -975,10 +975,10 @@ export default function AdminDashboardPage() {
                     {selectedConversation.productContext && (
                       <div className="flex items-center justify-between p-2.5 bg-white border border-[#ebdccd] text-xs">
                         <div className="flex items-center gap-2.5">
-                          {selectedConversation.productContext.productImage && (
+                          {selectedConversation.productContext.image && (
                             <div className="w-8 h-8 relative shrink-0 border border-[#ebdccd]">
                               <Image
-                                src={selectedConversation.productContext.productImage}
+                                src={selectedConversation.productContext.image}
                                 alt={selectedConversation.productContext.productName}
                                 fill
                                 className="object-cover"
@@ -996,9 +996,9 @@ export default function AdminDashboardPage() {
                           </div>
                         </div>
 
-                        {selectedConversation.productContext.productPriceUSD && (
+                        {selectedConversation.productContext.priceUSD && (
                           <span className="font-serif text-xs text-[#141210] font-semibold">
-                            {formatPrice(selectedConversation.productContext.productPriceUSD)}
+                            {formatPrice(selectedConversation.productContext.priceUSD)}
                           </span>
                         )}
                       </div>
@@ -1008,7 +1008,7 @@ export default function AdminDashboardPage() {
                   {/* Messages Stream */}
                   <div className="flex-1 p-4 overflow-y-auto space-y-4 max-h-[380px] bg-[#faf8f5]/20">
                     {selectedConversation.messages.map((msg) => {
-                      const isClient = msg.senderRole === 'user' || msg.senderRole === 'guest';
+                      const isClient = msg.senderRole === 'customer';
                       const isNote = msg.isInternalNote;
 
                       return (
@@ -1048,17 +1048,31 @@ export default function AdminDashboardPage() {
 
                               <p className="text-xs leading-relaxed whitespace-pre-wrap">{msg.content}</p>
 
-                              {msg.attachmentUrl && (
-                                <div className="mt-2 pt-2 border-t border-current/20">
-                                  <a
-                                    href={msg.attachmentUrl}
-                                    target="_blank"
-                                    rel="noreferrer"
-                                    className="inline-flex items-center gap-1.5 text-[11px] underline hover:opacity-80"
-                                  >
-                                    <Paperclip className="w-3.5 h-3.5" />
-                                    <span>Inspect Attached Image / Sketch</span>
-                                  </a>
+                              {((msg.attachments && msg.attachments.length > 0) || msg.attachmentUrl) && (
+                                <div className="mt-2 pt-2 border-t border-current/20 space-y-1">
+                                  {msg.attachments?.map((att) => (
+                                    <a
+                                      key={att.id || att.url}
+                                      href={att.url}
+                                      target="_blank"
+                                      rel="noreferrer"
+                                      className="inline-flex items-center gap-1.5 text-[11px] underline hover:opacity-80 block"
+                                    >
+                                      <Paperclip className="w-3.5 h-3.5" />
+                                      <span>{att.name || 'Inspect Attached Image / Sketch'}</span>
+                                    </a>
+                                  ))}
+                                  {msg.attachmentUrl && !msg.attachments?.length && (
+                                    <a
+                                      href={msg.attachmentUrl}
+                                      target="_blank"
+                                      rel="noreferrer"
+                                      className="inline-flex items-center gap-1.5 text-[11px] underline hover:opacity-80 block"
+                                    >
+                                      <Paperclip className="w-3.5 h-3.5" />
+                                      <span>Inspect Attached Image / Sketch</span>
+                                    </a>
+                                  )}
                                 </div>
                               )}
                             </div>
@@ -1167,23 +1181,25 @@ export default function AdminDashboardPage() {
                   </div>
                   <div>
                     <h4 className="font-serif text-sm font-semibold text-[#141210]">{st.name}</h4>
-                    <p className="text-[11px] text-[#9b7e46] font-medium">{st.title}</p>
-                    <p className="text-[10px] text-[#73685a]">{st.location}</p>
+                    {st.title && <p className="text-[11px] text-[#9b7e46] font-medium">{st.title}</p>}
+                    {st.location && <p className="text-[10px] text-[#73685a]">{st.location}</p>}
                   </div>
                 </div>
 
                 <div className="text-xs space-y-1 pt-2 border-t border-[#ebdccd]/60 text-[#594f43]">
                   <div className="flex justify-between">
                     <span className="text-[#8c7f70]">Specialty:</span>
-                    <strong className="text-[#141210]">{st.specialty}</strong>
+                    <strong className="text-[#141210]">{st.specialty || 'Haute Joaillerie Specialist'}</strong>
                   </div>
-                  <div className="flex justify-between">
-                    <span className="text-[#8c7f70]">Certifications:</span>
-                    <span>{st.certifications.join(', ')}</span>
-                  </div>
+                  {st.certifications && st.certifications.length > 0 && (
+                    <div className="flex justify-between">
+                      <span className="text-[#8c7f70]">Certifications:</span>
+                      <span>{st.certifications.join(', ')}</span>
+                    </div>
+                  )}
                   <div className="flex justify-between">
                     <span className="text-[#8c7f70]">Active Cases:</span>
-                    <span className="font-mono font-semibold text-[#9b7e46]">{st.activeConversationsCount} active</span>
+                    <span className="font-mono font-semibold text-[#9b7e46]">{st.activeConversationsCount || st.activeTicketsCount || 0} active</span>
                   </div>
                 </div>
 
