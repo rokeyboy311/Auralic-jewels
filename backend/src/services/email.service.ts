@@ -5,6 +5,30 @@ const resendClient = config.resend.apiKey ? new Resend(config.resend.apiKey) : n
 
 export class EmailService {
   /**
+   * General purpose email sender
+   */
+  static async sendEmail(options: { to: string | string[]; subject: string; html: string; text?: string; from?: string }): Promise<boolean> {
+    if (!resendClient) {
+      console.log(`[EmailService (Simulated)] Email to ${Array.isArray(options.to) ? options.to.join(', ') : options.to} | Subject: ${options.subject}`);
+      return true;
+    }
+
+    try {
+      await resendClient.emails.send({
+        from: options.from || config.resend.emailFrom,
+        to: Array.isArray(options.to) ? options.to : [options.to],
+        subject: options.subject,
+        html: options.html,
+        text: options.text,
+      });
+      return true;
+    } catch (err: any) {
+      console.error('[EmailService] sendEmail failed:', err.message);
+      return false;
+    }
+  }
+
+  /**
    * Send Order Confirmation Email with detailed invoice breakdown
    */
   static async sendOrderConfirmation(order: any): Promise<boolean> {

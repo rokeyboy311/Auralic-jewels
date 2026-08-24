@@ -18,7 +18,7 @@ export class StripeService {
   static async createPaymentIntent(
     amountUSD: number,
     currency: string = 'USD',
-    orderId?: string
+    orderIdOrMeta?: string | { orderId?: string; customerEmail?: string; [key: string]: any }
   ): Promise<{ clientSecret: string; paymentIntentId: string }> {
     if (!stripeClient) {
       console.warn('[StripeService] Secret key not configured. Mocking clientSecret for development.');
@@ -30,15 +30,23 @@ export class StripeService {
 
     // Amount in cents (USD)
     const amountInCents = Math.round(amountUSD * 100);
+    const metadata: Record<string, string> = {
+      source: 'Auralic Haute Joaillerie E-Commerce',
+    };
+
+    if (typeof orderIdOrMeta === 'string') {
+      metadata.orderId = orderIdOrMeta;
+    } else if (orderIdOrMeta && typeof orderIdOrMeta === 'object') {
+      Object.entries(orderIdOrMeta).forEach(([k, v]) => {
+        if (v !== undefined && v !== null) metadata[k] = String(v);
+      });
+    }
 
     const intent = await stripeClient.paymentIntents.create({
       amount: amountInCents,
       currency: currency.toLowerCase(),
       automatic_payment_methods: { enabled: true },
-      metadata: {
-        orderId: orderId || 'pending_order',
-        source: 'Auralic Haute Joaillerie E-Commerce',
-      },
+      metadata,
     });
 
     return {
@@ -58,14 +66,8 @@ export class StripeService {
   /**
    * Construct webhook event with raw buffer signature verification
    */
-  static constructWebhookEvent(rawBody: Buffer, signature: string): Stripe.Event {
-    if (!stripeClient) {
-      throw new Error('Stripe client is not initialized.');
-    }
-    return stripeClient.webhooks.constructEvent(
-      rawBody,
-      signature,
-      config.stripe.webhookSecret
-    );
+  static constructWebhookEvent(payload: Buffer | string, signature: string): Stripe.Event | null {
+    if (!stripeClient || !config.stripe.webhookSecret) return null;
+    return stripeClient.webhooks.constructEvent(payload, signature, config.stripe.webhookSecret);
   }
 }
