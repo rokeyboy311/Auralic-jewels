@@ -102,7 +102,7 @@ export const ImageUploader: React.FC<ImageUploaderProps> = ({
 
       {imagesList.length > 0 && (
         <div className="grid grid-cols-3 sm:grid-cols-4 gap-2 mb-2">
-          {imagesList.map((imgUrl, idx) => (\r
+          {imagesList.map((imgUrl, idx) => (
             <div key={idx} className="relative aspect-square bg-[#141210]/5 border border-[#c5b49e]/60 overflow-hidden">
               <img src={imgUrl} alt={`Upload ${idx + 1}`} className="w-full h-full object-cover" />
               <button
@@ -118,31 +118,7 @@ export const ImageUploader: React.FC<ImageUploaderProps> = ({
         </div>
       )}
 
-      {(!multiple && imagesList.length >= 1) ? null : (
-        <div className="border border-dashed border-[#c5b49e] bg-[#faf8f5] p-4 text-center hover:bg-[#f2ece2] transition-colors">
-          <label className="cursor-pointer flex flex-col items-center justify-center gap-1.5 py-2">
-            {uploading ? (
-              <Loader2 className="w-6 h-6 text-[#9b7e46] animate-spin" />
-            ) : (
-              <Upload className="w-6 h-6 text-[#9b7e46]/80 hover:text-[#9b7e46] transition-colors" />
-            )}
-            <span className="text-xs font-serif text-[#141210]">
-              {uploading ? 'Transmitting to Atelier Vault...' : 'Select Photography to Upload'}
-            </span>
-            <span className="text-[10px] text-[#73685a] font-sans">{helperText}</span>
-            <input
-              name="uploaderFile"
-              type="file"
-              accept="image/*"
-              multiple={multiple}
-              onChange={handleFileChange}
-              disabled={uploading}
-              aria-label="Upload jewelry photography or sketches"
-              className="hidden"
-            />
-          </label>
-        </div>
-      )}
+      {(!multiple && imagesList.length >= 1) ? null : (\n        <div className="border border-dashed border-[#c5b49e] bg-[#faf8f5] p-4 text-center hover:bg-[#f2ece2] transition-colors">\n          <label className="cursor-pointer flex flex-col items-center justify-center gap-1.5 py-2">\n            {uploading ? (\n              <Loader2 className=\"w-6 h-6 text-[#9b7e46] animate-spin\" />\n            ) : (\n              <Upload className=\"w-6 h-6 text-[#9b7e46]/80 hover:text-[#9b7e46] transition-colors\" />\n            )}\n            <span className=\"text-xs font-serif text-[#141210]\">\n              {uploading ? 'Transmitting to Atelier Vault...' : 'Select Photography to Upload'}\n            </span>\n            <span className=\"text-[10px] text-[#73685a] font-sans\">{helperText}</span>\n            <input\n              name=\"uploaderFile\"\n              type=\"file\"\n              accept=\"image/*\"\n              multiple={multiple}\n              onChange={handleFileChange}\n              disabled={uploading}\n              aria-label=\"Upload jewelry photography or sketches\"\n              className=\"hidden\"\n            />\n          </label>\n        </div>\n      )}
 
       {error && <p className="text-xs text-rose-600 mt-1">{error}</p>}
     </div>
