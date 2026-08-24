@@ -84,7 +84,7 @@ export default function CartDrawer() {
 
               {/* Free Shipping Progress Indicator */}
               <div className="bg-[#f2ece2] px-6 py-3 border-b border-[#ebdccd]">
-                {subtotalUSD >= freeShippingThreshold ? (\r
+                {subtotalUSD >= freeShippingThreshold ? (
                   <div className="flex items-center gap-2 text-xs text-[#2b2621]">
                     <ShieldCheck className="w-4 h-4 text-[#9b7e46]" />
                     <span>Complimentary Armored Courier unlocked for this acquisition.</span>
@@ -227,7 +227,7 @@ export default function CartDrawer() {
                         type="text"
                         placeholder="Patron Privilege Code (e.g. WELCOME10)"
                         value={promoInput}
-                        onChange={(e) => setPromoInput(e.target.value.toUpperCase())}\r
+                        onChange={(e) => setPromoInput(e.target.value.toUpperCase())}
                         className="flex-1 bg-white border border-[#c5b49e]/60 px-3 py-2 text-xs text-[#141210] uppercase tracking-wider focus:outline-none focus:border-[#9b7e46]"
                       />
                       <button
