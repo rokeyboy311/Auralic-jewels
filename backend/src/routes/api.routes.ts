@@ -228,10 +228,10 @@ router.post('/auth/google', async (req: Request, res: Response) => {
 /**
  * Get Current Authenticated Profile
  */
-router.get('/auth/me', requireAuth, async (req: AuthenticatedRequest, res: Response) => {
+router.get('/auth/me', optionalAuth, async (req: AuthenticatedRequest, res: Response) => {
   const pool = getDbPool();
   if (!pool || !req.user?.id) {
-    return res.status(401).json({ success: false, error: 'Unauthenticated.' });
+    return res.json({ success: true, data: null });
   }
 
   try {
@@ -240,11 +240,11 @@ router.get('/auth/me', requireAuth, async (req: AuthenticatedRequest, res: Respo
       [req.user.id]
     );
     if (result.rows.length === 0) {
-      return res.status(404).json({ success: false, error: 'User account not found.' });
+      return res.json({ success: true, data: null });
     }
     return res.json({ success: true, data: result.rows[0] });
   } catch (error: any) {
-    return res.status(500).json({ success: false, error: error.message });
+    return res.json({ success: true, data: null });
   }
 });
 
@@ -602,13 +602,20 @@ router.get('/categories', async (req: Request, res: Response) => {
 
   try {
     const result = await pool.query(`
-      SELECT c.*,
+      SELECT 
+        c.id,
+        c.name,
+        c.slug,
+        c.description,
+        COALESCE(c.image_url, c.image) AS image_url,
+        COALESCE(c.is_featured, false) AS is_featured,
+        COALESCE(c.sort_order, 0) AS sort_order,
         COUNT(p.id) AS product_count
       FROM categories c
-      LEFT JOIN products p ON p.category = c.name AND p.status = 'active'
-      WHERE c.is_active = true
-      GROUP BY c.id
-      ORDER BY c.sort_order ASC
+      LEFT JOIN products p ON (LOWER(p.category) = LOWER(c.name) OR p.category_id = c.id) AND p.status = 'active'
+      WHERE COALESCE(c.is_active, true) = true
+      GROUP BY c.id, c.name, c.slug, c.description, c.image_url, c.image, c.is_featured, c.sort_order
+      ORDER BY COALESCE(c.sort_order, 0) ASC, c.name ASC
     `);
 
     const categories = result.rows.map((row: any) => ({
@@ -633,13 +640,20 @@ router.get('/collections', async (req: Request, res: Response) => {
 
   try {
     const result = await pool.query(`
-      SELECT col.*,
+      SELECT 
+        col.id,
+        col.name,
+        col.slug,
+        col.description,
+        COALESCE(col.hero_image, col.banner_image) AS hero_image,
+        COALESCE(col.theme, 'Haute Joaillerie') AS theme,
+        COALESCE(col.sort_order, 0) AS sort_order,
         COUNT(p.id) AS product_count
       FROM collections col
-      LEFT JOIN products p ON p.collection = col.name AND p.status = 'active'
-      WHERE col.is_active = true
-      GROUP BY col.id
-      ORDER BY col.sort_order ASC
+      LEFT JOIN products p ON (LOWER(p.collection) = LOWER(col.name) OR p.collection_id = col.id) AND p.status = 'active'
+      WHERE COALESCE(col.is_active, true) = true
+      GROUP BY col.id, col.name, col.slug, col.description, col.hero_image, col.banner_image, col.theme, col.sort_order
+      ORDER BY COALESCE(col.sort_order, 0) ASC, col.name ASC
     `);
 
     const collections = result.rows.map((row: any) => ({
