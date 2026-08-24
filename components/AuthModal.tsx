@@ -149,13 +149,16 @@ export default function AuthModal({ isOpen, onClose, initialMode = 'signin' }: A
               ) : (
                 <form onSubmit={handleForgotPasswordSubmit} className="space-y-4">
                   <div>
-                    <label className="block text-[11px] uppercase tracking-wider text-[#4a4237] font-medium mb-1">
+                    <label htmlFor="auth-modal-forgot-email" className="block text-[11px] uppercase tracking-wider text-[#4a4237] font-medium mb-1">
                       Email Address *
                     </label>
                     <div className="relative">
                       <Mail className="w-4 h-4 text-[#998b79] absolute left-3.5 top-3" />
                       <input
+                        id="auth-modal-forgot-email"
+                        name="email"
                         type="email"
+                        autoComplete="email"
                         required
                         value={email}
                         onChange={(e) => setEmail(e.target.value)}
@@ -263,13 +266,16 @@ export default function AuthModal({ isOpen, onClose, initialMode = 'signin' }: A
               <form onSubmit={handleEmailSubmit} className="space-y-3.5">
                 {activeTab === 'signup' && (
                   <div>
-                    <label className="block text-[11px] uppercase tracking-wider text-[#4a4237] font-medium mb-1">
+                    <label htmlFor="auth-modal-name-input" className="block text-[11px] uppercase tracking-wider text-[#4a4237] font-medium mb-1">
                       Full Name *
                     </label>
                     <div className="relative">
                       <UserIcon className="w-4 h-4 text-[#998b79] absolute left-3.5 top-3" />
                       <input
+                        id="auth-modal-name-input"
+                        name="name"
                         type="text"
+                        autoComplete="name"
                         required
                         value={name}
                         onChange={(e) => setName(e.target.value)}
@@ -281,13 +287,16 @@ export default function AuthModal({ isOpen, onClose, initialMode = 'signin' }: A
                 )}
 
                 <div>
-                  <label className="block text-[11px] uppercase tracking-wider text-[#4a4237] font-medium mb-1">
+                  <label htmlFor="auth-modal-email-input" className="block text-[11px] uppercase tracking-wider text-[#4a4237] font-medium mb-1">
                     Email Address *
                   </label>
                   <div className="relative">
                     <Mail className="w-4 h-4 text-[#998b79] absolute left-3.5 top-3" />
                     <input
+                      id="auth-modal-email-input"
+                      name="email"
                       type="email"
+                      autoComplete="email"
                       required
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
@@ -299,13 +308,16 @@ export default function AuthModal({ isOpen, onClose, initialMode = 'signin' }: A
 
                 {activeTab === 'signup' && (
                   <div>
-                    <label className="block text-[11px] uppercase tracking-wider text-[#4a4237] font-medium mb-1">
+                    <label htmlFor="auth-modal-phone-input" className="block text-[11px] uppercase tracking-wider text-[#4a4237] font-medium mb-1">
                       Phone Number (Optional)
                     </label>
                     <div className="relative">
                       <Phone className="w-4 h-4 text-[#998b79] absolute left-3.5 top-3" />
                       <input
+                        id="auth-modal-phone-input"
+                        name="tel"
                         type="tel"
+                        autoComplete="tel"
                         value={phone}
                         onChange={(e) => setPhone(e.target.value)}
                         placeholder="+1 (212) 555-0199"
@@ -317,7 +329,7 @@ export default function AuthModal({ isOpen, onClose, initialMode = 'signin' }: A
 
                 <div>
                   <div className="flex justify-between items-center mb-1">
-                    <label className="block text-[11px] uppercase tracking-wider text-[#4a4237] font-medium">
+                    <label htmlFor="auth-modal-password-input" className="block text-[11px] uppercase tracking-wider text-[#4a4237] font-medium">
                       Password *
                     </label>
                     {activeTab === 'signin' && (
@@ -333,7 +345,10 @@ export default function AuthModal({ isOpen, onClose, initialMode = 'signin' }: A
                   <div className="relative">
                     <Lock className="w-4 h-4 text-[#998b79] absolute left-3.5 top-3" />
                     <input
+                      id="auth-modal-password-input"
+                      name="password"
                       type={showPassword ? 'text' : 'password'}
+                      autoComplete={activeTab === 'signin' ? 'current-password' : 'new-password'}
                       required
                       value={password}
                       onChange={(e) => setPassword(e.target.value)}
