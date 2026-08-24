@@ -326,7 +326,7 @@ export default function AtelierConciergeChat() {
               </div>
 
               {conversations.length === 0 ? (
-                <div className="text-center py-12 space-y-3">\r
+                <div className="text-center py-12 space-y-3">
                   <div className="w-12 h-12 rounded-full bg-[#f5ede3] border border-[#ebdccd] flex items-center justify-center mx-auto text-[#9b7e46]">
                     <MessageSquare className="w-6 h-6" />
                   </div>
@@ -468,15 +468,7 @@ export default function AtelierConciergeChat() {
                         <span className="text-[10px] font-medium text-[#594f43]">
                           {msg.senderName}
                         </span>
-                        {!isCustomer && (
-                          <span className="text-[9px] uppercase tracking-wider px-1.5 py-0.2 bg-[#ebdccd] text-[#73685a] font-medium">
-                            {msg.senderRole === 'master_jeweller'
-                              ? 'Master Jeweller'
-                              : msg.senderRole === 'gemologist'
-                              ? 'Senior Gemologist'
-                              : 'Atelier Director'}
-                          </span>
-                        )}
+                        {!isCustomer && (\n                          <span className=\"text-[9px] uppercase tracking-wider px-1.5 py-0.2 bg-[#ebdccd] text-[#73685a] font-medium\">\n                            {msg.senderRole === 'master_jeweller'\n                              ? 'Master Jeweller'\n                              : msg.senderRole === 'gemologist'\n                              ? 'Senior Gemologist'\n                              : 'Atelier Director'}\n                          </span>\n                        )}
                         <span className="text-[9px] text-[#a39887]">
                           {new Date(msg.createdAt).toLocaleTimeString([], {
                             hour: '2-digit',
