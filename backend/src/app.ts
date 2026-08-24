@@ -76,6 +76,14 @@ export function createApp() {
   app.use(express.urlencoded({ extended: true, limit: '2mb' }));
   app.use(cookieParser());
 
+  // Normalize multiple slashes in URLs (e.g. //products -> /products)
+  app.use((req, _res, next) => {
+    if (req.url.includes('//')) {
+      req.url = req.url.replace(/\/+/g, '/');
+    }
+    next();
+  });
+
   // Root & Health Monitoring Endpoints for Render Web Service Health Checks
   app.get('/', (_req, res) => {
     res.json({
@@ -96,8 +104,9 @@ export function createApp() {
     });
   });
 
-  // Mount Primary REST API Router
+  // Mount Primary REST API Router on both /api and root / for universal compatibility
   app.use('/api', apiRoutes);
+  app.use('/', apiRoutes);
 
   // Global Error Handler
   app.use(errorHandler);

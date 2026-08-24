@@ -14,9 +14,22 @@ import {
 } from './types';
 
 // Centralized API Base URL
-// In production on Vercel, NEXT_PUBLIC_API_URL points to the Render backend API (e.g. https://api.yourdomain.com/api)
-// In local development, falls back to http://localhost:5000/api
-const API_BASE = process.env.NEXT_PUBLIC_API_URL || (typeof window !== 'undefined' && window.location.hostname === 'localhost' ? 'http://localhost:5000/api' : '/api');
+// In production on Vercel, NEXT_PUBLIC_API_URL points to the Render backend API (e.g. https://auralic-jewels.onrender.com)
+// Automatically handles trailing slashes, missing /api prefix, and double slashes
+export function getApiBaseUrl(): string {
+  let envUrl = process.env.NEXT_PUBLIC_API_URL || '';
+  if (envUrl) {
+    envUrl = envUrl.trim().replace(/\/+$/, '');
+    if (!envUrl.endsWith('/api')) {
+      envUrl = `${envUrl}/api`;
+    }
+    return envUrl;
+  }
+  if (typeof window !== 'undefined' && window.location.hostname === 'localhost') {
+    return 'http://localhost:5000/api';
+  }
+  return '/api';
+}
 
 export interface ProductQueryParams {
   category?: string;
@@ -38,9 +51,14 @@ export async function fetchApi<T>(
   options: RequestInit = {}
 ): Promise<{ success: boolean; data?: T; message?: string; error?: string; total?: number; page?: number; limit?: number }> {
   try {
-    const url = endpoint.startsWith('http') 
-      ? endpoint 
-      : `${API_BASE}${endpoint.startsWith('/') ? '' : '/'}${endpoint}`;
+    let url: string;
+    if (endpoint.startsWith('http')) {
+      url = endpoint;
+    } else {
+      const base = getApiBaseUrl().replace(/\/+$/, '');
+      const cleanEndpoint = endpoint.replace(/^\/+/, '');
+      url = `${base}/${cleanEndpoint}`;
+    }
 
     const headers: Record<string, string> = {
       ...(options.headers as Record<string, string>),
@@ -111,10 +129,7 @@ export async function getCollections() {
 
 // Coupon / Promotion Validation
 export async function validateCoupon(code: string, orderSubtotalUSD: number) {
-  return await fetchApi<{ coupon: Coupon; discountUSD: number }>('/coupons/validate', {
-    method: 'POST',
-    body: JSON.stringify({ code, orderSubtotalUSD }),
-  });
+  return await fetchApi<{ coupon: Coupon; discountUSD: number }>('/coupons/validate', {\n    method: 'POST',\n    body: JSON.stringify({ code, orderSubtotalUSD }),\n  });
 }
 
 // Shipping Methods
