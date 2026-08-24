@@ -120,7 +120,7 @@ export default function AdminDashboardPage() {
   };
 
   const handleSelectChat = async (id: string) => {
-    const res = await getConversation(id, 'admin');
+    const res = await getConversation(id);
     if (res.success && res.data) {
       setSelectedConversation(res.data);
       setConversations((prev) =>
@@ -136,7 +136,6 @@ export default function AdminDashboardPage() {
     setIsSendingReply(true);
     try {
       const res = await sendConversationMessage(selectedConversation.id, {
-        senderId: user?.id || 'usr-admin-01',
         senderName: user?.name || 'Maison Auralic Atelier Director',
         senderRole: 'master_jeweller',
         content: adminReplyText.trim(),
@@ -145,10 +144,12 @@ export default function AdminDashboardPage() {
 
       if (res.success && res.data) {
         const updated = res.data.conversation;
-        setSelectedConversation(updated);
-        setConversations((prev) =>
-          prev.map((c) => (c.id === updated.id ? updated : c))
-        );
+        if (updated) {
+          setSelectedConversation(updated);
+          setConversations((prev) =>
+            prev.map((c) => (c.id === updated.id ? updated : c))
+          );
+        }
         setAdminReplyText('');
         success(
           isInternalNote ? 'Internal Note Saved' : 'Reply Dispatched',
@@ -312,30 +313,73 @@ export default function AdminDashboardPage() {
     }
   };
 
-  const handleAdminAuth = async () => {
-    await login('admin@auralic-jewels.vercel.app', 'admin123');
+  const [adminEmail, setAdminEmail] = useState('');
+  const [adminPassword, setAdminPassword] = useState('');
+  const [isAuthenticating, setIsAuthenticating] = useState(false);
+
+  const handleAdminAuthSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsAuthenticating(true);
+    const ok = await login(adminEmail, adminPassword);
+    setIsAuthenticating(false);
+    if (ok) {
+      await loadAll();
+    }
   };
 
   if (!isAdmin) {
     return (
       <div className="max-w-md mx-auto px-4 py-24 text-center space-y-6">
-        <div className="w-14 h-14 bg-[#141210] text-[#d4af37] flex items-center justify-center rounded-full mx-auto">
+        <div className="w-14 h-14 bg-[#141210] text-[#d4af37] flex items-center justify-center rounded-full mx-auto shadow-md">
           <Lock className="w-6 h-6" />
         </div>
-        <h1 className="font-serif text-3xl text-[#141210]">Atelier Administration Portal</h1>
+        <h1 className="font-serif text-3xl text-[#141210]">Atelier Staff & Admin Hub</h1>
         <p className="text-xs text-[#73685a] leading-relaxed">
-          Access is strictly restricted to Maison Auralic Gemologists, Directors, and Logistics Coordinators.
+          Access is restricted to authorized Maison Auralic Gemologists, Master Jewellers, and Atelier Directors.
         </p>
-        <button
-          onClick={handleAdminAuth}
-          className="w-full py-3.5 bg-[#141210] hover:bg-[#9b7e46] text-[#faf8f5] text-xs uppercase tracking-[0.2em] font-medium transition-colors cursor-pointer"
-        >
-          Authenticate as Atelier Director
-        </button>
+
+        <form onSubmit={handleAdminAuthSubmit} className="space-y-3.5 text-left bg-[#faf8f5] p-6 border border-[#c5b49e]/60 shadow-sm">
+          <div>
+            <label className="block text-[11px] uppercase tracking-wider text-[#4a4237] font-medium mb-1">
+              Staff Email Address
+            </label>
+            <input
+              type="email"
+              required
+              value={adminEmail}
+              onChange={(e) => setAdminEmail(e.target.value)}
+              placeholder="director@domain.com"
+              className="w-full bg-white border border-[#c5b49e]/70 px-3 py-2.5 text-xs text-[#141210] focus:outline-none focus:border-[#9b7e46]"
+            />
+          </div>
+
+          <div>
+            <label className="block text-[11px] uppercase tracking-wider text-[#4a4237] font-medium mb-1">
+              Authentication Key / Password
+            </label>
+            <input
+              type="password"
+              required
+              value={adminPassword}
+              onChange={(e) => setAdminPassword(e.target.value)}
+              placeholder="••••••••••••"
+              className="w-full bg-white border border-[#c5b49e]/70 px-3 py-2.5 text-xs text-[#141210] focus:outline-none focus:border-[#9b7e46]"
+            />
+          </div>
+
+          <button
+            type="submit"
+            disabled={isAuthenticating}
+            className="w-full py-3.5 bg-[#141210] hover:bg-[#9b7e46] text-[#faf8f5] text-xs uppercase tracking-[0.2em] font-medium transition-colors cursor-pointer disabled:opacity-60 mt-2"
+          >
+            {isAuthenticating ? 'Verifying Credentials...' : 'Authenticate Staff Session'}
+          </button>
+        </form>
+
         <p className="text-[11px] text-[#73685a]">
-          Or sign in via the{' '}
-          <Link href="/login" className="text-[#9b7e46] hover:underline font-medium">
-            Patron Login Page
+          Client patron? Return to{' '}
+          <Link href="/" className="text-[#9b7e46] hover:underline font-medium">
+            Maison Auralic Boutique
           </Link>
         </p>
       </div>
