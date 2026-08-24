@@ -92,7 +92,7 @@ export default function ContactPage() {
             Confidential Client Inquiry
           </h2>
 
-          {isSent ? (\r
+          {isSent ? (
             <div className="text-center py-12 space-y-3">
               <div className="w-14 h-14 bg-[#ede5d8] text-[#9b7e46] rounded-full flex items-center justify-center mx-auto">
                 <Check className="w-7 h-7" />
