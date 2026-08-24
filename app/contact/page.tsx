@@ -92,7 +92,7 @@ export default function ContactPage() {
             Confidential Client Inquiry
           </h2>
 
-          {isSent ? (
+          {isSent ? (\r
             <div className="text-center py-12 space-y-3">
               <div className="w-14 h-14 bg-[#ede5d8] text-[#9b7e46] rounded-full flex items-center justify-center mx-auto">
                 <Check className="w-7 h-7" />
@@ -106,11 +106,14 @@ export default function ContactPage() {
             <form onSubmit={handleSubmit} className="space-y-4">
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-[11px] uppercase tracking-wider text-[#4a4237] mb-1">
+                  <label htmlFor="contact-name-input" className="block text-[11px] uppercase tracking-wider text-[#4a4237] mb-1">
                     Your Name *
                   </label>
                   <input
+                    id="contact-name-input"
+                    name="name"
                     type="text"
+                    autoComplete="name"
                     required
                     value={name}
                     onChange={(e) => setName(e.target.value)}
@@ -120,11 +123,14 @@ export default function ContactPage() {
                 </div>
 
                 <div>
-                  <label className="block text-[11px] uppercase tracking-wider text-[#4a4237] mb-1">
+                  <label htmlFor="contact-email-input" className="block text-[11px] uppercase tracking-wider text-[#4a4237] mb-1">
                     Email Address *
                   </label>
                   <input
+                    id="contact-email-input"
+                    name="email"
                     type="email"
+                    autoComplete="email"
                     required
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
@@ -135,10 +141,12 @@ export default function ContactPage() {
               </div>
 
               <div>
-                <label className="block text-[11px] uppercase tracking-wider text-[#4a4237] mb-1">
+                <label htmlFor="contact-subject-select" className="block text-[11px] uppercase tracking-wider text-[#4a4237] mb-1">
                   Inquiry Topic
                 </label>
                 <select
+                  id="contact-subject-select"
+                  name="subject"
                   value={subject}
                   onChange={(e) => setSubject(e.target.value)}
                   className="w-full bg-white border border-[#c5b49e]/60 px-3 py-2 text-xs text-[#141210] focus:outline-none"
@@ -152,10 +160,12 @@ export default function ContactPage() {
               </div>
 
               <div>
-                <label className="block text-[11px] uppercase tracking-wider text-[#4a4237] mb-1">
+                <label htmlFor="contact-message-textarea" className="block text-[11px] uppercase tracking-wider text-[#4a4237] mb-1">
                   Your Confidential Message *
                 </label>
                 <textarea
+                  id="contact-message-textarea"
+                  name="message"
                   rows={4}
                   required
                   value={message}
