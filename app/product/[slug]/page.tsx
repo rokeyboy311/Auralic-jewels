@@ -71,7 +71,7 @@ export default function ProductDetailPage({ params }: { params: Promise<{ slug: 
         }
 
         // Fetch related products & reviews
-        const [relatedRes, reviewsRes] = await Promise.all([
+        const [relatedRes, reviewsRes] = await Promise.all([\r
           getProducts({ category: prodData.category, limit: 4 }),
           getProductReviews(prodData.id),
         ]);
@@ -307,7 +307,7 @@ export default function ProductDetailPage({ params }: { params: Promise<{ slug: 
           )}
 
           {/* Ring Sizing Selector (If category is Rings) */}
-          {(product.category === 'Rings' || product.name.toLowerCase().includes('ring')) && (
+          {(product.category === 'Rings' || product.name.toLowerCase().includes('ring')) && (\r
             <div className="space-y-2">
               <div className="flex justify-between items-center">
                 <label className="text-xs uppercase tracking-widest text-[#4a4237] font-medium">
@@ -566,11 +566,14 @@ export default function ProductDetailPage({ params }: { params: Promise<{ slug: 
             </div>
 
             <div>
-              <label className="block text-[11px] uppercase tracking-wider text-[#4a4237] mb-1">
+              <label htmlFor="product-review-name-input" className="block text-[11px] uppercase tracking-wider text-[#4a4237] mb-1">
                 Your Name
               </label>
               <input
+                id="product-review-name-input"
+                name="name"
                 type="text"
+                autoComplete="name"
                 required
                 value={reviewName}
                 onChange={(e) => setReviewName(e.target.value)}
@@ -580,10 +583,12 @@ export default function ProductDetailPage({ params }: { params: Promise<{ slug: 
             </div>
 
             <div>
-              <label className="block text-[11px] uppercase tracking-wider text-[#4a4237] mb-1">
+              <label htmlFor="product-review-headline-input" className="block text-[11px] uppercase tracking-wider text-[#4a4237] mb-1">
                 Review Headline
               </label>
               <input
+                id="product-review-headline-input"
+                name="headline"
                 type="text"
                 required
                 value={reviewTitle}
@@ -594,10 +599,12 @@ export default function ProductDetailPage({ params }: { params: Promise<{ slug: 
             </div>
 
             <div>
-              <label className="block text-[11px] uppercase tracking-wider text-[#4a4237] mb-1">
+              <label htmlFor="product-review-comment-textarea" className="block text-[11px] uppercase tracking-wider text-[#4a4237] mb-1">
                 Detailed Feedback
               </label>
               <textarea
+                id="product-review-comment-textarea"
+                name="comment"
                 required
                 rows={4}
                 value={reviewComment}
