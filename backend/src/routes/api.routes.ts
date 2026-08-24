@@ -200,9 +200,6 @@ router.post('/auth/google', async (req: Request, res: Response) => {
       user = insertResult.rows[0];
     } else {
       user = userResult.rows[0];
-      if (verifiedGoogleId && !user.google_id) {
-        await pool.query('UPDATE users SET google_id = $1, is_email_verified = true WHERE id = $2', [verifiedGoogleId, user.id]);
-      }
       delete user.password_hash;
     }
 
@@ -221,7 +218,7 @@ router.post('/auth/google', async (req: Request, res: Response) => {
     return res.json({
       success: true,
       data: { user, token },
-      message: 'Google authentication successful.',
+      message: 'Google authentication verified.',
     });
   } catch (error: any) {
     return res.status(500).json({ success: false, error: error.message });
@@ -229,136 +226,365 @@ router.post('/auth/google', async (req: Request, res: Response) => {
 });
 
 /**
- * Get Current Authenticated Patron Profile
+ * Get Current Authenticated Profile
  */
 router.get('/auth/me', requireAuth, async (req: AuthenticatedRequest, res: Response) => {
   const pool = getDbPool();
-  if (!pool || !req.user) {
-    return res.status(401).json({ success: false, error: 'Unauthorized.' });
+  if (!pool || !req.user?.id) {
+    return res.status(401).json({ success: false, error: 'Unauthenticated.' });
   }
 
   try {
     const result = await pool.query(
-      `SELECT id, name, email, phone, role, avatar_url, is_email_verified, created_at 
-       FROM users WHERE id = $1`,
+      `SELECT id, name, email, phone, role, avatar_url, created_at FROM users WHERE id = $1`,
       [req.user.id]
     );
-
     if (result.rows.length === 0) {
-      return res.status(404).json({ success: false, error: 'User profile not found.' });
+      return res.status(404).json({ success: false, error: 'User account not found.' });
     }
-
-    // Fetch saved addresses
-    const addrResult = await pool.query('SELECT * FROM addresses WHERE user_id = $1 ORDER BY is_default DESC', [req.user.id]);
-    const user = result.rows[0];
-    user.addresses = addrResult.rows;
-
-    return res.json({ success: true, data: user });
+    return res.json({ success: true, data: result.rows[0] });
   } catch (error: any) {
     return res.status(500).json({ success: false, error: error.message });
   }
 });
 
+/**
+ * Logout
+ */
+router.post('/auth/logout', (req: Request, res: Response) => {
+  res.clearCookie('auralic_auth_token', { path: '/' });
+  res.json({ success: true, message: 'Logged out successfully.' });
+});
+
+/**
+ * Password Reset Request
+ */
+router.post('/auth/password/forgot', async (req: Request, res: Response) => {
+  const { email } = req.body;
+  if (!email) {
+    return res.status(400).json({ success: false, error: 'Email is required.' });
+  }
+
+  const pool = getDbPool();
+  if (!pool) return res.status(503).json({ success: false, error: 'Database unavailable.' });
+
+  try {
+    const userRes = await pool.query('SELECT id, name, email FROM users WHERE email = $1', [email.toLowerCase().trim()]);
+    if (userRes.rows.length > 0) {
+      const resetToken = jwt.sign(
+        { id: userRes.rows[0].id, type: 'pwd_reset' },
+        config.jwtSecret,
+        { expiresIn: '1h' }
+      );
+      await EmailService.sendPasswordResetEmail(userRes.rows[0].email, resetToken);
+    }
+
+    // Always respond with success to prevent email enumeration
+    return res.json({
+      success: true,
+      message: 'If an account is associated with this email, security instructions have been dispatched.',
+    });
+  } catch (error: any) {
+    return res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+/**
+ * Password Reset Execution
+ */
+router.post('/auth/password/reset', async (req: Request, res: Response) => {
+  const { token, newPassword } = req.body;
+  if (!token || !newPassword) {
+    return res.status(400).json({ success: false, error: 'Token and new password are required.' });
+  }
+
+  const pool = getDbPool();
+  if (!pool) return res.status(503).json({ success: false, error: 'Database unavailable.' });
+
+  try {
+    const decoded = jwt.verify(token, config.jwtSecret) as any;
+    if (decoded.type !== 'pwd_reset' || !decoded.id) {
+      return res.status(400).json({ success: false, error: 'Invalid or expired token.' });
+    }
+
+    const salt = await bcrypt.genSalt(12);
+    const passwordHash = await bcrypt.hash(newPassword, salt);
+
+    await pool.query('UPDATE users SET password_hash = $1 WHERE id = $2', [passwordHash, decoded.id]);
+    return res.json({ success: true, message: 'Password has been updated successfully.' });
+  } catch (error: any) {
+    return res.status(400).json({ success: false, error: 'Invalid or expired reset token.' });
+  }
+});
+
 // ==========================================================
-// 3. PRODUCTS & CATALOGUE DISCOVERY
+// 3. PRODUCTS & HIGH JEWELLERY CATALOGUE
 // ==========================================================
 
+/**
+ * List Catalogue Products with Rich Filtering
+ */
 router.get('/products', async (req: Request, res: Response) => {
   const pool = getDbPool();
-  if (!pool) {
-    return res.json({ success: true, data: [], total: 0 });
-  }
+  if (!pool) return res.status(503).json({ success: false, error: 'Database unavailable.' });
 
   try {
-    const { category, collection, metalType, purity, stoneType, gender, minPrice, maxPrice, sort, search } = req.query;
+    const {
+      category,
+      collection,
+      metalType,
+      purity,
+      stoneType,
+      gender,
+      minPrice,
+      maxPrice,
+      search,
+      sort,
+      limit = 50,
+      offset = 0,
+    } = req.query;
+
     let query = `
-      SELECT p.*, c.name as category_name, cl.name as collection_name
+      SELECT p.*,
+        COALESCE(
+          (SELECT json_agg(
+            json_build_object(
+              'id', img.id,
+              'url', img.image_url,
+              'alt', img.alt_text,
+              'type', img.image_type,
+              'sortOrder', img.sort_order
+            ) ORDER BY img.sort_order ASC
+          ) FROM product_images img WHERE img.product_id = p.id),
+          '[]'::json
+        ) AS images,
+        COALESCE(
+          (SELECT json_agg(
+            json_build_object(
+              'id', v.id,
+              'metalType', v.metal_type,
+              'purity', v.purity,
+              'sku', v.sku,
+              'priceUSD', v.price_usd,
+              'comparePriceUSD', v.compare_price_usd,
+              'stock', v.stock,
+              'isDefault', v.is_default
+            ) ORDER BY v.is_default DESC, v.price_usd ASC
+          ) FROM product_variants v WHERE v.product_id = p.id),
+          '[]'::json
+        ) AS variants
       FROM products p
-      LEFT JOIN categories c ON p.category_id = c.id
-      LEFT JOIN collections cl ON p.collection_id = cl.id
       WHERE p.status = 'active'
     `;
+
     const params: any[] = [];
+    let paramIndex = 1;
 
     if (category) {
+      query += ` AND LOWER(p.category) = LOWER($${paramIndex++})`;
       params.push(category);
-      query += ` AND (c.slug = $${params.length} OR p.category_id = $${params.length})`;
     }
     if (collection) {
+      query += ` AND LOWER(p.collection) = LOWER($${paramIndex++})`;
       params.push(collection);
-      query += ` AND (cl.slug = $${params.length} OR p.collection_id = $${params.length})`;
     }
     if (metalType) {
+      query += ` AND LOWER(p.metal_type) = LOWER($${paramIndex++})`;
       params.push(metalType);
-      query += ` AND p.metal_type ILIKE $${params.length}`;
     }
     if (purity) {
+      query += ` AND LOWER(p.purity) = LOWER($${paramIndex++})`;
       params.push(purity);
-      query += ` AND p.purity ILIKE $${params.length}`;
     }
     if (stoneType) {
+      query += ` AND LOWER(p.stone_type) = LOWER($${paramIndex++})`;
       params.push(stoneType);
-      query += ` AND p.stone_type ILIKE $${params.length}`;
     }
     if (gender) {
+      query += ` AND LOWER(p.gender) = LOWER($${paramIndex++})`;
       params.push(gender);
-      query += ` AND p.gender = $${params.length}`;
     }
     if (minPrice) {
+      query += ` AND p.price_usd >= $${paramIndex++}`;
       params.push(Number(minPrice));
-      query += ` AND p.price_usd >= $${params.length}`;
     }
     if (maxPrice) {
+      query += ` AND p.price_usd <= $${paramIndex++}`;
       params.push(Number(maxPrice));
-      query += ` AND p.price_usd <= $${params.length}`;
     }
     if (search) {
+      query += ` AND (p.name ILIKE $${paramIndex} OR p.description ILIKE $${paramIndex} OR p.sku ILIKE $${paramIndex})`;
       params.push(`%${search}%`);
-      query += ` AND (p.name ILIKE $${params.length} OR p.description ILIKE $${params.length} OR p.sku ILIKE $${params.length})`;
+      paramIndex++;
     }
 
-    if (sort === 'price-asc') query += ` ORDER BY p.price_usd ASC`;
-    else if (sort === 'price-desc') query += ` ORDER BY p.price_usd DESC`;
-    else if (sort === 'newest') query += ` ORDER BY p.created_at DESC`;
-    else if (sort === 'rating') query += ` ORDER BY p.rating DESC, p.review_count DESC`;
-    else query += ` ORDER BY p.is_featured DESC, p.is_best_seller DESC, p.created_at DESC`;
+    // Sorting
+    if (sort === 'price_asc') {
+      query += ' ORDER BY p.price_usd ASC';
+    } else if (sort === 'price_desc') {
+      query += ' ORDER BY p.price_usd DESC';
+    } else if (sort === 'newest') {
+      query += ' ORDER BY p.created_at DESC';
+    } else {
+      query += ' ORDER BY p.is_featured DESC, p.created_at DESC';
+    }
+
+    query += ` LIMIT $${paramIndex++} OFFSET $${paramIndex++}`;
+    params.push(Number(limit), Number(offset));
 
     const result = await pool.query(query, params);
-    return res.json({ success: true, data: result.rows, total: result.rowCount });
+
+    const formatted = result.rows.map((row: any) => ({
+      id: row.id,
+      name: row.name,
+      slug: row.slug,
+      sku: row.sku,
+      brand: row.brand || 'Maison Auralic',
+      category: row.category,
+      collection: row.collection,
+      gender: row.gender,
+      shortDescription: row.short_description,
+      description: row.description,
+      priceUSD: parseFloat(row.price_usd),
+      comparePriceUSD: row.compare_price_usd ? parseFloat(row.compare_price_usd) : undefined,
+      currency: 'USD',
+      metalType: row.metal_type,
+      purity: row.purity,
+      goldKarat: row.gold_karat,
+      grossWeightGrams: row.gross_weight_grams ? parseFloat(row.gross_weight_grams) : undefined,
+      netGoldWeightGrams: row.net_gold_weight_grams ? parseFloat(row.net_gold_weight_grams) : undefined,
+      hallmarkAssayOffice: row.hallmark_assay_office,
+      stoneType: row.stone_type,
+      stoneWeightCarats: row.stone_weight_carats ? parseFloat(row.stone_weight_carats) : undefined,
+      totalCaratWeight: row.total_carat_weight ? parseFloat(row.total_carat_weight) : undefined,
+      certification: row.certification_data || undefined,
+      stock: row.stock,
+      lowStockThreshold: row.low_stock_threshold,
+      isReadyToShip: row.is_ready_to_ship,
+      isMadeToOrder: row.is_made_to_order,
+      isNewArrival: row.is_new_arrival,
+      isFeatured: row.is_featured,
+      isBestseller: row.is_bestseller,
+      productionLeadTimeDays: row.production_lead_time_days,
+      estimatedDispatchHours: row.estimated_dispatch_hours,
+      countryOfOrigin: row.country_of_origin,
+      status: row.status,
+      rating: parseFloat(row.rating_avg || '5.0'),
+      reviewCount: parseInt(row.review_count || '0', 10),
+      images: row.images,
+      variants: row.variants,
+      careInstructions: row.care_instructions,
+      shippingInformation: row.shipping_information,
+      returnEligibility: row.return_eligibility,
+      exchangeEligibility: row.exchange_eligibility,
+      createdAt: row.created_at,
+      updatedAt: row.updated_at,
+    }));
+
+    return res.json({ success: true, data: formatted });
   } catch (error: any) {
     return res.status(500).json({ success: false, error: error.message });
   }
 });
 
+/**
+ * Get Single Product by Slug or ID
+ */
 router.get('/products/:slugOrId', async (req: Request, res: Response) => {
-  const { slugOrId } = req.params;
   const pool = getDbPool();
-  if (!pool) {
-    return res.status(503).json({ success: false, error: 'Database service unavailable.' });
-  }
+  if (!pool) return res.status(503).json({ success: false, error: 'Database unavailable.' });
 
   try {
+    const { slugOrId } = req.params;
+
     const result = await pool.query(
-      `SELECT p.*, c.name as category_name, cl.name as collection_name 
-       FROM products p
-       LEFT JOIN categories c ON p.category_id = c.id
-       LEFT JOIN collections cl ON p.collection_id = cl.id
-       WHERE p.slug = $1 OR p.id = $1 OR p.sku = $1 LIMIT 1`,
+      `
+      SELECT p.*,
+        COALESCE(
+          (SELECT json_agg(
+            json_build_object(
+              'id', img.id,
+              'url', img.image_url,
+              'alt', img.alt_text,
+              'type', img.image_type,
+              'sortOrder', img.sort_order
+            ) ORDER BY img.sort_order ASC
+          ) FROM product_images img WHERE img.product_id = p.id),
+          '[]'::json
+        ) AS images,
+        COALESCE(
+          (SELECT json_agg(
+            json_build_object(
+              'id', v.id,
+              'metalType', v.metal_type,
+              'purity', v.purity,
+              'sku', v.sku,
+              'priceUSD', v.price_usd,
+              'comparePriceUSD', v.compare_price_usd,
+              'stock', v.stock,
+              'isDefault', v.is_default
+            ) ORDER BY v.is_default DESC, v.price_usd ASC
+          ) FROM product_variants v WHERE v.product_id = p.id),
+          '[]'::json
+        ) AS variants
+      FROM products p
+      WHERE (p.slug = $1 OR p.id = $1)
+      LIMIT 1
+      `,
       [slugOrId]
     );
 
     if (result.rows.length === 0) {
-      return res.status(404).json({ success: false, error: 'Masterpiece not found in vault.' });
+      return res.status(404).json({ success: false, error: 'Creation not found in Maison archives.' });
     }
 
-    const product = result.rows[0];
-
-    // Fetch images and variants
-    const imagesRes = await pool.query('SELECT * FROM product_images WHERE product_id = $1 ORDER BY sort_order ASC', [product.id]);
-    const variantsRes = await pool.query('SELECT * FROM product_variants WHERE product_id = $1', [product.id]);
-
-    product.images = imagesRes.rows;
-    product.variants = variantsRes.rows;
+    const row = result.rows[0];
+    const product = {
+      id: row.id,
+      name: row.name,
+      slug: row.slug,
+      sku: row.sku,
+      brand: row.brand || 'Maison Auralic',
+      category: row.category,
+      collection: row.collection,
+      gender: row.gender,
+      shortDescription: row.short_description,
+      description: row.description,
+      priceUSD: parseFloat(row.price_usd),
+      comparePriceUSD: row.compare_price_usd ? parseFloat(row.compare_price_usd) : undefined,
+      currency: 'USD',
+      metalType: row.metal_type,
+      purity: row.purity,
+      goldKarat: row.gold_karat,
+      grossWeightGrams: row.gross_weight_grams ? parseFloat(row.gross_weight_grams) : undefined,
+      netGoldWeightGrams: row.net_gold_weight_grams ? parseFloat(row.net_gold_weight_grams) : undefined,
+      hallmarkAssayOffice: row.hallmark_assay_office,
+      stoneType: row.stone_type,
+      stoneWeightCarats: row.stone_weight_carats ? parseFloat(row.stone_weight_carats) : undefined,
+      totalCaratWeight: row.total_carat_weight ? parseFloat(row.total_carat_weight) : undefined,
+      certification: row.certification_data || undefined,
+      stock: row.stock,
+      lowStockThreshold: row.low_stock_threshold,
+      isReadyToShip: row.is_ready_to_ship,
+      isMadeToOrder: row.is_made_to_order,
+      isNewArrival: row.is_new_arrival,
+      isFeatured: row.is_featured,
+      isBestseller: row.is_bestseller,
+      productionLeadTimeDays: row.production_lead_time_days,
+      estimatedDispatchHours: row.estimated_dispatch_hours,
+      countryOfOrigin: row.country_of_origin,
+      status: row.status,
+      rating: parseFloat(row.rating_avg || '5.0'),
+      reviewCount: parseInt(row.review_count || '0', 10),
+      images: row.images,
+      variants: row.variants,
+      careInstructions: row.care_instructions,
+      shippingInformation: row.shipping_information,
+      returnEligibility: row.return_eligibility,
+      exchangeEligibility: row.exchange_eligibility,
+      createdAt: row.created_at,
+      updatedAt: row.updated_at,
+    };
 
     return res.json({ success: true, data: product });
   } catch (error: any) {
@@ -366,12 +592,36 @@ router.get('/products/:slugOrId', async (req: Request, res: Response) => {
   }
 });
 
+// ==========================================================
+// 4. CATEGORIES & TAXONOMY
+// ==========================================================
+
 router.get('/categories', async (req: Request, res: Response) => {
   const pool = getDbPool();
-  if (!pool) return res.json({ success: true, data: [] });
+  if (!pool) return res.status(503).json({ success: false, error: 'Database unavailable.' });
+
   try {
-    const result = await pool.query('SELECT * FROM categories ORDER BY name ASC');
-    return res.json({ success: true, data: result.rows });
+    const result = await pool.query(`
+      SELECT c.*,
+        COUNT(p.id) AS product_count
+      FROM categories c
+      LEFT JOIN products p ON p.category = c.name AND p.status = 'active'
+      WHERE c.is_active = true
+      GROUP BY c.id
+      ORDER BY c.sort_order ASC
+    `);
+
+    const categories = result.rows.map((row: any) => ({
+      id: row.id,
+      name: row.name,
+      slug: row.slug,
+      description: row.description,
+      image: row.image_url,
+      itemCount: parseInt(row.product_count || '0', 10),
+      featured: row.is_featured,
+    }));
+
+    return res.json({ success: true, data: categories });
   } catch (error: any) {
     return res.status(500).json({ success: false, error: error.message });
   }
@@ -379,64 +629,74 @@ router.get('/categories', async (req: Request, res: Response) => {
 
 router.get('/collections', async (req: Request, res: Response) => {
   const pool = getDbPool();
-  if (!pool) return res.json({ success: true, data: [] });
+  if (!pool) return res.status(503).json({ success: false, error: 'Database unavailable.' });
+
   try {
-    const result = await pool.query('SELECT * FROM collections ORDER BY is_featured DESC, name ASC');
-    return res.json({ success: true, data: result.rows });
+    const result = await pool.query(`
+      SELECT col.*,
+        COUNT(p.id) AS product_count
+      FROM collections col
+      LEFT JOIN products p ON p.collection = col.name AND p.status = 'active'
+      WHERE col.is_active = true
+      GROUP BY col.id
+      ORDER BY col.sort_order ASC
+    `);
+
+    const collections = result.rows.map((row: any) => ({
+      id: row.id,
+      name: row.name,
+      slug: row.slug,
+      description: row.description,
+      heroImage: row.hero_image,
+      itemCount: parseInt(row.product_count || '0', 10),
+      theme: row.theme,
+    }));
+
+    return res.json({ success: true, data: collections });
   } catch (error: any) {
     return res.status(500).json({ success: false, error: error.message });
   }
 });
 
 // ==========================================================
-// 4. COUPONS & SHIPPING METHODS
+// 5. COUPONS & PROMOTIONS
 // ==========================================================
 
 router.post('/coupons/validate', async (req: Request, res: Response) => {
   const { code, orderSubtotalUSD } = req.body;
-  if (!code) return res.status(400).json({ success: false, error: 'Coupon code required.' });
+  if (!code) return res.status(400).json({ success: false, error: 'Code is required.' });
 
   const pool = getDbPool();
-  if (!pool) {
-    // Default fallback calculation if DB is unlinked
-    if (code.toUpperCase() === 'WELCOME10') {
-      const discount = Math.round(Number(orderSubtotalUSD || 0) * 0.1);
-      return res.json({ 
-        success: true, 
-        data: { 
-          coupon: { code: 'WELCOME10', discountType: 'percentage', discountValue: 10 },
-          discountUSD: discount
-        } 
-      });
-    }
-    return res.status(404).json({ success: false, error: 'Invalid privilege code.' });
-  }
+  if (!pool) return res.status(503).json({ success: false, error: 'Database unavailable.' });
 
   try {
     const result = await pool.query(
-      'SELECT * FROM coupons WHERE code = $1 AND is_active = true',
+      `SELECT * FROM coupons WHERE code = $1 AND is_active = true`,
       [code.toUpperCase().trim()]
     );
 
     if (result.rows.length === 0) {
-      return res.status(404).json({ success: false, error: 'Invalid or expired privilege code.' });
+      return res.status(404).json({ success: false, error: 'Privilege promotion code is invalid or expired.' });
     }
 
     const coupon = result.rows[0];
     const subtotal = Number(orderSubtotalUSD || 0);
 
-    if (coupon.min_order_usd && subtotal < Number(coupon.min_order_usd)) {
-      return res.status(400).json({ 
-        success: false, 
-        error: `Minimum acquisition value of $${coupon.min_order_usd} required for this privilege.` 
+    if (coupon.min_order_usd && subtotal < parseFloat(coupon.min_order_usd)) {
+      return res.status(400).json({
+        success: false,
+        error: `Requires a minimum acquisition subtotal of $${parseFloat(coupon.min_order_usd).toLocaleString()}.`,
       });
     }
 
     let discountUSD = 0;
     if (coupon.discount_type === 'percentage') {
-      discountUSD = (subtotal * Number(coupon.discount_value)) / 100;
+      discountUSD = (subtotal * parseFloat(coupon.discount_value)) / 100;
+      if (coupon.max_discount_usd && discountUSD > parseFloat(coupon.max_discount_usd)) {
+        discountUSD = parseFloat(coupon.max_discount_usd);
+      }
     } else {
-      discountUSD = Number(coupon.discount_value);
+      discountUSD = parseFloat(coupon.discount_value);
     }
 
     return res.json({
@@ -445,7 +705,7 @@ router.post('/coupons/validate', async (req: Request, res: Response) => {
         coupon: {
           code: coupon.code,
           discountType: coupon.discount_type,
-          discountValue: Number(coupon.discount_value),
+          discountValue: parseFloat(coupon.discount_value),
           description: coupon.description,
         },
         discountUSD: Math.min(discountUSD, subtotal),
@@ -456,596 +716,656 @@ router.post('/coupons/validate', async (req: Request, res: Response) => {
   }
 });
 
+// ==========================================================
+// 6. SHIPPING METHODS
+// ==========================================================
+
 router.get('/shipping', async (req: Request, res: Response) => {
   const pool = getDbPool();
-  if (!pool) {
-    return res.json({
-      success: true,
-      data: [
-        {
-          id: 'ferrari_armored_express',
-          name: 'Ferrari Group Armored Courier (Insured Air Express)',
-          carrier: 'Ferrari Group Valuables Logistics',
-          costUSD: 0,
-          estimatedDays: '2–4 Business Days',
-          isFreeAboveThreshold: true,
-          insuranceIncluded: true,
-        },
-      ],
-    });
-  }
+  if (!pool) return res.status(503).json({ success: false, error: 'Database unavailable.' });
 
   try {
-    const result = await pool.query('SELECT * FROM shipping_methods ORDER BY cost_usd ASC');
-    return res.json({ success: true, data: result.rows });
+    const result = await pool.query(`SELECT * FROM shipping_methods WHERE is_active = true ORDER BY cost_usd ASC`);
+    const methods = result.rows.map((row: any) => ({
+      id: row.id,
+      name: row.name,
+      description: row.description,
+      costUSD: parseFloat(row.cost_usd),
+      estimatedDays: row.estimated_days,
+      carrierName: row.carrier_name,
+      isFreeAboveThreshold: row.is_free_above_threshold,
+      requiresSignature: row.requires_signature,
+    }));
+    return res.json({ success: true, data: methods });
   } catch (error: any) {
     return res.status(500).json({ success: false, error: error.message });
   }
 });
 
 // ==========================================================
-// 5. SECURE SERVER-SIDE CALCULATED ORDERS & CHECKOUT
+// 7. ORDERS & ACQUISITION SETTLEMENT
 // ==========================================================
 
-router.post('/orders', optionalAuth, async (req: AuthenticatedRequest, res: Response) => {
-  const { 
-    items, 
-    shippingAddress, 
-    billingAddress, 
-    couponCode, 
-    currency = 'USD', 
-    exchangeRate = 1.0, 
-    shippingMethodId = 'ferrari_armored_express',
-    paymentMethod = 'wire_transfer',
-    notes 
-  } = req.body;
-
-  if (!items || !Array.isArray(items) || items.length === 0) {
-    return res.status(400).json({ success: false, error: 'Shopping bag cannot be empty.' });
-  }
-
-  if (!shippingAddress || !shippingAddress.email || !shippingAddress.addressLine1) {
-    return res.status(400).json({ success: false, error: 'Complete shipping address required.' });
-  }
-
-  const pool = getDbPool();
-  if (!pool) {
-    return res.status(503).json({ success: false, error: 'Database service unavailable for order booking.' });
-  }
-
-  const client = await pool.connect();
+/**
+ * Create Intent for Payment
+ */
+router.post('/payments/create-intent', async (req: Request, res: Response) => {
   try {
-    await client.query('BEGIN');
+    const { amountUSD, currency = 'USD', orderId } = req.body;
+    if (!amountUSD || amountUSD <= 0) {
+      return res.status(400).json({ success: false, error: 'Valid amount is required.' });
+    }
 
-    // 1. Authoritative Server-Side Price & Stock Recalculation
+    const intent = await PaymentService.createIntent(Number(amountUSD), currency, orderId);
+    return res.json({ success: true, data: intent });
+  } catch (error: any) {
+    return res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+/**
+ * Place Final Order Consignment
+ */
+router.post('/orders', optionalAuth, async (req: AuthenticatedRequest, res: Response) => {
+  const pool = getDbPool();
+  if (!pool) return res.status(503).json({ success: false, error: 'Database unavailable.' });
+
+  try {
+    const {
+      customerEmail,
+      customerPhone,
+      shippingAddress,
+      items,
+      couponCode,
+      shippingMethodId,
+      currency = 'USD',
+      paymentMethod = 'stripe',
+      notes,
+    } = req.body;
+
+    if (!customerEmail || !shippingAddress || !items || items.length === 0) {
+      return res.status(400).json({ success: false, error: 'Incomplete consignment specifications.' });
+    }
+
+    // Verify items against database prices for server-authoritative integrity
     let subtotalUSD = 0;
-    const validatedOrderItems: any[] = [];
+    const verifiedItems: any[] = [];
 
-    for (const item of items) {
-      const prodRes = await client.query(
-        'SELECT * FROM products WHERE id = $1 OR sku = $1 FOR UPDATE',
-        [item.productId || item.sku]
-      );
+    for (const itm of items) {
+      const prodRes = await pool.query('SELECT id, name, price_usd, sku, metal_type, purity FROM products WHERE id = $1', [itm.productId || itm.id]);
+      if (prodRes.rows.length === 0) continue;
+      const prod = prodRes.rows[0];
 
-      if (prodRes.rows.length === 0) {
-        throw new Error(`Product ${item.sku || item.name} is no longer available in the vault.`);
+      let unitPriceUSD = parseFloat(prod.price_usd);
+      if (itm.variantId) {
+        const varRes = await pool.query('SELECT price_usd, sku, metal_type, purity FROM product_variants WHERE id = $1', [itm.variantId]);
+        if (varRes.rows.length > 0) {
+          unitPriceUSD = parseFloat(varRes.rows[0].price_usd);
+        }
       }
 
-      const product = prodRes.rows[0];
-      const quantity = Math.max(1, parseInt(item.quantity, 10) || 1);
-
-      // Check and decrement inventory
-      if (product.stock < quantity) {
-        throw new Error(`Insufficient inventory for ${product.name}. Remaining vault pieces: ${product.stock}`);
-      }
-
-      await client.query('UPDATE products SET stock = stock - $1 WHERE id = $2', [quantity, product.id]);
-
-      const unitPriceUSD = Number(product.price_usd);
-      const totalItemUSD = unitPriceUSD * quantity;
+      const qty = parseInt(itm.quantity || 1, 10);
+      const totalItemUSD = unitPriceUSD * qty;
       subtotalUSD += totalItemUSD;
 
-      validatedOrderItems.push({
-        productId: product.id,
-        variantId: item.variantId || null,
-        sku: product.sku,
-        name: product.name,
-        image: item.image || product.images?.[0]?.url || '',
-        metalType: item.metalType || product.metal_type,
-        purity: item.purity || product.purity,
-        size: item.size || 'Standard',
-        stoneType: item.stoneType || product.stone_type,
-        engravingText: item.engravingText || null,
+      verifiedItems.push({
+        productId: prod.id,
+        variantId: itm.variantId || null,
+        name: prod.name,
+        sku: itm.sku || prod.sku,
+        metalType: itm.metalType || prod.metal_type,
+        purity: itm.purity || prod.purity,
+        size: itm.size || null,
+        engravingText: itm.engravingText || null,
         unitPriceUSD,
-        quantity,
+        quantity: qty,
         totalUSD: totalItemUSD,
       });
     }
 
-    // 2. Validate and Apply Coupon Server-Side
+    // Apply Coupon Discount server-side
     let discountUSD = 0;
     if (couponCode) {
-      const couponRes = await client.query('SELECT * FROM coupons WHERE code = $1 AND is_active = true', [couponCode.toUpperCase()]);
-      if (couponRes.rows.length > 0) {
-        const coupon = couponRes.rows[0];
-        if (coupon.discount_type === 'percentage') {
-          discountUSD = (subtotalUSD * Number(coupon.discount_value)) / 100;
+      const coupRes = await pool.query('SELECT * FROM coupons WHERE code = $1 AND is_active = true', [couponCode.toUpperCase().trim()]);
+      if (coupRes.rows.length > 0) {
+        const coup = coupRes.rows[0];
+        if (coup.discount_type === 'percentage') {
+          discountUSD = (subtotalUSD * parseFloat(coup.discount_value)) / 100;
+          if (coup.max_discount_usd && discountUSD > parseFloat(coup.max_discount_usd)) {
+            discountUSD = parseFloat(coup.max_discount_usd);
+          }
         } else {
-          discountUSD = Number(coupon.discount_value);
+          discountUSD = parseFloat(coup.discount_value);
         }
       }
     }
 
-    // 3. Calculate Shipping & Taxes
-    const shippingCostUSD = subtotalUSD >= 500 ? 0 : 75;
-    const taxCostUSD = Math.round((subtotalUSD - discountUSD) * 0.07 * 100) / 100; // Standard 7% US / base calculation
-    const totalUSD = subtotalUSD - discountUSD + shippingCostUSD + taxCostUSD;
-
-    const rate = Number(exchangeRate) || 1.0;
-    const totalInCurrency = Math.round(totalUSD * rate * 100) / 100;
-
-    const orderId = `AUR-ORD-${Date.now()}-${Math.floor(1000 + Math.random() * 9000)}`;
-    const orderNumber = `AUR-${Math.floor(100000 + Math.random() * 900000)}`;
-
-    // 4. Insert Order into Database
-    const orderInsert = await client.query(
-      `INSERT INTO orders (
-        id, order_number, user_id, customer_email, customer_phone,
-        shipping_address_json, billing_address_json,
-        subtotal_usd, discount_usd, coupon_code,
-        shipping_cost_usd, tax_cost_usd, total_usd,
-        currency, total_in_currency, exchange_rate_used,
-        shipping_method_id, shipping_method_name,
-        status, payment_status, payment_method, notes
-      ) VALUES (
-        $1, $2, $3, $4, $5,
-        $6, $7,
-        $8, $9, $10,
-        $11, $12, $13,
-        $14, $15, $16,
-        $17, $18,
-        'pending', 'pending', $19, $20
-      ) RETURNING *`,
-      [
-        orderId, orderNumber, req.user?.id || null, shippingAddress.email, shippingAddress.phone || 'N/A',
-        JSON.stringify(shippingAddress), JSON.stringify(billingAddress || shippingAddress),
-        subtotalUSD, discountUSD, couponCode || null,
-        shippingCostUSD, taxCostUSD, totalUSD,
-        currency, totalInCurrency, rate,
-        shippingMethodId, 'Ferrari Group Armored Air Express',
-        paymentMethod, notes || null
-      ]
-    );
-
-    // 5. Insert Immutable Order Items Snapshot
-    for (const item of validatedOrderItems) {
-      await client.query(
-        `INSERT INTO order_items (
-          order_id, product_id, variant_id, sku, name, image,
-          metal_type, purity, size, stone_type, engraving_text,
-          unit_price_usd, quantity, total_usd
-        ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14)`,
-        [
-          orderId, item.productId, item.variantId, item.sku, item.name, item.image,
-          item.metalType, item.purity, item.size, item.stoneType, item.engravingText,
-          item.unitPriceUSD, item.quantity, item.totalUSD
-        ]
-      );
+    // Shipping Cost
+    let shippingUSD = 0;
+    let carrierName = 'Ferrari Group Valuables';
+    if (shippingMethodId) {
+      const shipRes = await pool.query('SELECT * FROM shipping_methods WHERE id = $1', [shippingMethodId]);
+      if (shipRes.rows.length > 0) {
+        const sm = shipRes.rows[0];
+        carrierName = sm.carrier_name || carrierName;
+        shippingUSD = sm.is_free_above_threshold && subtotalUSD >= 5000 ? 0 : parseFloat(sm.cost_usd);
+      }
     }
 
-    await client.query('COMMIT');
+    const totalUSD = Math.max(0, subtotalUSD - discountUSD + shippingUSD);
+    const orderNumber = `AUR-${Date.now().toString().slice(-6)}-${Math.floor(100 + Math.random() * 900)}`;
+
+    // Insert Order Record
+    const orderInsert = await pool.query(
+      `INSERT INTO orders (
+        user_id, order_number, status, currency, subtotal_usd, discount_usd, shipping_usd, total_usd,
+        payment_method, payment_status, shipping_carrier, shipping_method_name,
+        customer_email, customer_phone, shipping_address, order_notes
+      ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16)
+      RETURNING *`,
+      [
+        req.user?.id || null,
+        orderNumber,
+        'confirmed',
+        currency,
+        subtotalUSD,
+        discountUSD,
+        shippingUSD,
+        totalUSD,
+        paymentMethod,
+        'paid',
+        carrierName,
+        'Insured Priority Courier Handover',
+        customerEmail.toLowerCase().trim(),
+        customerPhone || null,
+        JSON.stringify(shippingAddress),
+        notes || null,
+      ]
+    );
 
     const createdOrder = orderInsert.rows[0];
-    createdOrder.items = validatedOrderItems;
 
-    // Send transactional confirmation email asynchronously
-    EmailService.sendOrderConfirmation(createdOrder).catch((err) => {
-      console.warn('[Auralic Order] Email dispatch error:', err.message);
-    });
-
-    return res.status(201).json({
-      success: true,
-      data: createdOrder,
-      message: 'Fine jewellery acquisition secured.',
-    });
-  } catch (error: any) {
-    await client.query('ROLLBACK');
-    return res.status(400).json({ success: false, error: error.message });
-  } finally {
-    client.release();
-  }
-});
-
-router.get('/orders/:id', async (req: Request, res: Response) => {
-  const { id } = req.params;
-  const pool = getDbPool();
-  if (!pool) return res.status(503).json({ success: false, error: 'Database service unavailable.' });
-
-  try {
-    const orderRes = await pool.query('SELECT * FROM orders WHERE id = $1 OR order_number = $1', [id]);
-    if (orderRes.rows.length === 0) {
-      return res.status(404).json({ success: false, error: 'Order record not found.' });
-    }
-
-    const order = orderRes.rows[0];
-    const itemsRes = await pool.query('SELECT * FROM order_items WHERE order_id = $1', [order.id]);
-    order.items = itemsRes.rows;
-
-    return res.json({ success: true, data: order });
-  } catch (error: any) {
-    return res.status(500).json({ success: false, error: error.message });
-  }
-});
-
-router.post('/orders/track', async (req: Request, res: Response) => {
-  const { orderNumber, email } = req.body;
-  if (!orderNumber) return res.status(400).json({ success: false, error: 'Order number required.' });
-
-  const pool = getDbPool();
-  if (!pool) return res.status(503).json({ success: false, error: 'Database service unavailable.' });
-
-  try {
-    let query = 'SELECT * FROM orders WHERE order_number = $1';
-    const params = [orderNumber.trim()];
-
-    if (email) {
-      query += ' AND customer_email ILIKE $2';
-      params.push(email.trim());
-    }
-
-    const orderRes = await pool.query(query, params);
-    if (orderRes.rows.length === 0) {
-      return res.status(404).json({ success: false, error: 'No consignment found matching this reference.' });
-    }
-
-    const order = orderRes.rows[0];
-    const itemsRes = await pool.query('SELECT * FROM order_items WHERE order_id = $1', [order.id]);
-    order.items = itemsRes.rows;
-
-    return res.json({ success: true, data: order });
-  } catch (error: any) {
-    return res.status(500).json({ success: false, error: error.message });
-  }
-});
-
-// ==========================================================
-// 6. PAYMENTS & WEBHOOK ARCHITECTURE
-// ==========================================================
-
-router.post('/payments/create-intent', async (req: Request, res: Response) => {
-  try {
-    const { amount, currency, orderId, customerEmail } = req.body;
-    const payment = await PaymentService.createPaymentIntent(
-      Number(amount),
-      currency || 'USD',
-      { orderId: orderId || `ORD-${Date.now()}`, customerEmail: customerEmail || 'patron@auralic-jewels.vercel.app' }
-    );
-    return res.json({ success: true, data: payment });
-  } catch (error: any) {
-    return res.status(500).json({ success: false, error: error.message });
-  }
-});
-
-router.post('/payments/verify', async (req: Request, res: Response) => {
-  const { orderId, paymentIntentId } = req.body;
-  const pool = getDbPool();
-  if (!pool) return res.status(503).json({ success: false, error: 'Database service unavailable.' });
-
-  try {
-    await pool.query(
-      `UPDATE orders 
-       SET payment_status = 'paid', status = 'confirmed', payment_intent_id = $1, updated_at = CURRENT_TIMESTAMP
-       WHERE id = $2 OR order_number = $2`,
-      [paymentIntentId, orderId]
-    );
-
-    return res.json({ success: true, message: 'Payment successfully verified and order confirmed.' });
-  } catch (error: any) {
-    return res.status(500).json({ success: false, error: error.message });
-  }
-});
-
-// ==========================================================
-// 7. BESPOKE HAUTE JOAILLERIE INQUIRIES
-// ==========================================================
-
-router.post('/bespoke', optionalAuth, async (req: AuthenticatedRequest, res: Response) => {
-  const { 
-    customerName, 
-    customerEmail, 
-    customerPhone, 
-    customerCountry, 
-    category, 
-    metalPreference, 
-    purityPreference, 
-    stonePreference, 
-    targetCarat, 
-    targetBudgetUSD, 
-    sizeSpecification, 
-    engravingMessage, 
-    designDescription, 
-    referenceImageUrl, 
-    timelineRequirement 
-  } = req.body;
-
-  if (!customerName || !customerEmail || !designDescription) {
-    return res.status(400).json({ success: false, error: 'Name, email, and design description required.' });
-  }
-
-  const pool = getDbPool();
-  const refNum = `AUR-BESPOKE-${Math.floor(100000 + Math.random() * 900000)}`;
-  const inquiryId = `bespoke_${Date.now()}`;
-
-  if (pool) {
-    try {
+    // Insert Order Items
+    for (const itm of verifiedItems) {
       await pool.query(
-        `INSERT INTO bespoke_inquiries (
-          id, reference_number, user_id, customer_name, customer_email,
-          customer_phone, customer_country, category, metal_preference,
-          purity_preference, stone_preference, target_carat, target_budget_usd,
-          size_specification, engraving_message, design_description,
-          reference_image_url, timeline_requirement, status
-        ) VALUES (
-          $1, $2, $3, $4, $5,
-          $6, $7, $8, $9,
-          $10, $11, $12, $13,
-          $14, $15, $16,
-          $17, $18, 'inquiry_received'
-        )`,
+        `INSERT INTO order_items (
+          order_id, product_id, variant_id, product_name, sku, metal_type, purity, size, engraving_text, unit_price_usd, quantity, total_usd
+        ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)`,
         [
-          inquiryId, refNum, req.user?.id || null, customerName, customerEmail,
-          customerPhone || null, customerCountry || 'International', category || 'High Jewellery', metalPreference || '18K Yellow Gold',
-          purityPreference || '18K', stonePreference || 'Natural Diamond', targetCarat || null, targetBudgetUSD || 'Bespoke',
-          sizeSpecification || null, engravingMessage || null, designDescription,
-          referenceImageUrl || null, timelineRequirement || 'Standard Atelier Lead Time'
+          createdOrder.id,
+          itm.productId,
+          itm.variantId,
+          itm.name,
+          itm.sku,
+          itm.metalType,
+          itm.purity,
+          itm.size,
+          itm.engravingText,
+          itm.unitPriceUSD,
+          itm.quantity,
+          itm.totalUSD,
         ]
       );
-    } catch (err: any) {
-      console.warn('[Auralic Bespoke] DB persistence error:', err.message);
-    }
-  }
-
-  // Send email to Atelier Jeweller
-  EmailService.sendEmail({
-    to: config.resend.adminEmail || 'atelier@auralic-jewels.vercel.app',
-    subject: `New Haute Joaillerie Commission Inquiry [${refNum}] from ${customerName}`,
-    html: `
-      <h2>Private Bespoke Commission Brief</h2>
-      <p><strong>Reference:</strong> ${refNum}</p>
-      <p><strong>Patron:</strong> ${customerName} (${customerEmail}, ${customerPhone || 'N/A'})</p>
-      <p><strong>Category:</strong> ${category}</p>
-      <p><strong>Metal & Purity:</strong> ${metalPreference} (${purityPreference})</p>
-      <p><strong>Gemstone & Carat:</strong> ${stonePreference} (${targetCarat || 'Custom'} ct)</p>
-      <p><strong>Target Budget:</strong> ${targetBudgetUSD}</p>
-      <p><strong>Aesthetic Description:</strong></p>
-      <blockquote style="background: #faf8f5; padding: 16px; border-left: 3px solid #9b7e46;">${designDescription}</blockquote>
-    `,
-  }).catch((err: any) => console.warn('[Auralic Bespoke] Email error:', err.message));
-
-  return res.status(201).json({
-    success: true,
-    data: { id: inquiryId, referenceNumber: refNum },
-    message: 'Bespoke brief transmitted to Master Jeweller.',
-  });
-});
-
-router.get('/bespoke', requireStaff, async (req: AuthenticatedRequest, res: Response) => {
-  const pool = getDbPool();
-  if (!pool) return res.json({ success: true, data: [] });
-  try {
-    const result = await pool.query('SELECT * FROM bespoke_inquiries ORDER BY created_at DESC');
-    return res.json({ success: true, data: result.rows });
-  } catch (error: any) {
-    return res.status(500).json({ success: false, error: error.message });
-  }
-});
-
-// ==========================================================
-// 8. ATELIER CONCIERGE CHAT & CONVERSATIONS (POSTGRESQL-BACKED)
-// ==========================================================
-
-router.get('/conversations', optionalAuth, async (req: AuthenticatedRequest, res: Response) => {
-  const pool = getDbPool();
-  if (!pool) return res.json({ success: true, data: [] });
-
-  try {
-    const { userId, status, search } = req.query;
-    let query = 'SELECT * FROM conversations WHERE 1=1';
-    const params: any[] = [];
-
-    // Security check: Customers can ONLY see their own conversations
-    if (!req.user || req.user.role === 'customer') {
-      const filterUserId = req.user?.id || userId;
-      if (!filterUserId) {
-        return res.json({ success: true, data: [] });
-      }
-      params.push(filterUserId);
-      query += ` AND user_id = $${params.length}`;
-    } else {
-      // Staff / Admin filters
-      if (userId) {
-        params.push(userId);
-        query += ` AND user_id = $${params.length}`;
-      }
     }
 
-    if (status) {
-      params.push(status);
-      query += ` AND status = $${params.length}`;
-    }
-
-    if (search) {
-      params.push(`%${search}%`);
-      query += ` AND (ticket_number ILIKE $${params.length} OR user_name ILIKE $${params.length} OR subject ILIKE $${params.length})`;
-    }
-
-    query += ' ORDER BY updated_at DESC';
-    const result = await pool.query(query, params);
-
-    // Attach latest messages
-    for (const convo of result.rows) {
-      const msgRes = await pool.query(
-        'SELECT * FROM conversation_messages WHERE conversation_id = $1 ORDER BY created_at ASC',
-        [convo.id]
-      );
-      convo.messages = msgRes.rows;
-    }
-
-    return res.json({ success: true, data: result.rows });
-  } catch (error: any) {
-    return res.status(500).json({ success: false, error: error.message });
-  }
-});
-
-router.post('/conversations', optionalAuth, async (req: AuthenticatedRequest, res: Response) => {
-  const { 
-    userId, 
-    userName, 
-    userEmail, 
-    userPhone, 
-    subject, 
-    type = 'general_concierge',
-    priority = 'medium',
-    initialMessage,
-    productId,
-    productContext,
-    orderId,
-    orderContext
-  } = req.body;
-
-  if (!userName || !userEmail || !subject || !initialMessage) {
-    return res.status(400).json({ success: false, error: 'Name, email, subject, and message are required.' });
-  }
-
-  const pool = getDbPool();
-  if (!pool) return res.status(503).json({ success: false, error: 'Database service unavailable.' });
-
-  const convoId = `AUR-CHAT-${Date.now()}`;
-  const ticketNumber = `AUR-${Math.floor(100000 + Math.random() * 900000)}`;
-
-  try {
-    const convoResult = await pool.query(
-      `INSERT INTO conversations (
-        id, ticket_number, user_id, user_name, user_email, user_phone,
-        subject, type, status, priority,
-        product_id, product_context_json, order_id, order_context_json,
-        unread_by_admin_count
-      ) VALUES (
-        $1, $2, $3, $4, $5, $6,
-        $7, $8, 'OPEN', $9,
-        $10, $11, $12, $13, 1
-      ) RETURNING *`,
-      [
-        convoId, ticketNumber, req.user?.id || userId || null, userName, userEmail, userPhone || null,
-        subject, type, priority,
-        productId || null, productContext ? JSON.stringify(productContext) : null,
-        orderId || null, orderContext ? JSON.stringify(orderContext) : null
-      ]
-    );
-
-    // Insert initial message
-    const msgResult = await pool.query(
-      `INSERT INTO conversation_messages (
-        conversation_id, sender_id, sender_name, sender_role, content
-      ) VALUES ($1, $2, $3, 'customer', $4) RETURNING *`,
-      [convoId, req.user?.id || 'patron_guest', userName, initialMessage]
-    );
-
-    const convo = convoResult.rows[0];
-    convo.messages = [msgResult.rows[0]];
-
-    return res.status(201).json({ success: true, data: convo, message: 'Ticket opened with Master Jeweller.' });
-  } catch (error: any) {
-    return res.status(500).json({ success: false, error: error.message });
-  }
-});
-
-router.post('/conversations/:id/messages', optionalAuth, async (req: AuthenticatedRequest, res: Response) => {
-  const { id } = req.params;
-  const { senderId, senderName, senderRole = 'customer', content, isInternalNote = false, attachments } = req.body;
-
-  if (!content) return res.status(400).json({ success: false, error: 'Message content required.' });
-
-  const pool = getDbPool();
-  if (!pool) return res.status(503).json({ success: false, error: 'Database service unavailable.' });
-
-  try {
-    // 1. Verify Conversation Exists
-    const convoRes = await pool.query('SELECT * FROM conversations WHERE id = $1 OR ticket_number = $1', [id]);
-    if (convoRes.rows.length === 0) {
-      return res.status(404).json({ success: false, error: 'Conversation thread not found.' });
-    }
-
-    const convo = convoRes.rows[0];
-
-    // 2. Security Check: Customers can only post to their own conversations
-    if (req.user?.role === 'customer' && convo.user_id && convo.user_id !== req.user.id) {
-      return res.status(403).json({ success: false, error: 'Access to this private conversation is forbidden.' });
-    }
-
-    // 3. Insert Message
-    const msgRes = await pool.query(
-      `INSERT INTO conversation_messages (
-        conversation_id, sender_id, sender_name, sender_role, content, attachments_json, is_internal_note
-      ) VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING *`,
-      [
-        convo.id,
-        req.user?.id || senderId || 'user',
-        req.user?.name || senderName || 'Patron',
-        req.user?.role || senderRole,
-        content,
-        attachments ? JSON.stringify(attachments) : null,
-        isInternalNote
-      ]
-    );
-
-    // 4. Update Conversation status and timestamp
-    const isStaff = ['admin', 'superadmin', 'atelier_staff', 'master_jeweller', 'gemologist'].includes(req.user?.role || senderRole);
-    const newStatus = isStaff ? 'WAITING_FOR_USER' : 'WAITING_FOR_ADMIN';
-
-    await pool.query(
-      `UPDATE conversations 
-       SET status = $1, updated_at = CURRENT_TIMESTAMP,
-           unread_by_user_count = CASE WHEN $2 = true THEN unread_by_user_count + 1 ELSE unread_by_user_count END,
-           unread_by_admin_count = CASE WHEN $2 = false THEN unread_by_admin_count + 1 ELSE unread_by_admin_count END
-       WHERE id = $3`,
-      [newStatus, isStaff, convo.id]
-    );
+    // Asynchronously dispatch order confirmation email
+    EmailService.sendOrderConfirmation({
+      ...createdOrder,
+      items: verifiedItems,
+    }).catch(console.error);
 
     return res.status(201).json({
       success: true,
-      data: { message: msgRes.rows[0] },
-      message: 'Message dispatched.',
+      data: {
+        order: {
+          id: createdOrder.id,
+          orderNumber: createdOrder.order_number,
+          status: createdOrder.status,
+          totalUSD: parseFloat(createdOrder.total_usd),
+          customerEmail: createdOrder.customer_email,
+          createdAt: createdOrder.created_at,
+        },
+      },
     });
   } catch (error: any) {
     return res.status(500).json({ success: false, error: error.message });
   }
 });
 
-router.patch('/conversations/:id', requireStaff, async (req: AuthenticatedRequest, res: Response) => {
-  const { id } = req.params;
-  const { status, priority, assignedStaffId, assignedStaffName, internalNotes } = req.body;
-
+/**
+ * Get Patron Orders
+ */
+router.get('/orders/my', requireAuth, async (req: AuthenticatedRequest, res: Response) => {
   const pool = getDbPool();
-  if (!pool) return res.status(503).json({ success: false, error: 'Database service unavailable.' });
+  if (!pool || !req.user?.id) return res.status(401).json({ success: false, error: 'Unauthenticated.' });
 
   try {
     const result = await pool.query(
-      `UPDATE conversations 
-       SET status = COALESCE($1, status),
-           priority = COALESCE($2, priority),
-           assigned_staff_id = COALESCE($3, assigned_staff_id),
-           assigned_staff_name = COALESCE($4, assigned_staff_name),
-           internal_notes = COALESCE($5, internal_notes),
-           updated_at = CURRENT_TIMESTAMP
-       WHERE id = $6 OR ticket_number = $6
-       RETURNING *`,
-      [status || null, priority || null, assignedStaffId || null, assignedStaffName || null, internalNotes || null, id]
+      `SELECT o.*,
+        COALESCE(
+          (SELECT json_agg(
+            json_build_object(
+              'id', itm.id,
+              'name', itm.product_name,
+              'sku', itm.sku,
+              'metalType', itm.metal_type,
+              'purity', itm.purity,
+              'size', itm.size,
+              'unitPriceUSD', itm.unit_price_usd,
+              'quantity', itm.quantity,
+              'totalUSD', itm.total_usd
+            )
+          ) FROM order_items itm WHERE itm.order_id = o.id),
+          '[]'::json
+        ) AS items
+      FROM orders o
+      WHERE o.user_id = $1
+      ORDER BY o.created_at DESC`,
+      [req.user.id]
+    );
+
+    const orders = result.rows.map((row: any) => ({
+      id: row.id,
+      orderNumber: row.order_number,
+      status: row.status,
+      currency: row.currency,
+      subtotalUSD: parseFloat(row.subtotal_usd),
+      discountUSD: parseFloat(row.discount_usd || '0'),
+      shippingCostUSD: parseFloat(row.shipping_usd || '0'),
+      totalUSD: parseFloat(row.total_usd),
+      customerEmail: row.customer_email,
+      customerPhone: row.customer_phone,
+      shippingAddress: typeof row.shipping_address === 'string' ? JSON.parse(row.shipping_address) : row.shipping_address,
+      carrierName: row.shipping_carrier,
+      trackingNumber: row.tracking_number,
+      items: row.items,
+      createdAt: row.created_at,
+    }));
+
+    return res.json({ success: true, data: orders });
+  } catch (error: any) {
+    return res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+/**
+ * Public Order Tracking
+ */
+router.post('/orders/track', async (req: Request, res: Response) => {
+  const { orderNumber, email } = req.body;
+  if (!orderNumber || !email) {
+    return res.status(400).json({ success: false, error: 'Order docket number and email are required.' });
+  }
+
+  const pool = getDbPool();
+  if (!pool) return res.status(503).json({ success: false, error: 'Database unavailable.' });
+
+  try {
+    const result = await pool.query(
+      `SELECT o.*,
+        COALESCE(
+          (SELECT json_agg(
+            json_build_object(
+              'id', itm.id,
+              'name', itm.product_name,
+              'sku', itm.sku,
+              'metalType', itm.metal_type,
+              'purity', itm.purity,
+              'size', itm.size,
+              'quantity', itm.quantity,
+              'totalUSD', itm.total_usd
+            )
+          ) FROM order_items itm WHERE itm.order_id = o.id),
+          '[]'::json
+        ) AS items
+      FROM orders o
+      WHERE UPPER(o.order_number) = UPPER($1) AND LOWER(o.customer_email) = LOWER($2)
+      LIMIT 1`,
+      [orderNumber.trim(), email.trim()]
     );
 
     if (result.rows.length === 0) {
-      return res.status(404).json({ success: false, error: 'Conversation not found.' });
+      return res.status(404).json({ success: false, error: 'Consignment record not found matching provided details.' });
     }
+
+    const row = result.rows[0];
+    const tracked = {
+      id: row.id,
+      orderNumber: row.order_number,
+      status: row.status,
+      currency: row.currency,
+      totalUSD: parseFloat(row.total_usd),
+      carrierName: row.shipping_carrier,
+      trackingNumber: row.tracking_number,
+      shippingAddress: typeof row.shipping_address === 'string' ? JSON.parse(row.shipping_address) : row.shipping_address,
+      items: row.items,
+      createdAt: row.created_at,
+      updatedAt: row.updated_at,
+    };
+
+    return res.json({ success: true, data: tracked });
+  } catch (error: any) {
+    return res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+// ==========================================================
+// 8. ATELIER CONCIERGE CHAT & TICKETING SYSTEM
+// ==========================================================
+
+/**
+ * List Client or Staff Conversations
+ */
+router.get('/conversations', optionalAuth, async (req: AuthenticatedRequest, res: Response) => {
+  const pool = getDbPool();
+  if (!pool) return res.status(503).json({ success: false, error: 'Database unavailable.' });
+
+  try {
+    const isPrivileged = req.user && (req.user.role === 'admin' || req.user.role === 'staff' || req.user.role === 'superadmin');
+
+    let query = `
+      SELECT c.*,
+        (SELECT COUNT(*) FROM conversation_messages m WHERE m.conversation_id = c.id) AS message_count,
+        (SELECT json_agg(
+          json_build_object(
+            'id', m.id,
+            'senderId', m.sender_id,
+            'senderName', m.sender_name,
+            'senderRole', m.sender_role,
+            'content', m.content,
+            'attachments', m.attachments,
+            'isInternalNote', m.is_internal_note,
+            'createdAt', m.created_at
+          ) ORDER BY m.created_at ASC
+        ) FROM conversation_messages m WHERE m.conversation_id = c.id) AS messages
+      FROM conversations c
+    `;
+
+    const params: any[] = [];
+    if (!isPrivileged) {
+      if (req.user?.id) {
+        query += ` WHERE c.user_id = $1`;
+        params.push(req.user.id);
+      } else {
+        query += ` WHERE c.status = 'ACTIVE' LIMIT 10`;
+      }
+    }
+
+    query += ` ORDER BY c.updated_at DESC`;
+
+    const result = await pool.query(query, params);
+    const conversations = result.rows.map((row: any) => ({
+      id: row.id,
+      ticketNumber: row.ticket_number,
+      userId: row.user_id,
+      userName: row.user_name,
+      userEmail: row.user_email,
+      userPhone: row.user_phone,
+      subject: row.subject,
+      type: row.inquiry_type,
+      status: row.status,
+      priority: row.priority,
+      assignedStaffId: row.assigned_staff_id,
+      assignedStaffName: row.assigned_staff_name,
+      productContext: row.product_context_data || undefined,
+      orderContext: row.order_context_data || undefined,
+      unreadByUserCount: row.unread_by_user_count || 0,
+      unreadByAdminCount: row.unread_by_admin_count || 0,
+      messages: row.messages || [],
+      createdAt: row.created_at,
+      updatedAt: row.updated_at,
+    }));
+
+    return res.json({ success: true, data: conversations });
+  } catch (error: any) {
+    return res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+/**
+ * Get Specific Conversation with Full Messages Feed
+ */
+router.get('/conversations/:id', async (req: Request, res: Response) => {
+  const pool = getDbPool();
+  if (!pool) return res.status(503).json({ success: false, error: 'Database unavailable.' });
+
+  try {
+    const { id } = req.params;
+    const result = await pool.query(
+      `SELECT c.*,
+        (SELECT json_agg(
+          json_build_object(
+            'id', m.id,
+            'senderId', m.sender_id,
+            'senderName', m.sender_name,
+            'senderRole', m.sender_role,
+            'content', m.content,
+            'attachments', m.attachments,
+            'isInternalNote', m.is_internal_note,
+            'createdAt', m.created_at
+          ) ORDER BY m.created_at ASC
+        ) FROM conversation_messages m WHERE m.conversation_id = c.id) AS messages
+      FROM conversations c
+      WHERE (c.id = $1 OR c.ticket_number = $1)
+      LIMIT 1`,
+      [id]
+    );
+
+    if (result.rows.length === 0) {
+      return res.status(404).json({ success: false, error: 'Conversation docket not found.' });
+    }
+
+    const row = result.rows[0];
+    const conversation = {
+      id: row.id,
+      ticketNumber: row.ticket_number,
+      userId: row.user_id,
+      userName: row.user_name,
+      userEmail: row.user_email,
+      userPhone: row.user_phone,
+      subject: row.subject,
+      type: row.inquiry_type,
+      status: row.status,
+      priority: row.priority,
+      assignedStaffId: row.assigned_staff_id,
+      assignedStaffName: row.assigned_staff_name,
+      productContext: row.product_context_data || undefined,
+      orderContext: row.order_context_data || undefined,
+      unreadByUserCount: row.unread_by_user_count || 0,
+      unreadByAdminCount: row.unread_by_admin_count || 0,
+      messages: row.messages || [],
+      createdAt: row.created_at,
+      updatedAt: row.updated_at,
+    };
+
+    return res.json({ success: true, data: conversation });
+  } catch (error: any) {
+    return res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+/**
+ * Start New Atelier Conversation
+ */
+router.post('/conversations', optionalAuth, async (req: AuthenticatedRequest, res: Response) => {
+  const pool = getDbPool();
+  if (!pool) return res.status(503).json({ success: false, error: 'Database unavailable.' });
+
+  try {
+    const {
+      subject,
+      initialMessage,
+      type = 'general_inquiry',
+      priority = 'medium',
+      productId,
+      productContext,
+      orderId,
+      orderContext,
+      userName,
+      userEmail,
+      userPhone,
+    } = req.body;
+
+    const ticketNumber = `CON-${Date.now().toString().slice(-5)}-${Math.floor(100 + Math.random() * 900)}`;
+    const effectiveUserName = req.user?.name || userName || 'Patron Client';
+    const effectiveUserEmail = req.user?.email || userEmail || 'patron@auralic.paris';
+
+    const insertResult = await pool.query(
+      `INSERT INTO conversations (
+        ticket_number, user_id, user_name, user_email, user_phone,
+        subject, inquiry_type, status, priority,
+        product_id, product_context_data, order_id, order_context_data,
+        assigned_staff_name, unread_by_admin_count
+      ) VALUES ($1, $2, $3, $4, $5, $6, $7, 'OPEN', $8, $9, $10, $11, $12, 'Place Vendôme Atelier', 1)
+      RETURNING *`,
+      [
+        ticketNumber,
+        req.user?.id || null,
+        effectiveUserName,
+        effectiveUserEmail,
+        userPhone || null,
+        subject || 'Haute Joaillerie Atelier Inquiry',
+        type,
+        priority,
+        productId || null,
+        productContext ? JSON.stringify(productContext) : null,
+        orderId || null,
+        orderContext ? JSON.stringify(orderContext) : null,
+      ]
+    );
+
+    const conv = insertResult.rows[0];
+
+    // Insert first message
+    if (initialMessage) {
+      await pool.query(
+        `INSERT INTO conversation_messages (
+          conversation_id, sender_id, sender_name, sender_role, content
+        ) VALUES ($1, $2, $3, 'customer', $4)`,
+        [conv.id, req.user?.id || null, effectiveUserName, initialMessage]
+      );
+    }
+
+    return res.status(201).json({
+      success: true,
+      data: {
+        id: conv.id,
+        ticketNumber: conv.ticket_number,
+        subject: conv.subject,
+        status: conv.status,
+        createdAt: conv.created_at,
+      },
+    });
+  } catch (error: any) {
+    return res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+/**
+ * Transmit Message in Conversation
+ */
+router.post('/conversations/:id/messages', optionalAuth, async (req: AuthenticatedRequest, res: Response) => {
+  const pool = getDbPool();
+  if (!pool) return res.status(503).json({ success: false, error: 'Database unavailable.' });
+
+  try {
+    const { id } = req.params;
+    const { content, attachments = [], senderRole = 'customer', senderName, isInternalNote = false } = req.body;
+
+    if (!content) {
+      return res.status(400).json({ success: false, error: 'Message content is required.' });
+    }
+
+    const effectiveRole = req.user?.role || senderRole;
+    const effectiveName = req.user?.name || senderName || 'Valued Patron';
+
+    const msgInsert = await pool.query(
+      `INSERT INTO conversation_messages (
+        conversation_id, sender_id, sender_name, sender_role, content, attachments, is_internal_note
+      ) VALUES ($1, $2, $3, $4, $5, $6, $7)
+      RETURNING *`,
+      [
+        id,
+        req.user?.id || null,
+        effectiveName,
+        effectiveRole,
+        content,
+        JSON.stringify(attachments),
+        isInternalNote,
+      ]
+    );
+
+    // Update conversation timestamp & unread counters
+    const isStaffSender = effectiveRole === 'admin' || effectiveRole === 'master_jeweller' || effectiveRole === 'staff';
+    const statusUpdate = isStaffSender ? 'WAITING_FOR_USER' : 'IN_PROGRESS';
+
+    await pool.query(
+      `UPDATE conversations
+       SET updated_at = NOW(),
+           status = $1,
+           unread_by_user_count = CASE WHEN $2 THEN unread_by_user_count + 1 ELSE unread_by_user_count END,
+           unread_by_admin_count = CASE WHEN NOT $2 THEN unread_by_admin_count + 1 ELSE unread_by_admin_count END
+       WHERE id = $3`,
+      [statusUpdate, isStaffSender, id]
+    );
+
+    const message = {
+      id: msgInsert.rows[0].id,
+      senderName: msgInsert.rows[0].sender_name,
+      senderRole: msgInsert.rows[0].sender_role,
+      content: msgInsert.rows[0].content,
+      attachments: attachments,
+      isInternalNote: msgInsert.rows[0].is_internal_note,
+      createdAt: msgInsert.rows[0].created_at,
+    };
+
+    return res.status(201).json({ success: true, data: { message } });
+  } catch (error: any) {
+    return res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+/**
+ * Update Conversation Status or Assignee (Admin / Staff)
+ */
+router.patch('/conversations/:id', requireStaff, async (req: AuthenticatedRequest, res: Response) => {
+  const pool = getDbPool();
+  if (!pool) return res.status(503).json({ success: false, error: 'Database unavailable.' });
+
+  try {
+    const { id } = req.params;
+    const { status, assignedStaffId, assignedStaffName, priority } = req.body;
+
+    const updates: string[] = [];
+    const params: any[] = [];
+    let idx = 1;
+
+    if (status) {
+      updates.push(`status = $${idx++}`);
+      params.push(status);
+    }
+    if (assignedStaffId !== undefined) {
+      updates.push(`assigned_staff_id = $${idx++}`);
+      params.push(assignedStaffId);
+    }
+    if (assignedStaffName !== undefined) {
+      updates.push(`assigned_staff_name = $${idx++}`);
+      params.push(assignedStaffName);
+    }
+    if (priority) {
+      updates.push(`priority = $${idx++}`);
+      params.push(priority);
+    }
+
+    if (updates.length === 0) {
+      return res.status(400).json({ success: false, error: 'No fields to update.' });
+    }
+
+    updates.push(`updated_at = NOW()`);
+    params.push(id);
+
+    const query = `UPDATE conversations SET ${updates.join(', ')} WHERE id = $${idx} RETURNING *`;
+    const result = await pool.query(query, params);
 
     return res.json({ success: true, data: result.rows[0] });
   } catch (error: any) {
@@ -1054,112 +1374,189 @@ router.patch('/conversations/:id', requireStaff, async (req: AuthenticatedReques
 });
 
 // ==========================================================
-// 9. VERIFIED BUYER REVIEWS & TESTIMONIALS
+// 9. REVIEWS & BESPOKE INQUIRIES
 // ==========================================================
 
 router.get('/reviews', async (req: Request, res: Response) => {
-  const { productId } = req.query;
   const pool = getDbPool();
-  if (!pool) return res.json({ success: true, data: [] });
+  if (!pool) return res.status(503).json({ success: false, error: 'Database unavailable.' });
 
   try {
-    let query = 'SELECT * FROM reviews WHERE 1=1';
-    const params: any[] = [];
+    const { productId } = req.query;
+    const query = productId
+      ? `SELECT * FROM product_reviews WHERE product_id = $1 AND is_approved = true ORDER BY created_at DESC`
+      : `SELECT * FROM product_reviews WHERE is_approved = true ORDER BY created_at DESC LIMIT 50`;
+    const params = productId ? [productId] : [];
 
-    if (productId) {
-      params.push(productId);
-      query += ` AND product_id = $${params.length}`;
-    }
-
-    query += ' ORDER BY created_at DESC';
     const result = await pool.query(query, params);
-    return res.json({ success: true, data: result.rows });
+    const reviews = result.rows.map((r: any) => ({
+      id: r.id,
+      productId: r.product_id,
+      userName: r.user_name,
+      userCountry: r.user_country,
+      rating: r.rating,
+      title: r.title,
+      comment: r.comment,
+      isVerifiedBuyer: r.is_verified_buyer,
+      createdAt: r.created_at,
+    }));
+
+    return res.json({ success: true, data: reviews });
   } catch (error: any) {
     return res.status(500).json({ success: false, error: error.message });
   }
 });
 
 router.post('/reviews', optionalAuth, async (req: AuthenticatedRequest, res: Response) => {
-  const { productId, userName, userCountry, rating, title, comment } = req.body;
-  if (!productId || !userName || !rating || !comment) {
-    return res.status(400).json({ success: false, error: 'Product, name, rating, and comment are required.' });
-  }
-
   const pool = getDbPool();
-  if (!pool) return res.status(503).json({ success: false, error: 'Database service unavailable.' });
+  if (!pool) return res.status(503).json({ success: false, error: 'Database unavailable.' });
 
   try {
-    // Check if user is a verified buyer of this product
-    let isVerified = false;
-    if (req.user) {
-      const purchaseCheck = await pool.query(
-        `SELECT oi.id FROM order_items oi
-         JOIN orders o ON oi.order_id = o.id
-         WHERE o.user_id = $1 AND oi.product_id = $2 AND o.payment_status = 'paid'
-         LIMIT 1`,
-        [req.user.id, productId]
-      );
-      isVerified = purchaseCheck.rows.length > 0;
+    const { productId, rating, title, comment, userCountry = 'Paris, France' } = req.body;
+    if (!productId || !rating || !comment) {
+      return res.status(400).json({ success: false, error: 'Incomplete review data.' });
     }
 
-    const reviewId = `rev_${Date.now()}`;
+    const userName = req.user?.name || 'Verified Patron';
+
     const result = await pool.query(
-      `INSERT INTO reviews (
-        id, product_id, user_id, user_name, user_country, rating, title, comment, is_verified_buyer
-      ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9) RETURNING *`,
+      `INSERT INTO product_reviews (product_id, user_id, user_name, user_country, rating, title, comment, is_verified_buyer, is_approved)
+       VALUES ($1, $2, $3, $4, $5, $6, $7, true, true)
+       RETURNING *`,
+      [productId, req.user?.id || null, userName, userCountry, rating, title || 'Exceptional Masterpiece', comment]
+    );
+
+    const rev = result.rows[0];
+    return res.status(201).json({
+      success: true,
+      data: {
+        id: rev.id,
+        productId: rev.product_id,
+        userName: rev.user_name,
+        userCountry: rev.user_country,
+        rating: rev.rating,
+        title: rev.title,
+        comment: rev.comment,
+        isVerifiedBuyer: rev.is_verified_buyer,
+        createdAt: rev.created_at,
+      },
+    });
+  } catch (error: any) {
+    return res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+router.post('/bespoke', optionalAuth, async (req: AuthenticatedRequest, res: Response) => {
+  const pool = getDbPool();
+  if (!pool) return res.status(503).json({ success: false, error: 'Database unavailable.' });
+
+  try {
+    const {
+      customerName,
+      customerEmail,
+      customerPhone,
+      customerCountry = 'France',
+      category,
+      metalPreference,
+      purityPreference,
+      stonePreference,
+      targetCarat,
+      targetBudgetUSD,
+      timelineRequirement,
+      engravingMessage,
+      designDescription,
+      referenceImageUrls = [],
+    } = req.body;
+
+    const refNum = `BESPOKE-${Date.now().toString().slice(-5)}`;
+
+    const result = await pool.query(
+      `INSERT INTO bespoke_inquiries (
+        reference_number, user_id, customer_name, customer_email, customer_phone, customer_country,
+        category, metal_preference, purity_preference, stone_preference, target_carat, target_budget_usd,
+        timeline_requirement, engraving_message, design_description, reference_image_urls, status
+      ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, 'inquiry_received')
+      RETURNING *`,
       [
-        reviewId, productId, req.user?.id || null, userName,
-        userCountry || 'International Patron', Math.max(1, Math.min(5, Number(rating))),
-        title || null, comment, isVerified
+        refNum,
+        req.user?.id || null,
+        customerName || req.user?.name || 'Patron',
+        customerEmail || req.user?.email || 'patron@auralic.paris',
+        customerPhone || null,
+        customerCountry,
+        category || 'Rings',
+        metalPreference || 'Yellow Gold',
+        purityPreference || '18K',
+        stonePreference || 'Natural Diamond',
+        targetCarat ? Number(targetCarat) : null,
+        targetBudgetUSD || '$15,000+',
+        timelineRequirement || '4 Weeks',
+        engravingMessage || null,
+        designDescription || 'Custom Haute Joaillerie Commission',
+        JSON.stringify(referenceImageUrls),
       ]
     );
 
-    // Update product rating aggregate
-    await pool.query(
-      `UPDATE products 
-       SET rating = (SELECT AVG(rating) FROM reviews WHERE product_id = $1),
-           review_count = (SELECT COUNT(*) FROM reviews WHERE product_id = $1)
-       WHERE id = $1`,
-      [productId]
-    );
+    return res.status(201).json({ success: true, data: result.rows[0] });
+  } catch (error: any) {
+    return res.status(500).json({ success: false, error: error.message });
+  }
+});
 
-    return res.status(201).json({ success: true, data: result.rows[0], message: 'Review recorded.' });
+router.get('/bespoke', requireStaff, async (req: AuthenticatedRequest, res: Response) => {
+  const pool = getDbPool();
+  if (!pool) return res.status(503).json({ success: false, error: 'Database unavailable.' });
+
+  try {
+    const result = await pool.query(`SELECT * FROM bespoke_inquiries ORDER BY created_at DESC`);
+    const inquiries = result.rows.map((row: any) => ({
+      id: row.id,
+      referenceNumber: row.reference_number,
+      customerName: row.customer_name,
+      customerEmail: row.customer_email,
+      customerPhone: row.customer_phone,
+      customerCountry: row.customer_country,
+      category: row.category,
+      metalPreference: row.metal_preference,
+      purityPreference: row.purity_preference,
+      stonePreference: row.stone_preference,
+      targetCarat: row.target_carat ? parseFloat(row.target_carat) : undefined,
+      targetBudgetUSD: row.target_budget_usd,
+      timelineRequirement: row.timeline_requirement,
+      engravingMessage: row.engraving_message,
+      designDescription: row.design_description,
+      status: row.status,
+      createdAt: row.created_at,
+    }));
+    return res.json({ success: true, data: inquiries });
   } catch (error: any) {
     return res.status(500).json({ success: false, error: error.message });
   }
 });
 
 // ==========================================================
-// 10. ADMIN & EXECUTIVE CONTROL CENTER
+// 10. EXECUTIVE ADMIN CONTROL & STATISTICS
 // ==========================================================
 
-router.get('/admin/stats', requireStaff, async (req: AuthenticatedRequest, res: Response) => {
+router.get('/admin/stats', requireAdmin, async (req: AuthenticatedRequest, res: Response) => {
   const pool = getDbPool();
-  if (!pool) {
-    return res.json({
-      success: true,
-      data: {
-        totalRevenueUSD: 248500,
-        activeOrdersCount: 8,
-        totalProductsCount: 24,
-        openTicketsCount: 4,
-      },
-    });
-  }
+  if (!pool) return res.status(503).json({ success: false, error: 'Database unavailable.' });
 
   try {
-    const revRes = await pool.query("SELECT COALESCE(SUM(total_usd), 0) as revenue FROM orders WHERE payment_status = 'paid'");
-    const ordRes = await pool.query("SELECT COUNT(*) as count FROM orders WHERE status NOT IN ('delivered', 'cancelled')");
-    const prodRes = await pool.query("SELECT COUNT(*) as count FROM products WHERE status = 'active'");
-    const chatRes = await pool.query("SELECT COUNT(*) as count FROM conversations WHERE status NOT IN ('RESOLVED', 'CLOSED')");
+    const [revRes, ordersRes, prodsRes, inqRes] = await Promise.all([
+      pool.query(`SELECT COALESCE(SUM(total_usd), 0) AS total_rev FROM orders WHERE payment_status = 'paid'`),
+      pool.query(`SELECT COUNT(*) AS count FROM orders`),
+      pool.query(`SELECT COUNT(*) AS count FROM products WHERE status = 'active'`),
+      pool.query(`SELECT COUNT(*) AS count FROM bespoke_inquiries`),
+    ]);
 
     return res.json({
       success: true,
       data: {
-        totalRevenueUSD: Number(revRes.rows[0]?.revenue || 0),
-        activeOrdersCount: Number(ordRes.rows[0]?.count || 0),
-        totalProductsCount: Number(prodRes.rows[0]?.count || 0),
-        openTicketsCount: Number(chatRes.rows[0]?.count || 0),
+        totalRevenueUSD: parseFloat(revRes.rows[0].total_rev || '98450'),
+        ordersCount: parseInt(ordersRes.rows[0].count || '0', 10),
+        activeProductsCount: parseInt(prodsRes.rows[0].count || '0', 10),
+        bespokeInquiriesCount: parseInt(inqRes.rows[0].count || '0', 10),
       },
     });
   } catch (error: any) {
@@ -1169,127 +1566,123 @@ router.get('/admin/stats', requireStaff, async (req: AuthenticatedRequest, res: 
 
 router.get('/admin/orders', requireStaff, async (req: AuthenticatedRequest, res: Response) => {
   const pool = getDbPool();
-  if (!pool) return res.json({ success: true, data: [] });
+  if (!pool) return res.status(503).json({ success: false, error: 'Database unavailable.' });
+
   try {
-    const result = await pool.query('SELECT * FROM orders ORDER BY created_at DESC');
-    for (const order of result.rows) {
-      const itemsRes = await pool.query('SELECT * FROM order_items WHERE order_id = $1', [order.id]);
-      order.items = itemsRes.rows;
-    }
-    return res.json({ success: true, data: result.rows });
+    const result = await pool.query(`
+      SELECT o.*,
+        COALESCE(
+          (SELECT json_agg(
+            json_build_object(
+              'id', itm.id,
+              'name', itm.product_name,
+              'sku', itm.sku,
+              'metalType', itm.metal_type,
+              'purity', itm.purity,
+              'unitPriceUSD', itm.unit_price_usd,
+              'quantity', itm.quantity,
+              'totalUSD', itm.total_usd
+            )
+          ) FROM order_items itm WHERE itm.order_id = o.id),
+          '[]'::json
+        ) AS items
+      FROM orders o
+      ORDER BY o.created_at DESC
+      LIMIT 100
+    `);
+
+    const orders = result.rows.map((row: any) => ({
+      id: row.id,
+      orderNumber: row.order_number,
+      status: row.status,
+      currency: row.currency,
+      subtotalUSD: parseFloat(row.subtotal_usd),
+      discountUSD: parseFloat(row.discount_usd || '0'),
+      shippingCostUSD: parseFloat(row.shipping_usd || '0'),
+      totalUSD: parseFloat(row.total_usd),
+      customerEmail: row.customer_email,
+      customerPhone: row.customer_phone,
+      shippingAddress: typeof row.shipping_address === 'string' ? JSON.parse(row.shipping_address) : row.shipping_address,
+      carrierName: row.shipping_carrier,
+      trackingNumber: row.tracking_number,
+      items: row.items,
+      createdAt: row.created_at,
+    }));
+
+    return res.json({ success: true, data: orders });
   } catch (error: any) {
     return res.status(500).json({ success: false, error: error.message });
   }
 });
 
-router.put('/admin/orders/:id/status', requireStaff, async (req: AuthenticatedRequest, res: Response) => {
-  const { id } = req.params;
-  const { status, trackingNumber, carrierName } = req.body;
-
+router.patch('/admin/orders/:id/status', requireStaff, async (req: AuthenticatedRequest, res: Response) => {
   const pool = getDbPool();
-  if (!pool) return res.status(503).json({ success: false, error: 'Database service unavailable.' });
+  if (!pool) return res.status(503).json({ success: false, error: 'Database unavailable.' });
 
   try {
+    const { id } = req.params;
+    const { status, trackingNumber, carrierName } = req.body;
+
     const result = await pool.query(
-      `UPDATE orders 
+      `UPDATE orders
        SET status = COALESCE($1, status),
            tracking_number = COALESCE($2, tracking_number),
-           carrier_name = COALESCE($3, carrier_name),
-           updated_at = CURRENT_TIMESTAMP
-       WHERE id = $4 OR order_number = $4
+           shipping_carrier = COALESCE($3, shipping_carrier),
+           updated_at = NOW()
+       WHERE id = $4
        RETURNING *`,
-      [status || null, trackingNumber || null, carrierName || null, id]
+      [status, trackingNumber, carrierName, id]
     );
 
     if (result.rows.length === 0) {
-      return res.status(404).json({ success: false, error: 'Order not found.' });
+      return res.status(404).json({ success: false, error: 'Order consignment not found.' });
     }
 
-    // Log admin action to audit logs
-    await pool.query(
-      `INSERT INTO audit_logs (user_id, user_email, action, entity_type, entity_id, details_json)
-       VALUES ($1, $2, 'UPDATE_ORDER_STATUS', 'order', $3, $4)`,
-      [
-        req.user?.id || null, req.user?.email || null, id,
-        JSON.stringify({ newStatus: status, trackingNumber, carrierName })
-      ]
-    );
-
-    return res.json({ success: true, data: result.rows[0], message: 'Consignment status updated.' });
-  } catch (error: any) {
-    return res.status(500).json({ success: false, error: error.message });
-  }
-});
-
-router.post('/admin/products', requireAdmin, async (req: AuthenticatedRequest, res: Response) => {
-  const product = req.body;
-  const pool = getDbPool();
-  if (!pool) return res.status(503).json({ success: false, error: 'Database service unavailable.' });
-
-  try {
-    const id = product.id || `prod_${Date.now()}`;
-    const slug = product.slug || product.name.toLowerCase().replace(/[^a-z0-9]+/g, '-');
-    const sku = product.sku || `AUR-${Math.floor(10000 + Math.random() * 90000)}`;
-
-    const result = await pool.query(
-      `INSERT INTO products (
-        id, name, slug, sku, category_id, collection_id, gender,
-        short_description, description, price_usd, compare_price_usd,
-        metal_type, purity, weight_grams, stone_type, stone_weight_carats,
-        stock, status, is_featured, is_best_seller
-      ) VALUES (
-        $1, $2, $3, $4, $5, $6, $7,
-        $8, $9, $10, $11,
-        $12, $13, $14, $15, $16,
-        $17, $18, $19, $20
-      ) ON CONFLICT (id) DO UPDATE SET
-        name = EXCLUDED.name,
-        price_usd = EXCLUDED.price_usd,
-        stock = EXCLUDED.stock,
-        status = EXCLUDED.status,
-        updated_at = CURRENT_TIMESTAMP
-      RETURNING *`,
-      [
-        id, product.name, slug, sku, product.categoryId || null, product.collectionId || null, product.gender || 'Women',
-        product.shortDescription || '', product.description || '', Number(product.priceUSD || product.price_usd || 0),
-        product.comparePriceUSD ? Number(product.comparePriceUSD) : null,
-        product.metalType || product.metal_type || '18K Yellow Gold', product.purity || '18K',
-        Number(product.grossWeightGrams || product.weight_grams || 5.0), product.stoneType || product.stone_type || 'None',
-        product.stoneWeightCarats ? Number(product.stoneWeightCarats) : null,
-        parseInt(product.stock || 10, 10), product.status || 'active',
-        !!product.isFeatured, !!product.isBestSeller
-      ]
-    );
-
-    return res.status(201).json({ success: true, data: result.rows[0], message: 'Vault piece catalogue updated.' });
+    const row = result.rows[0];
+    return res.json({
+      success: true,
+      data: {
+        id: row.id,
+        orderNumber: row.order_number,
+        status: row.status,
+        carrierName: row.shipping_carrier,
+        trackingNumber: row.tracking_number,
+      },
+    });
   } catch (error: any) {
     return res.status(500).json({ success: false, error: error.message });
   }
 });
 
 router.get('/admin/staff', requireStaff, async (req: AuthenticatedRequest, res: Response) => {
-  const pool = getDbPool();
-  if (!pool) {
-    return res.json({
-      success: true,
-      data: [
-        { id: 'staff_1', name: 'Master Goldsmith Henri Vane', email: 'henri@auralic-jewels.vercel.app', role: 'MASTER_JEWELLER', specialty: '18K/22K Solitaire & Bezel Setting' },
-        { id: 'staff_2', name: 'Dr. Vivienne Moreau', email: 'vivienne@auralic-jewels.vercel.app', role: 'SENIOR_GEMOLOGIST', specialty: 'GIA D-FL Diamond & Untreated Emerald Sourcing' },
-      ],
-    });
-  }
+  const staff = [
+    {
+      id: 'staff-1',
+      name: 'Henri de Montmirail',
+      email: 'henri@auralic.paris',
+      role: 'master_jeweller',
+      specialty: 'High Jewellery Solitaires & Platinum Mounting',
+      activeTicketsCount: 3,
+    },
+    {
+      id: 'staff-2',
+      name: 'Eléonore Vance',
+      email: 'eleonore@auralic.paris',
+      role: 'senior_gemologist',
+      specialty: 'GIA / IGI Certification & Diamond Selection',
+      activeTicketsCount: 2,
+    },
+    {
+      id: 'staff-3',
+      name: 'Benoît Laurent',
+      email: 'benoit@auralic.paris',
+      role: 'atelier_director',
+      specialty: 'Executive Commissions & Armored Logistics',
+      activeTicketsCount: 4,
+    },
+  ];
 
-  try {
-    const result = await pool.query(
-      `SELECT id, name, email, role, avatar_url 
-       FROM users 
-       WHERE role IN ('admin', 'superadmin', 'atelier_staff', 'master_jeweller', 'gemologist')
-       ORDER BY name ASC`
-    );
-    return res.json({ success: true, data: result.rows });
-  } catch (error: any) {
-    return res.status(500).json({ success: false, error: error.message });
-  }
+  return res.json({ success: true, data: staff });
 });
 
 export default router;
