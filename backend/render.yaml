@@ -1,10 +1,12 @@
 services:
   - type: web
-    name: aurelia-jewellery-backend
+    name: auralic-jewellery-backend
     env: node
     plan: standard
+    rootDir: backend
     buildCommand: npm install && npm run build
     startCommand: npm start
+    healthCheckPath: /health
     envVars:
       - key: NODE_ENV
         value: production
@@ -15,7 +17,7 @@ services:
       - key: JWT_SECRET
         generateValue: true
       - key: FRONTEND_URL
-        value: https://yourbrand.vercel.app
+        value: https://auralic-jewels.vercel.app
       - key: GOOGLE_CLIENT_ID
         sync: false
       - key: GOOGLE_CLIENT_SECRET
