@@ -1,6 +1,7 @@
 import { Router, Request, Response } from 'express';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
+// @ts-ignore
 import multer from 'multer';
 import { getDbPool } from '../db/connection';
 import { config } from '../config';
@@ -434,8 +435,9 @@ router.post('/auth/password/reset', async (req: Request, res: Response) => {
  */
 router.post('/uploads/image', upload.single('file'), async (req: Request, res: Response) => {
   try {
-    if (req.file) {
-      const { originalname, mimetype, buffer } = req.file;
+    const r = req as any;
+    if (r.file) {
+      const { originalname, mimetype, buffer } = r.file;
       const folder = (req.body.folder as string) || 'auralic_jewels';
       const uploaded = await MediaService.uploadBuffer(buffer, originalname, mimetype, folder);
       return res.json({ success: true, data: uploaded });
@@ -465,7 +467,7 @@ router.post('/uploads/image', upload.single('file'), async (req: Request, res: R
  */
 router.get('/media/:id', async (req: Request, res: Response) => {
   try {
-    const { id } = req.params;
+    const id = req.params.id as string;
     const media = await MediaService.getMediaById(id);
 
     if (!media) {

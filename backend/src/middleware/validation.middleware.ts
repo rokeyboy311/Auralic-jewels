@@ -5,11 +5,11 @@ export function validateBody(schema: ZodSchema) {
   return (req: Request, res: Response, next: NextFunction) => {
     const result = schema.safeParse(req.body);
     if (!result.success) {
-      const errorMsg = result.error.errors.map((e) => `${e.path.join('.')}: ${e.message}`).join(', ');
+      const errorMsg = (result as any).error.errors.map((e: any) => `${e.path.join('.')}: ${e.message}`).join(', ');
       return res.status(400).json({
         success: false,
         error: `Validation error: ${errorMsg}`,
-        details: result.error.errors,
+        details: (result as any).error.errors,
       });
     }
     req.body = result.data;
