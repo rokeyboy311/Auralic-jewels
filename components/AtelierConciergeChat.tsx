@@ -431,7 +431,7 @@ export default function AtelierConciergeChat() {
               {activeConversation.orderContext && (
                 <div className="bg-[#faf8f5] p-3 border-b border-[#ebdccd] flex items-center justify-between text-xs">
                   <div className="flex items-center gap-2">
-                    <Package className="w-4 h-4 text-[#9b7e46]\" />
+                    <Package className="w-4 h-4 text-[#9b7e46]" />
                     <span className="font-medium text-[#141210]">
                       Order #{activeConversation.orderContext.orderNumber}
                     </span>
@@ -540,7 +540,7 @@ export default function AtelierConciergeChat() {
                       onClick={() => setInputText(prompt)}
                       className="px-2.5 py-1 bg-[#faf8f5] hover:bg-[#f3ece2] text-[#594f43] border border-[#ebdccd] whitespace-nowrap shrink-0 transition-colors"
                     >
-                      {prompt
+                      {prompt}
                     </button>
                   ))}
                 </div>
