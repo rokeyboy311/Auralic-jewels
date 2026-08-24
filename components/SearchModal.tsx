@@ -63,7 +63,7 @@ export default function SearchModal({ isOpen, onClose }: SearchModalProps) {
 
   const displayedResults = query.trim() ? results : [];
 
-  return (\r
+  return (
     <AnimatePresence>
       {isOpen && (
         <div className="fixed inset-0 z-50 overflow-y-auto bg-black/75 backdrop-blur-sm p-4 sm:p-6 md:p-12 flex justify-center items-start">
@@ -101,91 +101,7 @@ export default function SearchModal({ isOpen, onClose }: SearchModalProps) {
 
             {/* Content Area */}
             <div className="p-6 max-h-[70vh] overflow-y-auto">
-              {!query.trim() ? (
-                <div>
-                  <div className="flex items-center gap-2 text-[10px] uppercase tracking-[0.3em] text-[#C5A059] font-semibold mb-3">
-                    <Sparkles className="w-3.5 h-3.5" />
-                    <span>Popular Curations & Inquiries</span>
-                  </div>
-                  <div className="flex flex-wrap gap-2">
-                    {suggestedTerms.map((term) => (
-                      <button
-                        key={term}
-                        onClick={() => setQuery(term)}
-                        className="px-3.5 py-1.5 bg-[#F5F2ED] hover:bg-[#1A1A1A] hover:text-[#C5A059] text-xs text-[#1A1A1A] tracking-wide transition-colors"
-                      >
-                        {term}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-              ) : isLoading ? (
-                <div className="text-center py-12 text-sm text-[#1A1A1A]/60 serif italic">
-                  Consulting Maison Archives...
-                </div>
-              ) : displayedResults.length === 0 ? (
-                <div className="text-center py-12">
-                  <p className="serif text-lg text-[#1A1A1A]">No pieces matched your inquiry</p>
-                  <p className="text-xs text-[#1A1A1A]/60 mt-1 font-light">
-                    Try searching for &quot;Emerald&quot;, &quot;Solitaire&quot;, &quot;18K Gold&quot; or request a custom bespoke commission.
-                  </p>
-                  <Link
-                    href="/custom-jewellery"
-                    onClick={handleClose}
-                    className="inline-block mt-4 text-xs tracking-widest uppercase text-[#C5A059] border-b border-[#C5A059] pb-0.5"
-                  >
-                    Bespoke Atelier Inquiry →
-                  </Link>
-                </div>
-              ) : (
-                <div className="space-y-4">
-                  <div className="flex justify-between items-center text-xs text-[#1A1A1A]/70 border-b border-black/5 pb-2">
-                    <span>{displayedResults.length} Pieces Discovered</span>
-                    <Link
-                      href={`/shop?search=${encodeURIComponent(query)}`}
-                      onClick={handleClose}
-                      className="text-[#C5A059] hover:underline flex items-center gap-1 font-semibold"
-                    >
-                      <span>View in Full Discovery Grid</span>
-                      <ArrowRight className="w-3.5 h-3.5" />
-                    </Link>
-                  </div>
-
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    {displayedResults.map((product) => (
-                      <Link
-                        key={product.id}
-                        href={`/product/${product.slug}`}
-                        onClick={handleClose}
-                        className="flex gap-3 p-3 bg-white hover:bg-[#F5F2ED] border border-black/5 transition-colors group"
-                      >
-                        <div className="relative w-16 h-20 bg-[#F5F2ED] shrink-0 overflow-hidden">
-                          {product.images[0] && (
-                            <Image
-                              src={product.images[0].url}
-                              alt={product.name}
-                              fill
-                              className="object-cover group-hover:scale-105 transition-transform"
-                              referrerPolicy="no-referrer"
-                            />
-                          )}
-                        </div>
-                        <div className="flex-1 min-w-0">
-                          <p className="text-[9px] text-[#C5A059] tracking-wider uppercase font-semibold">
-                            {product.purity} {product.metalType}
-                          </p>
-                          <h4 className="serif text-sm text-[#1A1A1A] group-hover:text-[#C5A059] transition-colors truncate">
-                            {product.name}
-                          </h4>
-                          <p className="serif text-sm font-medium text-[#1A1A1A] mt-1">
-                            {formatPrice(product.priceUSD)}
-                          </p>
-                        </div>
-                      </Link>
-                    ))}
-                  </div>
-                </div>
-              )}
+              {!query.trim() ? (\n                <div>\n                  <div className=\"flex items-center gap-2 text-[10px] uppercase tracking-[0.3em] text-[#C5A059] font-semibold mb-3\">\n                    <Sparkles className=\"w-3.5 h-3.5\" />\n                    <span>Popular Curations & Inquiries</span>\n                  </div>\n                  <div className=\"flex flex-wrap gap-2\">\n                    {suggestedTerms.map((term) => (\n                      <button\n                        key={term}\n                        onClick={() => setQuery(term)}\n                        className=\"px-3.5 py-1.5 bg-[#F5F2ED] hover:bg-[#1A1A1A] hover:text-[#C5A059] text-xs text-[#1A1A1A] tracking-wide transition-colors\"\n                      >\n                        {term}\n                      </button>\n                    ))}\n                  </div>\n                </div>\n              ) : isLoading ? (\n                <div className=\"text-center py-12 text-sm text-[#1A1A1A]/60 serif italic\">\n                  Consulting Maison Archives...\n                </div>\n              ) : displayedResults.length === 0 ? (\n                <div className=\"text-center py-12\">\n                  <p className=\"serif text-lg text-[#1A1A1A]\">No pieces matched your inquiry</p>\n                  <p className=\"text-xs text-[#1A1A1A]/60 mt-1 font-light\">\n                    Try searching for &quot;Emerald&quot;, &quot;Solitaire&quot;, &quot;18K Gold&quot; or request a custom bespoke commission.\n                  </p>\n                  <Link\n                    href=\"/custom-jewellery\"\n                    onClick={handleClose}\n                    className=\"inline-block mt-4 text-xs tracking-widest uppercase text-[#C5A059] border-b border-[#C5A059] pb-0.5\"\n                  >\n                    Bespoke Atelier Inquiry →\n                  </Link>\n                </div>\n              ) : (\n                <div className=\"space-y-4\">\n                  <div className=\"flex justify-between items-center text-xs text-[#1A1A1A]/70 border-b border-black/5 pb-2\">\n                    <span>{displayedResults.length} Pieces Discovered</span>\n                    <Link\n                      href={`/shop?search=${encodeURIComponent(query)}`}\n                      onClick={handleClose}\n                      className=\"text-[#C5A059] hover:underline flex items-center gap-1 font-semibold\"\n                    >\n                      <span>View in Full Discovery Grid</span>\n                      <ArrowRight className=\"w-3.5 h-3.5\" />\n                    </Link>\n                  </div>\n\n                  <div className=\"grid grid-cols-1 sm:grid-cols-2 gap-4\">\n                    {displayedResults.map((product) => (\n                      <Link\n                        key={product.id}\n                        href={`/product/${product.slug}`}\n                        onClick={handleClose}\n                        className=\"flex gap-3 p-3 bg-white hover:bg-[#F5F2ED] border border-black/5 transition-colors group\"\n                      >\n                        <div className=\"relative w-16 h-20 bg-[#F5F2ED] shrink-0 overflow-hidden\">\n                          {product.images[0] && (\n                            <Image\n                              src={product.images[0].url}\n                              alt={product.name}\n                              fill\n                              className=\"object-cover group-hover:scale-105 transition-transform\"\n                              referrerPolicy=\"no-referrer\"\n                            />\n                          )}\n                        </div>\n                        <div className=\"flex-1 min-w-0\">\n                          <p className=\"text-[9px] text-[#C5A059] tracking-wider uppercase font-semibold\">\n                            {product.purity} {product.metalType}\n                          </p>\n                          <h4 className=\"serif text-sm text-[#1A1A1A] group-hover:text-[#C5A059] transition-colors truncate\">\n                            {product.name}\n                          </h4>\n                          <p className=\"serif text-sm font-medium text-[#1A1A1A] mt-1\">\n                            {formatPrice(product.priceUSD)}\n                          </p>\n                        </div>\n                      </Link>\n                    ))}\n                  </div>\n                </div>\n              )}
             </div>
           </motion.div>
         </div>
