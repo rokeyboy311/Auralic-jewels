@@ -71,10 +71,7 @@ export default function ProductDetailPage({ params }: { params: Promise<{ slug: 
         }
 
         // Fetch related products & reviews
-        const [relatedRes, reviewsRes] = await Promise.all([\r
-          getProducts({ category: prodData.category, limit: 4 }),
-          getProductReviews(prodData.id),
-        ]);
+        const [relatedRes, reviewsRes] = await Promise.all([\n          getProducts({ category: prodData.category, limit: 4 }),\n          getProductReviews(prodData.id),\n        ]);
         if (relatedRes.success && relatedRes.data) {
           setRelatedProducts(relatedRes.data.filter((p) => p.id !== prodData.id));
         }
@@ -198,25 +195,7 @@ export default function ProductDetailPage({ params }: { params: Promise<{ slug: 
           {/* Thumbnail Strip */}
           {product.images.length > 1 && (
             <div className="grid grid-cols-4 sm:grid-cols-5 gap-3">
-              {product.images.map((img, idx) => (
-                <button
-                  key={img.id || idx}
-                  onClick={() => setSelectedImageIndex(idx)}
-                  className={`relative aspect-square bg-[#f0e9df] border transition-all overflow-hidden ${
-                    selectedImageIndex === idx
-                      ? 'border-[#9b7e46] ring-1 ring-[#9b7e46]'
-                      : 'border-[#c5b49e]/40 hover:border-[#9b7e46]'
-                  }`}
-                >
-                  <Image
-                    src={img.url}
-                    alt={img.alt || product.name}
-                    fill
-                    className="object-cover"
-                    referrerPolicy="no-referrer"
-                  />
-                </button>
-              ))}
+              {product.images.map((img, idx) => (\n                <button\n                  key={img.id || idx}\n                  onClick={() => setSelectedImageIndex(idx)}\n                  className={`relative aspect-square bg-[#f0e9df] border transition-all overflow-hidden ${\n                    selectedImageIndex === idx\n                      ? 'border-[#9b7e46] ring-1 ring-[#9b7e46]'\n                      : 'border-[#c5b49e]/40 hover:border-[#9b7e46]'\n                  }`}\n                >\n                  <Image\n                    src={img.url}\n                    alt={img.alt || product.name}\n                    fill\n                    className=\"object-cover\"\n                    referrerPolicy=\"no-referrer\"\n                  />\n                </button>\n              ))}
             </div>
           )}
         </div>
@@ -307,7 +286,7 @@ export default function ProductDetailPage({ params }: { params: Promise<{ slug: 
           )}
 
           {/* Ring Sizing Selector (If category is Rings) */}
-          {(product.category === 'Rings' || product.name.toLowerCase().includes('ring')) && (\r
+          {(product.category === 'Rings' || product.name.toLowerCase().includes('ring')) && (
             <div className="space-y-2">
               <div className="flex justify-between items-center">
                 <label className="text-xs uppercase tracking-widest text-[#4a4237] font-medium">
