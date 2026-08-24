@@ -55,3 +55,5 @@ export const ProductJsonLd: React.FC<ProductJsonLdProps> = ({
     />
   );
 };
+
+export default ProductJsonLd;

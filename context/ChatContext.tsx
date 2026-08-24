@@ -11,12 +11,30 @@ import {
 } from '../lib/api';
 import { useAuth } from './AuthContext';
 
+export interface OpenChatOptions {
+  conversationId?: string;
+  subject?: string;
+  initialMessage?: string;
+  type?: string;
+  priority?: string;
+  productId?: string;
+  productContext?: any;
+  orderId?: string;
+  orderContext?: any;
+}
+
 interface ChatContextType {
   conversations: Conversation[];
   activeConversation: Conversation | null;
   loading: boolean;
+  isLoading: boolean;
   isChatOpen: boolean;
+  isOpen: boolean;
+  unreadCount: number;
   setIsChatOpen: (open: boolean) => void;
+  setIsOpen: (open: boolean) => void;
+  openChat: (options?: OpenChatOptions) => void;
+  closeChat: () => void;
   setActiveConversation: (conv: Conversation | null) => void;
   refreshConversations: () => Promise<void>;
   selectConversation: (id: string) => Promise<void>;
@@ -42,6 +60,10 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [activeConversation, setActiveConversation] = useState<Conversation | null>(null);
   const [loading, setLoading] = useState<boolean>(false);
   const [isChatOpen, setIsChatOpen] = useState<boolean>(false);
+
+  const unreadCount = conversations.reduce((total, conv) => {
+    return total + (user?.role === 'admin' ? conv.unreadByAdminCount || 0 : conv.unreadByUserCount || 0);
+  }, 0);
 
   const refreshConversations = useCallback(async () => {
     try {
@@ -108,6 +130,33 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   };
 
+  const openChat = async (options?: OpenChatOptions) => {
+    setIsChatOpen(true);
+    if (!options) return;
+
+    if (options.conversationId) {
+      await selectConversation(options.conversationId);
+      return;
+    }
+
+    if (options.subject || options.initialMessage || options.productId) {
+      await startNewConversation({
+        subject: options.subject || 'Atelier Concierge Inquiry',
+        initialMessage: options.initialMessage || 'Greetings from a valued patron.',
+        type: options.type,
+        priority: options.priority,
+        productId: options.productId,
+        productContext: options.productContext,
+        orderId: options.orderId,
+        orderContext: options.orderContext,
+      });
+    }
+  };
+
+  const closeChat = () => {
+    setIsChatOpen(false);
+  };
+
   const sendMessage = async (content: string, attachments: any[] = [], isInternalNote: boolean = false) => {
     if (!activeConversation) return false;
     try {
@@ -158,8 +207,14 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
         conversations,
         activeConversation,
         loading,
+        isLoading: loading,
         isChatOpen,
+        isOpen: isChatOpen,
+        unreadCount,
         setIsChatOpen,
+        setIsOpen: setIsChatOpen,
+        openChat,
+        closeChat,
         setActiveConversation,
         refreshConversations,
         selectConversation,
@@ -180,3 +235,5 @@ export const useChat = () => {
   }
   return context;
 };
+
+export default ChatContext;

@@ -2,7 +2,13 @@
 
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { User } from '../lib/types';
-import { getCurrentUserProfile, logoutUser } from '../lib/api';
+import { 
+  getCurrentUserProfile, 
+  loginUser, 
+  registerUser, 
+  loginWithGoogle as apiLoginWithGoogle, 
+  logoutUser 
+} from '../lib/api';
 
 interface AuthContextType {
   user: User | null;
@@ -10,6 +16,21 @@ interface AuthContextType {
   isAdmin: boolean;
   isStaff: boolean;
   setUser: (user: User | null) => void;
+  login: (email: string, pass?: string) => Promise<boolean>;
+  loginWithEmail: (email: string, pass?: string) => Promise<boolean>;
+  register: (
+    nameOrData: string | { name: string; email: string; password?: string; phone?: string },
+    email?: string,
+    phone?: string,
+    password?: string
+  ) => Promise<boolean>;
+  registerUser: (
+    nameOrData: string | { name: string; email: string; password?: string; phone?: string },
+    email?: string,
+    phone?: string,
+    password?: string
+  ) => Promise<boolean>;
+  loginWithGoogle: (payload?: { credential?: string; idToken?: string; email?: string; name?: string }) => Promise<boolean>;
   logout: () => Promise<void>;
   refreshUser: () => Promise<void>;
 }
@@ -39,6 +60,62 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     refreshUser();
   }, []);
 
+  const loginWithEmail = async (email: string, pass?: string): Promise<boolean> => {
+    try {
+      const res = await loginUser(email, pass);
+      if (res.success && res.data?.user) {
+        setUser(res.data.user);
+        return true;
+      }
+      return false;
+    } catch {
+      return false;
+    }
+  };
+
+  const register = async (
+    nameOrData: string | { name: string; email: string; password?: string; phone?: string },
+    email?: string,
+    phone?: string,
+    password?: string
+  ): Promise<boolean> => {
+    try {
+      let payload: { name: string; email: string; password?: string; phone?: string };
+      if (typeof nameOrData === 'object') {
+        payload = nameOrData;
+      } else {
+        payload = {
+          name: nameOrData,
+          email: email || '',
+          phone: phone || '',
+          password: password || '',
+        };
+      }
+
+      const res = await registerUser(payload);
+      if (res.success && res.data?.user) {
+        setUser(res.data.user);
+        return true;
+      }
+      return false;
+    } catch {
+      return false;
+    }
+  };
+
+  const loginWithGoogle = async (payload?: { credential?: string; idToken?: string; email?: string; name?: string }): Promise<boolean> => {
+    try {
+      const res = await apiLoginWithGoogle(payload);
+      if (res.success && res.data?.user) {
+        setUser(res.data.user);
+        return true;
+      }
+      return false;
+    } catch {
+      return false;
+    }
+  };
+
   const logout = async () => {
     try {
       await logoutUser();
@@ -62,6 +139,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         isAdmin,
         isStaff,
         setUser,
+        login: loginWithEmail,
+        loginWithEmail,
+        register,
+        registerUser: register,
+        loginWithGoogle,
         logout,
         refreshUser,
       }}
@@ -78,3 +160,5 @@ export const useAuth = () => {
   }
   return context;
 };
+
+export default AuthContext;
