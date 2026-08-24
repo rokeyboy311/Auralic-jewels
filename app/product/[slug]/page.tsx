@@ -30,6 +30,7 @@ import { useChat } from '@/context/ChatContext';
 import { useToast } from '@/context/ToastContext';
 import ProductCard from '@/components/ProductCard';
 import CustomDesignModal from '@/components/CustomDesignModal';
+import ProductJsonLd from '@/components/ProductJsonLd';
 
 export default function ProductDetailPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = use(params);
@@ -114,12 +115,10 @@ export default function ProductDetailPage({ params }: { params: Promise<{ slug: 
     setIsSubmittingReview(true);
     const res = await submitProductReview({
       productId: product.id,
-      userName: reviewName,
-      userCountry: 'Verified Patron',
       rating: reviewRating,
       title: reviewTitle,
       comment: reviewComment,
-      isVerifiedBuyer: true,
+      userCountry: 'Verified Patron',
     });
     setIsSubmittingReview(false);
     if (res.success && res.data) {
@@ -138,6 +137,7 @@ export default function ProductDetailPage({ params }: { params: Promise<{ slug: 
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-8 py-8 space-y-16">
+      {product && <ProductJsonLd product={product} />}
       {/* Breadcrumb Navigation */}
       <nav className="flex items-center gap-2 text-xs text-[#73685a] uppercase tracking-wider">
         <Link href="/" className="hover:text-[#141210]">
