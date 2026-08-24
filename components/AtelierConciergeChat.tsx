@@ -250,10 +250,12 @@ export default function AtelierConciergeChat() {
 
               <form onSubmit={handleCreateNew} className="space-y-4">
                 <div>
-                  <label className="text-[10px] uppercase tracking-wider text-[#73685a] font-medium block mb-1">
-                    Inquiry Category
+                  <label htmlFor="new-inquiry-type-select" className="text-[10px] uppercase tracking-wider text-[#73685a] font-medium block mb-1">
+                    Nature of Inquiry
                   </label>
                   <select
+                    id="new-inquiry-type-select"
+                    name="inquiryType"
                     value={newType}
                     onChange={(e) => setNewType(e.target.value as ConversationType)}
                     className="w-full text-xs p-2.5 bg-[#faf8f5] border border-[#ebdccd] text-[#141210] focus:border-[#9b7e46] outline-none"
@@ -267,10 +269,12 @@ export default function AtelierConciergeChat() {
                 </div>
 
                 <div>
-                  <label className="text-[10px] uppercase tracking-wider text-[#73685a] font-medium block mb-1">
+                  <label htmlFor="new-inquiry-subject-input" className="text-[10px] uppercase tracking-wider text-[#73685a] font-medium block mb-1">
                     Subject Line
                   </label>
                   <input
+                    id="new-inquiry-subject-input"
+                    name="subject"
                     type="text"
                     required
                     placeholder="e.g. Ring resizing request for Solitaire band"
@@ -281,10 +285,12 @@ export default function AtelierConciergeChat() {
                 </div>
 
                 <div>
-                  <label className="text-[10px] uppercase tracking-wider text-[#73685a] font-medium block mb-1">
+                  <label htmlFor="new-inquiry-spec-textarea" className="text-[10px] uppercase tracking-wider text-[#73685a] font-medium block mb-1">
                     Requirement & Specifications
                   </label>
                   <textarea
+                    id="new-inquiry-spec-textarea"
+                    name="specifications"
                     required
                     rows={5}
                     placeholder="Please specify your desired gold purity (18K/22K), diamond carat preferences, ring size, or custom engraving words..."
@@ -320,7 +326,7 @@ export default function AtelierConciergeChat() {
               </div>
 
               {conversations.length === 0 ? (
-                <div className="text-center py-12 space-y-3">
+                <div className="text-center py-12 space-y-3">\r
                   <div className="w-12 h-12 rounded-full bg-[#f5ede3] border border-[#ebdccd] flex items-center justify-center mx-auto text-[#9b7e46]">
                     <MessageSquare className="w-6 h-6" />
                   </div>
@@ -572,8 +578,13 @@ export default function AtelierConciergeChat() {
 
               {/* Message Composer */}
               <form onSubmit={handleSend} className="p-3 bg-white border-t border-[#ebdccd] flex items-center gap-2">
+                <label htmlFor="atelier-chat-file-input" className="sr-only">
+                  Attach Photo or Design Sketch
+                </label>
                 <input
                   ref={chatFileInputRef}
+                  id="atelier-chat-file-input"
+                  name="chatAttachment"
                   type="file"
                   accept="image/jpeg,image/png,image/webp,image/gif"
                   onChange={handleImageFileSelect}
@@ -584,10 +595,16 @@ export default function AtelierConciergeChat() {
                   onClick={() => chatFileInputRef.current?.click()}
                   className="p-2.5 text-[#73685a] hover:text-[#9b7e46] hover:bg-[#faf8f5] transition-colors shrink-0 border border-[#ebdccd]"
                   title="Attach Photo or Design Sketch"
+                  aria-label="Attach Photo or Design Sketch"
                 >
                   <ImageIcon className="w-4 h-4" />
                 </button>
+                <label htmlFor="atelier-chat-message-input" className="sr-only">
+                  Inquire with the Master Jeweller
+                </label>
                 <input
+                  id="atelier-chat-message-input"
+                  name="messageContent"
                   type="text"
                   placeholder="Inquire with the Master Jeweller..."
                   value={inputText}
@@ -599,6 +616,7 @@ export default function AtelierConciergeChat() {
                   disabled={(!inputText.trim() && !pendingAttachment) || isSending}
                   className="p-2.5 bg-[#141210] text-[#faf8f5] hover:bg-[#9b7e46] transition-colors disabled:opacity-40 cursor-pointer shrink-0"
                   title="Send Message"
+                  aria-label="Send Message"
                 >
                   <Send className="w-4 h-4" />
                 </button>
