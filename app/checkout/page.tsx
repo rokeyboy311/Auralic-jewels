@@ -332,8 +332,7 @@ function CheckoutContent() {
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
               <div>
                 <label htmlFor="checkout-city-input" className="block text-[11px] uppercase tracking-wider text-[#4a4237] mb-1">
-                  City *
-                </label>
+                  City *\n                </label>
                 <input
                   id="checkout-city-input"
                   name="address-level2"
@@ -540,11 +539,11 @@ function CheckoutContent() {
 
             {paymentMethod === 'wire' && (
               <div className="p-4 bg-white border border-[#c5b49e]/60 text-xs text-[#4a4237] space-y-2">
-                <p className="font-semibold text-[#141210]\">Maison Auralic Private Client Escrow Account:</p>
+                <p className="font-semibold text-[#141210]">Maison Auralic Private Client Escrow Account:</p>
                 <p>Bank: BNP Paribas Paris Place Vendôme</p>
                 <p>IBAN: FR76 3000 4001 2345 6789 0123 456</p>
                 <p>BIC/SWIFT: BNPAFRPP</p>
-                <p className=\"text-[11px] text-[#73685a] pt-1\">
+                <p className="text-[11px] text-[#73685a] pt-1">
                   Upon placing this order, our Senior Treasury Officer will issue an official pro-forma invoice and lock your pieces for 48 hours.
                 </p>
               </div>
@@ -611,7 +610,7 @@ function CheckoutContent() {
                   <p className="text-[11px] text-[#73685a] mt-0.5">
                     {item.purity} {item.metalType} {item.size ? `• Sz ${item.size}` : ''}
                   </p>
-                  <p className="text-[11px] text-[#9b7e46]\">Qty: {item.quantity}</p>
+                  <p className="text-[11px] text-[#9b7e46]">Qty: {item.quantity}</p>
                 </div>
                 <div className="text-right font-mono text-sm text-[#141210]">
                   {formatPrice(item.unitPriceUSD * item.quantity)}
