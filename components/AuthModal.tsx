@@ -16,6 +16,7 @@ import {
   CheckCircle2,
 } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
+import { requestPasswordReset } from '@/lib/api';
 import { brandConfig } from '@/lib/brandConfig';
 
 interface AuthModalProps {
@@ -37,6 +38,7 @@ export default function AuthModal({ isOpen, onClose, initialMode = 'signin' }: A
   const [password, setPassword] = useState('');
   const [rememberMe, setRememberMe] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [authError, setAuthError] = useState<string | null>(null);
 
   const { login, register, loginWithGoogle } = useAuth();
 
@@ -44,6 +46,7 @@ export default function AuthModal({ isOpen, onClose, initialMode = 'signin' }: A
 
   const handleEmailSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setAuthError(null);
     setIsSubmitting(true);
     let ok = false;
     if (activeTab === 'signup') {
@@ -58,35 +61,27 @@ export default function AuthModal({ isOpen, onClose, initialMode = 'signin' }: A
   };
 
   const handleGoogleSignIn = async () => {
+    setAuthError(null);
     setIsSubmitting(true);
-    const ok = await loginWithGoogle('elena.rostova@gmail.com', 'Elena Rostova');
+    const ok = await loginWithGoogle();
     setIsSubmitting(false);
     if (ok) {
       onClose();
     }
   };
 
-  const handleQuickCustomerAccess = async () => {
-    setIsSubmitting(true);
-    const ok = await login('patron@domain.com', 'patron123');
-    setIsSubmitting(false);
-    if (ok) {
-      onClose();
-    }
-  };
-
-  const handleQuickAdminAccess = async () => {
-    setIsSubmitting(true);
-    const ok = await login('admin@auralic-jewels.vercel.app', 'admin123');
-    setIsSubmitting(false);
-    if (ok) {
-      onClose();
-    }
-  };
-
-  const handleForgotPasswordSubmit = (e: React.FormEvent) => {
+  const handleForgotPasswordSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setResetEmailSent(true);
+    if (!email) return;
+    setIsSubmitting(true);
+    try {
+      await requestPasswordReset(email);
+      setResetEmailSent(true);
+    } catch {
+      setResetEmailSent(true); // Don't expose failure
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -102,43 +97,43 @@ export default function AuthModal({ isOpen, onClose, initialMode = 'signin' }: A
           {/* Close Button */}
           <button
             onClick={onClose}
-            className="absolute top-4 right-4 p-2 text-[#73685a] hover:text-[#141210] hover:bg-[#ede5d8] transition-colors rounded-full"
-            aria-label="Close dialog"
+            className="absolute top-4 right-4 p-2 text-[#73685a] hover:text-[#141210] hover:bg-[#ebdccd]/40 rounded-full transition-colors cursor-pointer"
+            aria-label="Close dialogue"
           >
             <X className="w-5 h-5" />
           </button>
 
           {/* Header */}
-          <div className="text-center mb-6 space-y-1">
-            <div className="inline-flex items-center gap-1.5 text-[10px] tracking-[0.35em] text-[#9b7e46] uppercase font-semibold">
-              <Sparkles className="w-3 h-3 text-[#d4af37]" />
-              <span>{brandConfig.name}</span>
+          <div className="text-center mb-6">
+            <div className="inline-flex items-center justify-center gap-1.5 px-3 py-1 bg-[#f0e7dc] border border-[#d8c7b5] text-[10px] uppercase tracking-[0.25em] text-[#9b7e46] mb-3">
+              <Sparkles className="w-3 h-3" />
+              <span>Maison Auralic</span>
             </div>
-            <h3 className="font-serif text-2xl sm:text-3xl text-[#141210] font-normal">
+            <h2 className="font-serif text-2xl sm:text-3xl text-[#141210] font-normal tracking-wide">
               {forgotPasswordView
-                ? 'Reset Password'
+                ? 'Security Recovery'
                 : activeTab === 'signin'
-                ? 'Sign In'
-                : 'Create Account'}
-            </h3>
-            <p className="text-xs text-[#73685a] leading-relaxed">
+                ? 'Patron Authentication'
+                : 'Acquisition Account'}
+            </h2>
+            <p className="text-xs text-[#73685a] mt-1.5 max-w-xs mx-auto leading-relaxed">
               {forgotPasswordView
-                ? 'Enter your email to receive password reset instructions.'
+                ? 'Enter your registered email to receive authentication recovery instructions.'
                 : activeTab === 'signin'
-                ? 'Sign in to access your saved jewellery, custom orders, and bag.'
-                : 'Create your client account for custom design requests and orders.'}
+                ? 'Access bespoke commissions, order vault dossiers, and private concierge privileges.'
+                : 'Create your private atelier membership profile.'}
             </p>
           </div>
 
+          {/* Forgot Password View */}
           {forgotPasswordView ? (
-            /* Forgot Password Form */
             <div className="space-y-4">
               {resetEmailSent ? (
-                <div className="text-center py-6 space-y-3 bg-white border border-[#c5b49e]/40 p-5">
+                <div className="text-center py-6 space-y-3 bg-[#f2ece2] p-4 border border-[#ebdccd]">
                   <CheckCircle2 className="w-10 h-10 text-[#9b7e46] mx-auto" />
-                  <h4 className="font-serif text-lg text-[#141210]">Reset Link Dispatched</h4>
+                  <h3 className="font-serif text-lg text-[#141210]">Recovery Dispatched</h3>
                   <p className="text-xs text-[#73685a] leading-relaxed">
-                    If an account exists for <strong>{email}</strong>, a secure password reset link has been dispatched to your inbox.
+                    If an account is associated with <strong>{email}</strong>, password reset instructions have been transmitted.
                   </p>
                   <button
                     type="button"
@@ -146,16 +141,16 @@ export default function AuthModal({ isOpen, onClose, initialMode = 'signin' }: A
                       setForgotPasswordView(false);
                       setResetEmailSent(false);
                     }}
-                    className="mt-2 text-xs text-[#9b7e46] hover:underline uppercase tracking-wider font-semibold"
+                    className="mt-4 px-6 py-2.5 bg-[#141210] text-white text-xs uppercase tracking-widest hover:bg-[#9b7e46] transition-colors cursor-pointer"
                   >
-                    Back to Sign In
+                    Return to Sign In
                   </button>
                 </div>
               ) : (
                 <form onSubmit={handleForgotPasswordSubmit} className="space-y-4">
                   <div>
                     <label className="block text-[11px] uppercase tracking-wider text-[#4a4237] font-medium mb-1">
-                      Email Address
+                      Email Address *
                     </label>
                     <div className="relative">
                       <Mail className="w-4 h-4 text-[#998b79] absolute left-3.5 top-3" />
@@ -172,91 +167,99 @@ export default function AuthModal({ isOpen, onClose, initialMode = 'signin' }: A
 
                   <button
                     type="submit"
-                    className="w-full py-3.5 bg-[#141210] hover:bg-[#9b7e46] text-[#faf8f5] text-xs uppercase tracking-[0.2em] font-medium flex items-center justify-center gap-2 transition-colors shadow-sm cursor-pointer"
+                    disabled={isSubmitting}
+                    className="w-full py-3.5 bg-[#141210] hover:bg-[#9b7e46] text-[#faf8f5] text-xs uppercase tracking-[0.2em] font-medium flex items-center justify-center gap-2 transition-all shadow-md disabled:opacity-60 cursor-pointer"
                   >
-                    <span>Send Reset Link</span>
-                    <ArrowRight className="w-4 h-4" />
+                    <span>{isSubmitting ? 'Transmitting...' : 'Send Recovery Link'}</span>
+                    <ArrowRight className="w-4 h-4 text-[#d4af37]" />
                   </button>
 
-                  <div className="text-center pt-2">
-                    <button
-                      type="button"
-                      onClick={() => setForgotPasswordView(false)}
-                      className="text-xs text-[#73685a] hover:text-[#141210] hover:underline"
-                    >
-                      Return to Sign In
-                    </button>
-                  </div>
+                  <button
+                    type="button"
+                    onClick={() => setForgotPasswordView(false)}
+                    className="w-full text-center text-xs text-[#73685a] hover:text-[#141210] hover:underline pt-2 cursor-pointer"
+                  >
+                    Return to Sign In
+                  </button>
                 </form>
               )}
             </div>
           ) : (
-            /* Standard Auth Form */
             <div className="space-y-5">
-              {/* Tab Switcher */}
-              <div className="grid grid-cols-2 bg-[#ede5d8]/70 p-1 border border-[#c5b49e]/50">
+              {/* Tabs Switcher */}
+              <div className="grid grid-cols-2 border-b border-[#ebdccd]">
                 <button
                   type="button"
                   onClick={() => setActiveTab('signin')}
-                  className={`py-2 text-xs uppercase tracking-widest font-medium transition-all ${
-                    activeTab === 'signin'
-                      ? 'bg-white text-[#141210] shadow-sm font-semibold'
-                      : 'text-[#73685a] hover:text-[#141210]'
+                  className={`pb-2.5 text-xs uppercase tracking-widest font-medium transition-all text-center relative cursor-pointer ${
+                    activeTab === 'signin' ? 'text-[#141210]' : 'text-[#8c7e6e] hover:text-[#141210]'
                   }`}
                 >
                   Sign In
+                  {activeTab === 'signin' && (
+                    <motion.div
+                      layoutId="activeModalTab"
+                      className="absolute bottom-0 left-0 right-0 h-0.5 bg-[#9b7e46]"
+                    />
+                  )}
                 </button>
                 <button
                   type="button"
                   onClick={() => setActiveTab('signup')}
-                  className={`py-2 text-xs uppercase tracking-widest font-medium transition-all ${
-                    activeTab === 'signup'
-                      ? 'bg-white text-[#141210] shadow-sm font-semibold'
-                      : 'text-[#73685a] hover:text-[#141210]'
+                  className={`pb-2.5 text-xs uppercase tracking-widest font-medium transition-all text-center relative cursor-pointer ${
+                    activeTab === 'signup' ? 'text-[#141210]' : 'text-[#8c7e6e] hover:text-[#141210]'
                   }`}
                 >
-                  Sign Up
+                  Create Account
+                  {activeTab === 'signup' && (
+                    <motion.div
+                      layoutId="activeModalTab"
+                      className="absolute bottom-0 left-0 right-0 h-0.5 bg-[#9b7e46]"
+                    />
+                  )}
                 </button>
               </div>
 
-              {/* Google Sign-In Button */}
-              <button
-                type="button"
-                onClick={handleGoogleSignIn}
-                disabled={isSubmitting}
-                className="w-full py-3 bg-white hover:bg-[#f2ece2] border border-[#c5b49e]/80 text-[#141210] text-xs font-medium flex items-center justify-center gap-3 transition-colors shadow-xs disabled:opacity-60 cursor-pointer"
-              >
-                <svg className="w-4 h-4" viewBox="0 0 24 24">
-                  <path
-                    fill="#4285F4"
-                    d="M23.745 12.27c0-.7-.06-1.4-.19-2.07H12v4.51h6.6c-.29 1.52-1.14 2.82-2.4 3.68v3.05h3.88c2.27-2.09 3.66-5.17 3.66-9.17z"
-                  />
-                  <path
-                    fill="#34A853"
-                    d="M12 24c3.24 0 5.95-1.08 7.93-2.91l-3.88-3.05c-1.08.72-2.45 1.16-4.05 1.16-3.12 0-5.77-2.1-6.72-4.93H1.25v3.15C3.26 21.36 7.35 24 12 24z"
-                  />
-                  <path
-                    fill="#FBBC05"
-                    d="M5.28 14.27c-.25-.72-.38-1.49-.38-2.27s.13-1.55.38-2.27V6.58H1.25C.45 8.18 0 9.99 0 12s.45 3.82 1.25 5.42l4.03-3.15z"
-                  />
-                  <path
-                    fill="#EA4335"
-                    d="M12 4.75c1.77 0 3.35.61 4.6 1.8l3.42-3.42C17.95 1.19 15.24 0 12 0 7.35 0 3.26 2.64 1.25 6.58l4.03 3.15c.95-2.83 3.6-4.98 6.72-4.98z"
-                  />
-                </svg>
-                <span>Continue with Google</span>
-              </button>
+              {/* Google One-Tap / OAuth Button */}
+              <div>
+                <button
+                  type="button"
+                  onClick={handleGoogleSignIn}
+                  disabled={isSubmitting}
+                  className="w-full py-2.5 px-4 bg-white hover:bg-[#f7f2ea] border border-[#c5b49e]/80 text-[#141210] text-xs font-medium flex items-center justify-center gap-3 transition-colors shadow-sm disabled:opacity-60 cursor-pointer"
+                >
+                  <svg className="w-4 h-4 shrink-0" viewBox="0 0 24 24">
+                    <path
+                      fill="#4285F4"
+                      d="M23.745 12.27c0-.7-.06-1.4-.19-2.07H12v4.51h6.6c-.29 1.52-1.14 2.82-2.4 3.68v3.05h3.88c2.27-2.09 3.66-5.17 3.66-9.17z"
+                    />
+                    <path
+                      fill="#34A853"
+                      d="M12 24c3.24 0 5.95-1.08 7.93-2.91l-3.88-3.05c-1.08.72-2.45 1.16-4.05 1.16-3.12 0-5.77-2.1-6.72-4.93H1.25v3.15C3.26 21.36 7.36 24 12 24z"
+                    />
+                    <path
+                      fill="#FBBC05"
+                      d="M5.28 14.27c-.25-.72-.38-1.49-.38-2.27s.13-1.55.38-2.27V6.58H1.25C.45 8.18 0 9.98 0 12s.45 3.82 1.25 5.42l4.03-3.15z"
+                    />
+                    <path
+                      fill="#EA4335"
+                      d="M12 4.75c1.77 0 3.35.61 4.6 1.8l3.42-3.42C17.95 1.19 15.24 0 12 0 7.36 0 3.26 2.64 1.25 6.58l4.03 3.15c.95-2.83 3.6-4.98 6.72-4.98z"
+                    />
+                  </svg>
+                  <span>Continue with Google</span>
+                </button>
 
-              {/* Or Divider */}
-              <div className="relative flex items-center justify-center">
-                <div className="w-full border-t border-[#c5b49e]/50"></div>
-                <span className="bg-[#faf8f5] px-3 text-[11px] text-[#73685a] uppercase tracking-wider">
-                  or with email
-                </span>
-                <div className="w-full border-t border-[#c5b49e]/50"></div>
+                <div className="relative my-4">
+                  <div className="absolute inset-0 flex items-center">
+                    <div className="w-full border-t border-[#ebdccd]" />
+                  </div>
+                  <div className="relative flex justify-center text-[10px] uppercase tracking-widest text-[#8c7e6e]">
+                    <span className="bg-[#faf8f5] px-3">or continue with email</span>
+                  </div>
+                </div>
               </div>
 
-              {/* Form */}
+              {/* Email Form */}
               <form onSubmit={handleEmailSubmit} className="space-y-3.5">
                 {activeTab === 'signup' && (
                   <div>
@@ -270,7 +273,7 @@ export default function AuthModal({ isOpen, onClose, initialMode = 'signin' }: A
                         required
                         value={name}
                         onChange={(e) => setName(e.target.value)}
-                        placeholder="Elena Rostova"
+                        placeholder="Lady Jacqueline Vance"
                         className="w-full bg-white border border-[#c5b49e]/70 pl-10 pr-3 py-2.5 text-xs text-[#141210] placeholder:text-[#a89b8c] focus:outline-none focus:border-[#9b7e46]"
                       />
                     </div>
@@ -321,7 +324,7 @@ export default function AuthModal({ isOpen, onClose, initialMode = 'signin' }: A
                       <button
                         type="button"
                         onClick={() => setForgotPasswordView(true)}
-                        className="text-[11px] text-[#9b7e46] hover:underline"
+                        className="text-[11px] text-[#9b7e46] hover:underline cursor-pointer"
                       >
                         Forgot password?
                       </button>
@@ -340,7 +343,7 @@ export default function AuthModal({ isOpen, onClose, initialMode = 'signin' }: A
                     <button
                       type="button"
                       onClick={() => setShowPassword(!showPassword)}
-                      className="absolute right-3 top-2.5 text-[#998b79] hover:text-[#141210] p-0.5"
+                      className="absolute right-3 top-2.5 text-[#998b79] hover:text-[#141210] p-0.5 cursor-pointer"
                       aria-label={showPassword ? 'Hide password' : 'Show password'}
                     >
                       {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
@@ -379,32 +382,6 @@ export default function AuthModal({ isOpen, onClose, initialMode = 'signin' }: A
                 </button>
               </form>
 
-              {/* Quick One-Click Credentials for Easy Testing */}
-              <div className="pt-3 border-t border-[#ebdccd] space-y-2">
-                <div className="flex items-center justify-between text-[11px] text-[#73685a]">
-                  <span>Instant Account Access:</span>
-                  <span className="text-[10px] text-[#9b7e46] uppercase font-semibold">1-Click</span>
-                </div>
-                <div className="grid grid-cols-2 gap-2">
-                  <button
-                    type="button"
-                    onClick={handleQuickCustomerAccess}
-                    disabled={isSubmitting}
-                    className="py-2 px-2 bg-white hover:bg-[#f2ece2] border border-[#c5b49e]/60 text-[11px] text-[#141210] font-medium transition-colors text-center truncate cursor-pointer"
-                  >
-                    Patron Account
-                  </button>
-                  <button
-                    type="button"
-                    onClick={handleQuickAdminAccess}
-                    disabled={isSubmitting}
-                    className="py-2 px-2 bg-[#f2ece2] hover:bg-[#ebdccd] border border-[#9b7e46]/60 text-[11px] text-[#9b7e46] font-semibold transition-colors text-center truncate cursor-pointer"
-                  >
-                    Atelier Staff Portal
-                  </button>
-                </div>
-              </div>
-
               {/* Bottom Switch Link */}
               <div className="text-center pt-2 text-xs text-[#73685a]">
                 {activeTab === 'signin' ? (
@@ -413,7 +390,7 @@ export default function AuthModal({ isOpen, onClose, initialMode = 'signin' }: A
                     <button
                       type="button"
                       onClick={() => setActiveTab('signup')}
-                      className="text-[#9b7e46] hover:underline font-semibold"
+                      className="text-[#9b7e46] hover:underline font-semibold cursor-pointer"
                     >
                       Sign Up
                     </button>
@@ -424,7 +401,7 @@ export default function AuthModal({ isOpen, onClose, initialMode = 'signin' }: A
                     <button
                       type="button"
                       onClick={() => setActiveTab('signin')}
-                      className="text-[#9b7e46] hover:underline font-semibold"
+                      className="text-[#9b7e46] hover:underline font-semibold cursor-pointer"
                     >
                       Sign In
                     </button>
