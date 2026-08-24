@@ -1,0 +1,217 @@
+/**
+ * Production DTO (Data Transfer Object) Mappers for Maison Auralic REST API
+ * Normalizes PostgreSQL snake_case rows into client-safe camelCase structures
+ */
+
+export function toProductDTO(
+  p: any,
+  variants: any[] = [],
+  images: any[] = [],
+  certification?: any,
+  gemstones?: any
+) {
+  return {
+    id: p.id,
+    name: p.name,
+    slug: p.slug,
+    sku: p.sku,
+    description: p.description,
+    story: p.story,
+    priceUSD: parseFloat(p.price_usd || '0'),
+    comparePriceUSD: p.compare_price_usd ? parseFloat(p.compare_price_usd) : undefined,
+    categoryId: p.category_id,
+    categoryName: p.category_name,
+    collectionId: p.collection_id,
+    collectionName: p.collection_name,
+    metalType: p.metal_type,
+    purity: p.purity,
+    stoneType: p.stone_type,
+    totalCaratWeight: p.total_carat_weight ? parseFloat(p.total_carat_weight) : undefined,
+    weightGrams: p.weight_grams ? parseFloat(p.weight_grams) : undefined,
+    gender: p.gender,
+    status: p.status,
+    isFeatured: p.is_featured,
+    isNewArrival: p.is_new_arrival,
+    isBespokeAvailable: p.is_bespoke_available,
+    leadTimeDays: p.lead_time_days || 14,
+    rating: parseFloat(p.rating || '5.0'),
+    reviewCount: p.review_count || 0,
+    metaTitle: p.meta_title,
+    metaDescription: p.meta_description,
+    variants: variants.map((v) => ({
+      id: v.id,
+      productId: v.product_id,
+      sku: v.sku,
+      metalType: v.metal_type,
+      purity: v.purity,
+      size: v.size,
+      stoneType: v.stone_type,
+      priceUSD: parseFloat(v.price_usd || '0'),
+      comparePriceUSD: v.compare_price_usd ? parseFloat(v.compare_price_usd) : undefined,
+      stock: v.stock,
+      weightGrams: v.weight_grams ? parseFloat(v.weight_grams) : undefined,
+      leadTimeDays: v.lead_time_days,
+      isReadyToShip: v.is_ready_to_ship,
+    })),
+    images: images.map((img) => ({
+      id: img.id,
+      url: img.url,
+      alt: img.alt || p.name,
+      type: img.type,
+      sortOrder: img.sort_order,
+    })),
+    certification: certification
+      ? {
+          lab: certification.lab,
+          certNumber: certification.cert_number,
+          caratWeight: parseFloat(certification.carat_weight || '0'),
+          cut: certification.cut,
+          color: certification.color,
+          clarity: certification.clarity,
+          polish: certification.polish,
+          symmetry: certification.symmetry,
+          fluorescence: certification.fluorescence,
+          pdfUrl: certification.pdf_url,
+        }
+      : undefined,
+    gemstones: gemstones
+      ? {
+          primaryStone: gemstones.primary_stone,
+          origin: gemstones.origin,
+          carat: parseFloat(gemstones.carat || '0'),
+          cut: gemstones.cut,
+          colorGrade: gemstones.color_grade,
+          clarityGrade: gemstones.clarity_grade,
+          treatment: gemstones.treatment,
+        }
+      : undefined,
+    createdAt: p.created_at,
+    updatedAt: p.updated_at,
+  };
+}
+
+export function toOrderDTO(order: any, items: any[] = []) {
+  return {
+    id: order.id,
+    orderNumber: order.order_number,
+    userId: order.user_id,
+    customerEmail: order.customer_email,
+    customerPhone: order.customer_phone,
+    status: order.status,
+    paymentStatus: order.payment_status,
+    paymentMethod: order.payment_method,
+    paymentIntentId: order.payment_intent_id,
+    currency: order.currency || 'USD',
+    subtotalUSD: parseFloat(order.subtotal_usd || '0'),
+    discountUSD: parseFloat(order.discount_usd || '0'),
+    taxUSD: parseFloat(order.tax_usd || '0'),
+    shippingUSD: parseFloat(order.shipping_usd || '0'),
+    totalUSD: parseFloat(order.total_usd || '0'),
+    shippingAddress: typeof order.shipping_address === 'string' ? JSON.parse(order.shipping_address) : order.shipping_address,
+    billingAddress: typeof order.billing_address === 'string' ? JSON.parse(order.billing_address) : order.billing_address,
+    trackingNumber: order.tracking_number,
+    carrierName: order.carrier_name,
+    estimatedDelivery: order.estimated_delivery,
+    items: items.map((item) => ({
+      id: item.id,
+      productId: item.product_id,
+      variantId: item.variant_id,
+      productName: item.product_name,
+      productSlug: item.product_slug,
+      sku: item.sku,
+      imageUrl: item.image_url,
+      metalType: item.metal_type,
+      purity: item.purity,
+      size: item.size,
+      stoneType: item.stone_type,
+      engravingText: item.engraving_text,
+      unitPriceUSD: parseFloat(item.unit_price_usd || '0'),
+      quantity: item.quantity,
+      totalUSD: parseFloat(item.total_usd || '0'),
+    })),
+    createdAt: order.created_at,
+    updatedAt: order.updated_at,
+  };
+}
+
+export function toUserDTO(user: any, addresses: any[] = []) {
+  return {
+    id: user.id,
+    name: user.name,
+    email: user.email,
+    phone: user.phone,
+    role: user.role,
+    isEmailVerified: user.is_email_verified,
+    avatarUrl: user.avatar_url,
+    addresses: addresses.map((a) => ({
+      id: a.id,
+      firstName: a.first_name,
+      lastName: a.last_name,
+      phone: a.phone,
+      addressLine1: a.address_line1,
+      addressLine2: a.address_line2,
+      city: a.city,
+      stateOrProvince: a.state_or_province,
+      postalCode: a.postal_code,
+      country: a.country,
+      isDefault: a.is_default,
+    })),
+    createdAt: user.created_at,
+  };
+}
+
+export function toConversationDTO(conv: any, messages: any[] = []) {
+  return {
+    id: conv.id,
+    userId: conv.user_id,
+    userName: conv.user_name,
+    userEmail: conv.user_email,
+    userPhone: conv.user_phone,
+    assignedStaffId: conv.assigned_staff_id,
+    assignedStaffName: conv.assigned_staff_name,
+    subject: conv.subject,
+    status: conv.status,
+    priority: conv.priority,
+    type: conv.type,
+    productId: conv.product_id,
+    productContext: typeof conv.product_context === 'string' ? JSON.parse(conv.product_context) : conv.product_context,
+    orderId: conv.order_id,
+    orderContext: typeof conv.order_context === 'string' ? JSON.parse(conv.order_context) : conv.order_context,
+    internalNotes: conv.internal_notes,
+    createdAt: conv.created_at,
+    updatedAt: conv.updated_at,
+    messages: messages.map((m) => ({
+      id: m.id,
+      conversationId: m.conversation_id,
+      senderId: m.sender_id,
+      senderRole: m.sender_role,
+      senderName: m.sender_name,
+      content: m.content,
+      attachments: typeof m.attachments === 'string' ? JSON.parse(m.attachments) : m.attachments || [],
+      isInternalNote: m.is_internal_note,
+      createdAt: m.created_at,
+    })),
+  };
+}
+
+export function toBespokeInquiryDTO(inq: any) {
+  return {
+    id: inq.id,
+    referenceNumber: inq.reference_number,
+    userId: inq.user_id,
+    name: inq.name,
+    email: inq.email,
+    phone: inq.phone,
+    jewelleryType: inq.jewellery_type,
+    metalPreference: inq.metal_preference,
+    stonePreference: inq.stone_preference,
+    budgetRange: inq.budget_range,
+    timeline: inq.timeline,
+    notes: inq.notes,
+    inspirationImages: typeof inq.inspiration_images === 'string' ? JSON.parse(inq.inspiration_images) : inq.inspiration_images || [],
+    status: inq.status,
+    assignedStaffId: inq.assigned_staff_id,
+    createdAt: inq.created_at,
+    updatedAt: inq.updated_at,
+  };
+}
