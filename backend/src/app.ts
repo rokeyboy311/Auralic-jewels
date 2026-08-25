@@ -26,8 +26,6 @@ export function createApp() {
   const allowedOrigins = [
     config.frontendUrl,
     'https://auralic-jewels.vercel.app',
-    'http://localhost:3000',
-    'http://127.0.0.1:3000',
   ].filter(Boolean);
 
   app.use(
@@ -42,7 +40,7 @@ export function createApp() {
         }
 
         // Allow Vercel production & preview deployments
-        if (origin.endsWith('.vercel.app') || origin.includes('localhost')) {
+        if (origin.endsWith('.vercel.app')) {
           return callback(null, true);
         }
 

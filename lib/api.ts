@@ -25,10 +25,8 @@ export function getApiBaseUrl(): string {
     }
     return envUrl;
   }
-  if (typeof window !== 'undefined' && window.location.hostname === 'localhost') {
-    return 'http://localhost:5000/api';
-  }
-  return '/api';
+  // Fallback to Render URL instead of localhost
+  return 'https://auralic-jewels.onrender.com/api';
 }
 
 export interface ProductQueryParams {
