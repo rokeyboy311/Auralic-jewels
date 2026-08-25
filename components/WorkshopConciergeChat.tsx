@@ -466,11 +466,7 @@ export default function WorkshopConciergeChat() {
                         </span>
                         {!isCustomer && (
                           <span className="text-[9px] uppercase tracking-wider px-1.5 py-0.2 bg-[#ebdccd] text-[#73685a] font-medium">
-                            {msg.senderRole === 'master_jeweller'
-                              ? 'Master Jeweller'
-                              : msg.senderRole === 'gemologist'
-                              ? 'Senior Gemologist'
-                              : 'Workshop Director'}
+                            Admin
                           </span>
                         )}
                         <span className="text-[9px] text-[#a39887]">

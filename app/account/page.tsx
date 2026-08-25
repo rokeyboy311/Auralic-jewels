@@ -502,7 +502,7 @@ export default function AccountPage() {
 
                       <div className="flex justify-between items-center pt-2">
                         <span className="text-xs text-[#73685a]">
-                          Assigned: <strong className="text-[#141210]">{conv.assignedStaffName || 'Master Jeweller'}</strong>
+                          Assigned: <strong className="text-[#141210]">Admin</strong>
                         </span>
 
                         <button
