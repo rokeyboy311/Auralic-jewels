@@ -138,7 +138,7 @@ function ShopContent() {
       {/* Page Heading */}
       <div className="space-y-2 text-center sm:text-left border-b border-black/5 pb-6">
         <span className="text-[10px] uppercase tracking-[0.4em] text-[#C5A059] font-semibold">
-          Maison Discovery Grid
+          Aurelic Jewels Discovery Grid
         </span>
         <h1 className="serif text-3xl sm:text-4xl text-[#1A1A1A] font-light uppercase tracking-wide">
           Fine Jewellery Creations
@@ -184,7 +184,7 @@ function ShopContent() {
               onChange={(e) => setSortBy(e.target.value)}
               className="bg-[#FDFCF8] border border-black/10 px-3 py-1.5 text-xs text-[#1A1A1A] focus:outline-none focus:border-[#C5A059]"
             >
-              <option value="featured">Maison Featured</option>
+              <option value="featured">Aurelic Jewels Featured</option>
               <option value="newest">Newest Acquisitions</option>
               <option value="price-low">Price: Low to High</option>
               <option value="price-high">Price: High to Low</option>

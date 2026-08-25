@@ -6,7 +6,7 @@ export function middleware(request: NextRequest) {
 
   // Protect Admin Route with quick role check if cookie exists
   if (pathname.startsWith('/admin')) {
-    const token = request.cookies.get('auralic_auth_token')?.value;
+    const token = request.cookies.get('aurelic_auth_token')?.value;
 
     // Allow login path
     if (pathname === '/admin/login' || pathname === '/login') {

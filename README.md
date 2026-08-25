@@ -1,6 +1,6 @@
-# MAISON AURALIC — INTERNATIONAL LUXURY FINE JEWELLERY E-COMMERCE
+# Aurelic Jewels — INTERNATIONAL LUXURY FINE JEWELLERY E-COMMERCE
 
-> **Maison de Haute Joaillerie & High Gemology**  
+> **Aurelic Jewels & High Gemology**  
 > Certified Conflict-Free Natural Diamonds • 18K/22K Solid Gold • Colombian Emeralds & Ceylon Sapphires • Worldwide Armored Valuables Courier • Live Atelier Concierge Chat & Bespoke Commissions
 
 ---
@@ -29,11 +29,11 @@
 
 ## 1. Project Overview & Architecture
 
-Maison Auralic is engineered with a strict **two-tier full-stack architecture** designed for independent scalability, high availability, and zero-downtime deployment:
+Aurelic Jewels is engineered with a strict **two-tier full-stack architecture** designed for independent scalability, high availability, and zero-downtime deployment:
 
 ```
 ┌────────────────────────────────────────────────────────┐
-│               MAISON AURALIC ARCHITECTURE              │
+│               Aurelic Jewels ARCHITECTURE              │
 ├──────────────────────────┬─────────────────────────────┤
 │   FRONTEND (Vercel)      │   BACKEND (Render)          │
 │   Next.js 15+ App Router │   Express + TypeScript REST │
@@ -53,8 +53,8 @@ Maison Auralic is engineered with a strict **two-tier full-stack architecture** 
 
 | Component | Target Platform | Local Development | Production Environment |
 | :--- | :--- | :--- | :--- |
-| **Frontend** | **Vercel** | `http://localhost:3000` | `https://auralic-jewels.vercel.app` |
-| **Backend REST API** | **Render** | `http://localhost:5000` | `https://auralic-jewels.onrender.com` |
+| **Frontend** | **Vercel** | `http://localhost:3000` | `https://aurelic-jewels.vercel.app` |
+| **Backend REST API** | **Render** | `http://localhost:5000` | `https://aurelic-jewels.onrender.com` |
 | **Database** | **Neon PostgreSQL** | Neon Connection Pool | Neon High-Availability Replica Pool |
 
 ---
@@ -85,7 +85,7 @@ Maison Auralic is engineered with a strict **two-tier full-stack architecture** 
 │   ├── wishlist/                 # Curated private wishlist & instant bag transfer
 │   ├── account/                  # Customer dashboard & Atelier inquiry threads
 │   ├── admin/                    # Executive control center & Concierge Chat desk
-│   ├── about/ & our-story/       # Maison heritage & Place Vendôme history
+│   ├── about/ & our-story/       # Aurelic Jewels heritage & Place Vendôme history
 │   ├── jewellery-guide/          # GIA 4Cs Diamond & Untreated Gemology Guide
 │   ├── size-guide/               # International ring and collar sizing charts
 │   ├── materials-care/           # 18K/22K gold alloy care & maintenance charter
@@ -98,7 +98,7 @@ Maison Auralic is engineered with a strict **two-tier full-stack architecture** 
 │
 ├── components/                   # Reusable UI & architectural components
 │   ├── Header.tsx                # 3-Zone navigation, currency switcher & quick actions
-│   ├── Footer.tsx                # Maison directory, newsletter & compliance badges
+│   ├── Footer.tsx                # Aurelic Jewels directory, newsletter & compliance badges
 │   ├── ProductCard.tsx           # Luxury piece presentation with quick wishlist
 │   ├── AtelierConciergeChat.tsx  # Live sliding chat with Master Jeweller
 │   ├── CartDrawer.tsx            # Slide-out bag with dynamic subtotal calculations
@@ -154,7 +154,7 @@ Maison Auralic is engineered with a strict **two-tier full-stack architecture** 
 # Centralized API Base URL (Crucial for Deployment)
 # In development, leave empty or set to http://localhost:5000
 # In production, set to your Render API URL
-NEXT_PUBLIC_API_URL="https://auralic-jewels.onrender.com"
+NEXT_PUBLIC_API_URL="https://aurelic-jewels.onrender.com"
 
 # Public Google OAuth Client ID
 NEXT_PUBLIC_GOOGLE_CLIENT_ID="your-google-client-id.apps.googleusercontent.com"
@@ -171,7 +171,7 @@ NODE_ENV="production"
 PORT=5000
 
 # Client Application URL for CORS Whitelist
-FRONTEND_URL="https://auralic-jewels.vercel.app"
+FRONTEND_URL="https://aurelic-jewels.vercel.app"
 
 # PostgreSQL Database Connection URL (from Neon)
 DATABASE_URL="postgres://neondb_owner:password@ep-sweet-dawn-123456.us-east-2.aws.neon.tech/neondb?sslmode=require"
@@ -182,7 +182,7 @@ JWT_SECRET="super-secure-random-jwt-secret-string-at-least-64-characters"
 # Google OAuth Credentials
 GOOGLE_CLIENT_ID="your-google-client-id.apps.googleusercontent.com"
 GOOGLE_CLIENT_SECRET="GOCSPX-your-client-secret"
-GOOGLE_CALLBACK_URL="https://auralic-jewels.onrender.com/api/auth/google/callback"
+GOOGLE_CALLBACK_URL="https://aurelic-jewels.onrender.com/api/auth/google/callback"
 
 # Stripe Payment Processing
 STRIPE_SECRET_KEY="sk_live_51P..."
@@ -190,7 +190,7 @@ STRIPE_WEBHOOK_SECRET="whsec_..."
 
 # Resend Transactional Email
 RESEND_API_KEY="re_..."
-EMAIL_FROM="Maison Auralic <concierge@auralic-jewels.vercel.app>"
+EMAIL_FROM="Aurelic Jewels <concierge@aurelic-jewels.vercel.app>"
 
 # Cloudinary Media Storage
 CLOUDINARY_CLOUD_NAME="your-cloud-name"
@@ -204,8 +204,8 @@ CLOUDINARY_API_SECRET="your-cloudinary-secret"
 
 ### Step 1: Clone the Repository
 ```bash
-git clone https://github.com/your-username/maison-auralic-jewellery.git
-cd maison-auralic-jewellery
+git clone https://github.com/your-username/Aurelic Jewels-aurelic-jewellery.git
+cd Aurelic Jewels-aurelic-jewellery
 ```
 
 ### Step 2: Set Up & Run Frontend
@@ -241,11 +241,11 @@ The REST API will be available at [http://localhost:5000](http://localhost:5000)
 
 ## 5. Database Setup & Migration (Neon PostgreSQL)
 
-Maison Auralic is optimized for **Neon Serverless PostgreSQL**.
+Aurelic Jewels is optimized for **Neon Serverless PostgreSQL**.
 
 ### Step 1: Create a Neon Project
 1. Log in to [Neon Console](https://console.neon.tech).
-2. Click **Create Project**, name it `maison-auralic-db`, and choose your nearest region.
+2. Click **Create Project**, name it `Aurelic Jewels-aurelic-db`, and choose your nearest region.
 3. In the project dashboard, copy the **Connection String** (Pooled connection mode recommended).
 
 ### Step 2: Run Database Schema Migrations
@@ -287,14 +287,14 @@ The Next.js frontend is structured for deployment on **Vercel**:
 ### Option A: Deploy via Vercel Dashboard (Recommended)
 1. Push your repository to GitHub / GitLab.
 2. Go to [Vercel Dashboard](https://vercel.com/dashboard) and click **Add New > Project**.
-3. Import your `maison-auralic-jewellery` repository.
+3. Import your `Aurelic Jewels-aurelic-jewellery` repository.
 4. Keep the **Root Directory** as `./` (Root).
 5. In **Environment Variables**, add:
    - `NEXT_PUBLIC_API_URL`: `https://your-backend-api.onrender.com`
    - `NEXT_PUBLIC_GOOGLE_CLIENT_ID`: `your-google-client-id.apps.googleusercontent.com`
    - `NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY`: `pk_live_...`
 6. Click **Deploy**.
-7. Under **Project Settings > Domains**, assign your custom production domain (e.g. `auralic-jewels.vercel.app`).
+7. Under **Project Settings > Domains**, assign your custom production domain (e.g. `aurelic-jewels.vercel.app`).
 
 ### Option B: Deploy via Vercel CLI
 ```bash
@@ -314,7 +314,7 @@ The Express backend can be deployed to **Render** using a Web Service:
 2. Select your repository. Render will automatically read `/backend/render.yaml`.
 3. Configure the required environment variables:
    - `DATABASE_URL` (from Neon)
-   - `FRONTEND_URL` (`https://auralic-jewels.vercel.app`)
+   - `FRONTEND_URL` (`https://aurelic-jewels.vercel.app`)
    - `JWT_SECRET`
    - `STRIPE_SECRET_KEY`
    - `RESEND_API_KEY`
@@ -331,7 +331,7 @@ The Express backend can be deployed to **Render** using a Web Service:
    - **Health Check Path**: `/api/health`
 4. Add the Environment Variables listed in Section 3.
 5. Click **Create Web Service**.
-6. Copy your Render service URL (e.g. `https://maison-auralic-api.onrender.com`) and paste it as `NEXT_PUBLIC_API_URL` on your Vercel frontend.
+6. Copy your Render service URL (e.g. `https://Aurelic Jewels-aurelic-api.onrender.com`) and paste it as `NEXT_PUBLIC_API_URL` on your Vercel frontend.
 
 ---
 
@@ -340,19 +340,19 @@ The Express backend can be deployed to **Render** using a Web Service:
 ### Google OAuth 2.0 Setup
 
 1. Open [Google Cloud Console](https://console.cloud.google.com).
-2. Create a new project named **Maison Auralic**.
+2. Create a new project named **Aurelic Jewels**.
 3. Navigate to **APIs & Services > OAuth Consent Screen**:
    - User Type: **External**
-   - App Name: `Maison Auralic`
-   - User Support Email: `concierge@auralic-jewels.vercel.app`
+   - App Name: `Aurelic Jewels`
+   - User Support Email: `concierge@aurelic-jewels.vercel.app`
 4. Navigate to **Credentials > Create Credentials > OAuth 2.0 Client ID**:
    - Application Type: **Web application**
    - **Authorized JavaScript Origins**:
      - `http://localhost:3000`
-     - `https://auralic-jewels.vercel.app`
+     - `https://aurelic-jewels.vercel.app`
    - **Authorized Redirect URIs**:
      - `http://localhost:5000/api/auth/google/callback`
-     - `https://auralic-jewels.onrender.com/api/auth/google/callback`
+     - `https://aurelic-jewels.onrender.com/api/auth/google/callback`
 5. Copy the **Client ID** and **Client Secret** into your `.env` files.
 
 ---
@@ -362,7 +362,7 @@ The Express backend can be deployed to **Render** using a Web Service:
 1. Log in to [Stripe Dashboard](https://dashboard.stripe.com).
 2. In **Developers > API Keys**, copy your `Publishable Key` and `Secret Key`.
 3. Navigate to **Developers > Webhooks** and click **Add Endpoint**:
-   - **Endpoint URL**: `https://auralic-jewels.onrender.com/api/payments/webhook`
+   - **Endpoint URL**: `https://aurelic-jewels.onrender.com/api/payments/webhook`
    - **Events to listen for**:
      - `payment_intent.succeeded`
      - `payment_intent.payment_failed`
@@ -374,10 +374,10 @@ The Express backend can be deployed to **Render** using a Web Service:
 ### Resend Transactional Email Engine
 
 1. Create an account at [Resend](https://resend.com).
-2. Go to **Domains > Add Domain** (e.g., `auralic-jewels.vercel.app`).
+2. Go to **Domains > Add Domain** (e.g., `aurelic-jewels.vercel.app`).
 3. Add the required DNS records (DKIM, SPF, MX) to your domain registrar.
 4. Generate an API Key under **API Keys** with *Full Access*.
-5. Set `RESEND_API_KEY` and `EMAIL_FROM="Maison Auralic <concierge@auralic-jewels.vercel.app>"`.
+5. Set `RESEND_API_KEY` and `EMAIL_FROM="Aurelic Jewels <concierge@aurelic-jewels.vercel.app>"`.
 
 ---
 
@@ -424,10 +424,10 @@ The Express backend can be deployed to **Render** using a Web Service:
 ### Public Floating Concierge
 - **Accessibility**: Available across all pages via the gold floating button at the bottom-right.
 - **Product Context**: Clicking "Chat with Atelier Jeweller" on any product automatically attaches the piece name, SKU, price, and selected metal alloy to the conversation.
-- **Customer Thread Storage**: Inquiries are saved under the customer's account and synchronized with the Maison ledger.
+- **Customer Thread Storage**: Inquiries are saved under the customer's account and synchronized with the Aurelic Jewels ledger.
 
-### Maison Administration Portal (`/admin`)
-- **Access Control**: Role-gated dashboard for Maison Directors and Master Craftsmen (`SUPER_ADMIN`, `ADMIN`, `MASTER_JEWELLER`).
+### Aurelic Jewels Administration Portal (`/admin`)
+- **Access Control**: Role-gated dashboard for Aurelic Jewels Directors and Master Craftsmen (`SUPER_ADMIN`, `ADMIN`, `MASTER_JEWELLER`).
 - **Live Concierge Desk**:
   - Filter inquiries by status (`OPEN`, `IN_PROGRESS`, `WAITING_FOR_USER`, `WAITING_FOR_ADMIN`, `RESOLVED`).
   - Search by ticket number, customer name, or piece SKU.
@@ -466,7 +466,7 @@ The database and API architecture are fully prepared for 3D GLTF / Three.js mode
 ## 13. Troubleshooting & FAQ
 
 #### Q1: "Failed to fetch / Network Error" when connecting frontend to backend
-- **Fix**: Check `NEXT_PUBLIC_API_URL` on Vercel. Ensure there is no trailing slash (e.g. `https://auralic-jewels.onrender.com`).
+- **Fix**: Check `NEXT_PUBLIC_API_URL` on Vercel. Ensure there is no trailing slash (e.g. `https://aurelic-jewels.onrender.com`).
 - **Fix**: Verify backend `FRONTEND_URL` on Render includes your exact Vercel production domain.
 
 #### Q2: PostgreSQL connection timeout on Neon
@@ -474,7 +474,7 @@ The database and API architecture are fully prepared for 3D GLTF / Three.js mode
 - **Fix**: Verify `?sslmode=require` is appended to your `DATABASE_URL`.
 
 #### Q3: Google OAuth redirect mismatch (`redirect_uri_mismatch`)
-- **Fix**: In Google Cloud Console, ensure both development (`http://localhost:5000/api/auth/google/callback`) and production (`https://auralic-jewels.onrender.com/api/auth/google/callback`) are added under **Authorized Redirect URIs**.
+- **Fix**: In Google Cloud Console, ensure both development (`http://localhost:5000/api/auth/google/callback`) and production (`https://aurelic-jewels.onrender.com/api/auth/google/callback`) are added under **Authorized Redirect URIs**.
 
 ---
 
@@ -491,12 +491,12 @@ npm run build
 
 ---
 
-© 2026 Maison Auralic Paris. All Rights Reserved.  
+© 2026 Aurelic Jewels Paris. All Rights Reserved.  
 *Haute Joaillerie, Fine Gemology & High Horology.*
 
 ## Production Documentation
 
-We have prepared comprehensive documentation for deploying and running Maison Auralic in a production environment:
+We have prepared comprehensive documentation for deploying and running Aurelic Jewels in a production environment:
 
 * [Production Setup & Architecture](docs/PRODUCTION_SETUP.md)
 * [Database Initialization](docs/DATABASE_SETUP.md)

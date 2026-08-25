@@ -1,5 +1,5 @@
 /**
- * Maison Auralic Email Notification Service
+ * Aurelic Jewels Email Notification Service
  * (Temporarily Paused / Simulated Mode as requested)
  */
 export class EmailService {

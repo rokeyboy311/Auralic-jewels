@@ -1,5 +1,5 @@
 -- ==========================================================
--- AURALIC LUXURY FINE JEWELLERY — COMPLETE SEED DATA
+-- AURELIC LUXURY FINE JEWELLERY — COMPLETE SEED DATA
 -- ==========================================================
 
 -- Insert Categories
@@ -20,7 +20,7 @@ ON CONFLICT (id) DO NOTHING;
 -- Insert Collections
 INSERT INTO collections (id, name, slug, subtitle, description, banner_image, is_featured)
 VALUES
-('col-solitaire-masterpieces', 'Solitaire Masterpieces', 'solitaire-masterpieces', 'Exceptional GIA Certified Diamonds in Iconic Auralic Prongs', 'A celebration of pure brilliance. Each diamond is hand-selected for its extraordinary fire and cut.', 'https://images.unsplash.com/photo-1515562141207-7a88fb7ce338?auto=format&fit=crop&w=1800&q=85', TRUE),
+('col-solitaire-masterpieces', 'Solitaire Masterpieces', 'solitaire-masterpieces', 'Exceptional GIA Certified Diamonds in Iconic Aurelic Prongs', 'A celebration of pure brilliance. Each diamond is hand-selected for its extraordinary fire and cut.', 'https://images.unsplash.com/photo-1515562141207-7a88fb7ce338?auto=format&fit=crop&w=1800&q=85', TRUE),
 ('col-royal-emerald', 'The Royal Emerald Collection', 'royal-emerald', 'Colombian Muzo Emeralds Paired with Brilliant Cut Diamonds', 'Deep verdant greens reflecting ancient royalty, framed by sculptural 18K yellow gold.', 'https://images.unsplash.com/photo-1600003014755-ba31aa59c4b6?auto=format&fit=crop&w=1800&q=85', TRUE),
 ('col-heritage-gold', 'Heritage 22K Solid Gold', 'heritage-gold', 'Pure Radiance Hand-Carved by Master Goldsmiths', 'Rich, lustrous 22K gold forged with timeless textures and substantial weight.', 'https://images.unsplash.com/photo-1535632066927-ab7c9ab60908?auto=format&fit=crop&w=1800&q=85', TRUE)
 ON CONFLICT (id) DO NOTHING;
@@ -28,8 +28,8 @@ ON CONFLICT (id) DO NOTHING;
 -- Insert Shipping Methods
 INSERT INTO shipping_methods (id, name, carrier, description, cost_usd, estimated_days, is_free_above_threshold, insurance_included)
 VALUES
-('ship-insured-priority', 'Auralic Armored Air Courier (Insured)', 'FedEx Priority Valuables / Ferrari Group', 'Direct courier delivery with sealed security container, signature verification & full transit insurance.', 75.00, '2–4 Business Days', TRUE, TRUE),
-('ship-white-glove', 'White-Glove Private Concierge Handover', 'Maison Auralic Private Client Delivery', 'Dedicated luxury advisor handover at your private residence, hotel suite, or boutique VIP atelier suite.', 250.00, '1–2 Business Days (Scheduled)', FALSE, TRUE)
+('ship-insured-priority', 'Aurelic Armored Air Courier (Insured)', 'FedEx Priority Valuables / Ferrari Group', 'Direct courier delivery with sealed security container, signature verification & full transit insurance.', 75.00, '2–4 Business Days', TRUE, TRUE),
+('ship-white-glove', 'White-Glove Private Concierge Handover', 'Aurelic Jewels Private Client Delivery', 'Dedicated luxury advisor handover at your private residence, hotel suite, or boutique VIP atelier suite.', 250.00, '1–2 Business Days (Scheduled)', FALSE, TRUE)
 ON CONFLICT (id) DO NOTHING;
 
 -- Insert Coupons
@@ -37,7 +37,7 @@ INSERT INTO coupons (code, discount_type, discount_value, min_order_usd, expiry_
 VALUES
 ('WELCOME10', 'percentage', 10.00, 1000.00, '2028-12-31 23:59:59Z', TRUE, 'Welcome privileges: 10% complimentary reduction on your first acquisition.'),
 ('ROYAL15', 'percentage', 15.00, 5000.00, '2028-12-31 23:59:59Z', TRUE, 'VIP Customerage: 15% reduction on acquisitions over $5,000.'),
-('AURALIC500', 'fixed', 500.00, 3000.00, '2028-12-31 23:59:59Z', TRUE, 'Private Invitation: $500 reduction on fine jewellery orders over $3,000.')
+('AURELIC500', 'fixed', 500.00, 3000.00, '2028-12-31 23:59:59Z', TRUE, 'Private Invitation: $500 reduction on fine jewellery orders over $3,000.')
 ON CONFLICT (code) DO NOTHING;
 
 -- Insert Products

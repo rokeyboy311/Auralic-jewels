@@ -121,7 +121,7 @@ export default function SearchModal({ isOpen, onClose }: SearchModalProps) {
                 </div>
               ) : isLoading ? (
                 <div className="text-center py-12 text-sm text-[#1A1A1A]/60 serif italic">
-                  Consulting Maison Archives...
+                  Consulting Aurelic Jewels Archives...
                 </div>
               ) : displayedResults.length === 0 ? (
                 <div className="text-center py-12">

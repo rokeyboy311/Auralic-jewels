@@ -8,13 +8,13 @@ export default function ShippingPolicyPage() {
     <div className="max-w-4xl mx-auto px-4 sm:px-8 py-12 space-y-10">
       <div className="text-center space-y-3">
         <span className="text-[10px] tracking-[0.35em] text-[#9b7e46] uppercase font-medium">
-          Maison Logistics Protocol
+          Aurelic Jewels Logistics Protocol
         </span>
         <h1 className="font-serif text-3xl sm:text-5xl text-[#141210] uppercase font-light">
           International Insured Shipping Policy
         </h1>
         <p className="text-xs sm:text-sm text-[#73685a] max-w-lg mx-auto font-light leading-relaxed">
-          All Maison Auralic consignments travel under 100% armored insurance via Ferrari Group, Malca-Amit, or FedEx Valuables with mandatory adult signature verification.
+          All Aurelic Jewels consignments travel under 100% armored insurance via Ferrari Group, Malca-Amit, or FedEx Valuables with mandatory adult signature verification.
         </p>
       </div>
 
@@ -51,7 +51,7 @@ export default function ShippingPolicyPage() {
             4. White-Glove Private Residence Delivery
           </h2>
           <p className="leading-relaxed">
-            For acquisitions exceeding $50,000 USD, Maison Auralic offers private courier handover by an armed, uniformed security officer directly to your residence, private bank vault, or hotel suite.
+            For acquisitions exceeding $50,000 USD, Aurelic Jewels offers private courier handover by an armed, uniformed security officer directly to your residence, private bank vault, or hotel suite.
           </p>
         </div>
       </div>

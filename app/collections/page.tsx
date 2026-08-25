@@ -26,13 +26,13 @@ export default function CollectionsPage() {
     <div className="max-w-7xl mx-auto px-4 sm:px-8 py-10 space-y-12">
       <div className="text-center space-y-2 max-w-2xl mx-auto border-b border-[#ebdccd] pb-8">
         <span className="text-[10px] tracking-[0.35em] text-[#9b7e46] uppercase font-medium">
-          Maison Curation Portfolio
+          Aurelic Jewels Curation Portfolio
         </span>
         <h1 className="font-serif text-3xl sm:text-5xl text-[#141210] uppercase font-light">
           Haute Joaillerie Collections
         </h1>
         <p className="text-xs sm:text-sm text-[#73685a] font-light">
-          Each Auralic collection explores a dedicated gemological discipline, from exceptional GIA certified solitaires to hand-carved 22K heritage gold.
+          Each Aurelic collection explores a dedicated gemological discipline, from exceptional GIA certified solitaires to hand-carved 22K heritage gold.
         </p>
       </div>
 

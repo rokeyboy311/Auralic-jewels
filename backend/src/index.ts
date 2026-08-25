@@ -6,7 +6,7 @@ const app = createApp();
 
 const server = app.listen(config.port, () => {
   console.log(`=======================================================`);
-  console.log(`✨ AURALIC Fine Jewellery REST API Server Started`);
+  console.log(`✨ AURELIC Fine Jewellery REST API Server Started`);
   console.log(`📡 Port: ${config.port}`);
   console.log(`🌍 Environment: ${config.env}`);
   console.log(`🔗 Allowed Frontend Origin: ${config.frontendUrl}`);

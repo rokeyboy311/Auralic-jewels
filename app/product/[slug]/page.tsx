@@ -90,7 +90,7 @@ export default function ProductDetailPage({ params }: { params: Promise<{ slug: 
   if (isLoading) {
     return (
       <div className="max-w-7xl mx-auto px-4 py-24 text-center font-serif text-xl text-[#73685a]">
-        Retrieving Masterpiece from Maison Archives...
+        Retrieving Masterpiece from Aurelic Jewels Archives...
       </div>
     );
   }
@@ -127,7 +127,7 @@ export default function ProductDetailPage({ params }: { params: Promise<{ slug: 
       setReviewName('');
       setReviewTitle('');
       setReviewComment('');
-      success('Review Submitted', 'Thank you for sharing your experience with the Maison.');
+      success('Review Submitted', 'Thank you for sharing your experience with the Aurelic Jewels.');
     } else {
       error('Submission Failed', 'Could not record your review.');
     }
@@ -141,7 +141,7 @@ export default function ProductDetailPage({ params }: { params: Promise<{ slug: 
       {/* Breadcrumb Navigation */}
       <nav className="flex items-center gap-2 text-xs text-[#73685a] uppercase tracking-wider">
         <Link href="/" className="hover:text-[#141210]">
-          Maison
+          Aurelic Jewels
         </Link>
         <ChevronRight className="w-3 h-3 text-[#c5b49e]" />
         <Link href="/shop" className="hover:text-[#141210]">
@@ -398,7 +398,7 @@ export default function ProductDetailPage({ params }: { params: Promise<{ slug: 
             </div>
 
             <p className="text-[11px] text-[#73685a] text-center">
-              Includes GIA/IGI Gemological Dossier, Lacquered Auralic Presentation Chest & Travel Pouch.
+              Includes GIA/IGI Gemological Dossier, Lacquered Aurelic Presentation Chest & Travel Pouch.
             </p>
           </div>
 
@@ -510,9 +510,9 @@ export default function ProductDetailPage({ params }: { params: Promise<{ slug: 
         {/* Tab 4: Care */}
         {activeTab === 'care' && (
           <div className="space-y-4 text-xs sm:text-sm text-[#4a4237] leading-relaxed max-w-4xl bg-white p-6 border border-[#c5b49e]/30">
-            <p>{product.careInstructions || 'Clean gently with lukewarm water and a soft micro-bristle brush. Store individually in your Auralic velvet pouch.'}</p>
+            <p>{product.careInstructions || 'Clean gently with lukewarm water and a soft micro-bristle brush. Store individually in your Aurelic velvet pouch.'}</p>
             <p>
-              Maison Auralic provides complimentary lifetime ultrasonic cleaning and annual prong inspection at any of our global boutiques.
+              Aurelic Jewels provides complimentary lifetime ultrasonic cleaning and annual prong inspection at any of our global boutiques.
             </p>
           </div>
         )}

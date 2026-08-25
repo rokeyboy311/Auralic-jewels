@@ -9,7 +9,7 @@ export default function FAQPage() {
 
   const faqs = [
     {
-      q: 'How are Maison Auralic diamonds certified?',
+      q: 'How are Aurelic Jewels diamonds certified?',
       a: 'Every solitaire diamond above 0.50 carats is certified by the Gemological Institute of America (GIA) or the International Gemological Institute (IGI). The unique certificate number is microscopic laser-inscribed onto the diamond girdle and enclosed in your leather gemological dossier.',
     },
     {
@@ -18,7 +18,7 @@ export default function FAQPage() {
     },
     {
       q: 'How is fine jewellery delivered securely to international destinations?',
-      a: 'Consignments travel inside unmarked, tamper-evident security containers via armored couriers (Ferrari Group, Malca-Amit, FedEx Valuables). Every shipment is 100% insured by the Maison from our vault until physical adult signature verification at your residence.',
+      a: 'Consignments travel inside unmarked, tamper-evident security containers via armored couriers (Ferrari Group, Malca-Amit, FedEx Valuables). Every shipment is 100% insured by the Aurelic Jewels from our vault until physical adult signature verification at your residence.',
     },
     {
       q: 'What is your returns and exchange policy?',
@@ -26,7 +26,7 @@ export default function FAQPage() {
     },
     {
       q: 'Can I modify an existing design or submit my own custom design?',
-      a: 'Yes. Maison Auralic provides a full Bespoke & Custom Design Studio. You can choose any piece from our catalog and customize the gold karat (18K/22K/Platinum), gemstone type (GIA natural diamonds, lab-grown diamonds, emeralds, sapphires, rubies), prong architecture, and custom laser engraving. You can also upload sketches to commission a brand-new creation from scratch.',
+      a: 'Yes. Aurelic Jewels provides a full Bespoke & Custom Design Studio. You can choose any piece from our catalog and customize the gold karat (18K/22K/Platinum), gemstone type (GIA natural diamonds, lab-grown diamonds, emeralds, sapphires, rubies), prong architecture, and custom laser engraving. You can also upload sketches to commission a brand-new creation from scratch.',
     },
     {
       q: 'What payment methods do you accept for international acquisitions?',

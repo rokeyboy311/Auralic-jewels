@@ -29,7 +29,7 @@ router.get('/health', (req: Request, res: Response) => {
   const pool = getDbPool();
   res.json({
     status: 'healthy',
-    service: 'Maison Auralic / Auralic Jewels Fine Jewellery REST API',
+    service: 'Aurelic Jewels / Aurelic Jewels Fine Jewellery REST API',
     uptime: process.uptime(),
     databaseConnected: !!pool,
     mediaStorage: 'Neon PostgreSQL Image Vault',
@@ -104,7 +104,7 @@ router.post('/auth/login', async (req: Request, res: Response) => {
       { expiresIn: '7d' }
     );
     delete user.password_hash;
-    res.cookie('auralic_auth_token', token, {
+    res.cookie('aurelic_auth_token', token, {
       httpOnly: true,
       secure: config.env === 'production',
       maxAge: 7 * 24 * 60 * 60 * 1000,
@@ -157,7 +157,7 @@ router.post('/auth/google', async (req: Request, res: Response) => {
       config.jwtSecret,
       { expiresIn: '7d' }
     );
-    res.cookie('auralic_auth_token', token, {
+    res.cookie('aurelic_auth_token', token, {
       httpOnly: true,
       secure: config.env === 'production',
       maxAge: 7 * 24 * 60 * 60 * 1000,
@@ -171,7 +171,7 @@ router.post('/auth/google', async (req: Request, res: Response) => {
 });
 
 router.post('/auth/logout', (req: Request, res: Response) => {
-  res.clearCookie('auralic_auth_token', { path: '/' });
+  res.clearCookie('aurelic_auth_token', { path: '/' });
   res.json({ success: true, message: 'Logged out successfully.' });
 });
 
@@ -207,7 +207,7 @@ router.post('/uploads/image', upload.single('file'), async (req: Request, res: R
     const r = req as any;
     if (r.file) {
       const { originalname, mimetype, buffer } = r.file;
-      const folder = (req.body.folder as string) || 'auralic_jewels';
+      const folder = (req.body.folder as string) || 'aurelic_jewels';
       const uploaded = await MediaService.uploadBuffer(buffer, originalname, mimetype, folder);
       return res.json({ success: true, data: uploaded });
     }
@@ -219,7 +219,7 @@ router.post('/uploads/image', upload.single('file'), async (req: Request, res: R
       const base64Content = matches ? matches[2] : rawBase64;
       const buffer = Buffer.from(base64Content, 'base64');
       const filename = req.body.filename || `jewellery_${Date.now()}.jpg`;
-      const folder = req.body.folder || 'auralic_jewels';
+      const folder = req.body.folder || 'aurelic_jewels';
 
       const uploaded = await MediaService.uploadBuffer(buffer, filename, mimeType, folder);
       return res.json({ success: true, data: uploaded });
@@ -373,7 +373,7 @@ router.get('/products', async (req: Request, res: Response) => {
       name: row.name,
       slug: row.slug,
       sku: row.sku,
-      brand: 'Maison Auralic',
+      brand: 'Aurelic Jewels',
       category: row.category_id || 'Rings',
       collection: row.collection_id || 'Solitaire Masterpieces',
       gender: row.gender || 'Women',
@@ -477,7 +477,7 @@ router.get('/products/:slugOrId', async (req: Request, res: Response) => {
     );
 
     if (result.rows.length === 0) {
-      return res.status(404).json({ success: false, error: 'Creation not found in Maison archives.' });
+      return res.status(404).json({ success: false, error: 'Creation not found in Aurelic Jewels archives.' });
     }
 
     const row = result.rows[0];
@@ -486,7 +486,7 @@ router.get('/products/:slugOrId', async (req: Request, res: Response) => {
       name: row.name,
       slug: row.slug,
       sku: row.sku,
-      brand: 'Maison Auralic',
+      brand: 'Aurelic Jewels',
       category: row.category_id || 'Rings',
       collection: row.collection_id || 'Solitaire Masterpieces',
       gender: row.gender || 'Women',
@@ -1204,7 +1204,7 @@ router.post('/conversations', optionalAuth, async (req: AuthenticatedRequest, re
   try {
     const { subject, initialMessage, type = 'concierge', priority = 'standard', userName, userEmail, userPhone } = req.body;
     const effectiveName = req.user?.name || userName || 'Customer Client';
-    const effectiveEmail = req.user?.email || userEmail || 'customer@auralic.paris';
+    const effectiveEmail = req.user?.email || userEmail || 'customer@aurelic.paris';
 
     const insertRes = await pool.query(
       `INSERT INTO conversations (
@@ -1381,7 +1381,7 @@ router.post('/bespoke', optionalAuth, async (req: AuthenticatedRequest, res: Res
 
     const refNum = `BESPOKE-${Date.now().toString().slice(-5)}`;
     const effectiveName = customerName || name || req.user?.name || 'Customer Client';
-    const effectiveEmail = customerEmail || email || req.user?.email || 'customer@auralic.paris';
+    const effectiveEmail = customerEmail || email || req.user?.email || 'customer@aurelic.paris';
     const effectivePhone = customerPhone || phone || null;
     const effectiveType = category || jewelleryType || 'Rings';
     const effectiveNotes = designDescription || notes || 'Custom Haute Joaillerie Commission';
@@ -1487,7 +1487,7 @@ router.post('/newsletter/subscribe', async (req: Request, res: Response) => {
 
     return res.json({
       success: true,
-      message: 'You have been enrolled in the private Maison Auralic gazette.',
+      message: 'You have been enrolled in the private Aurelic Jewels gazette.',
     });
   } catch (error: any) {
     return res.status(500).json({ success: false, error: error.message });
@@ -1658,7 +1658,7 @@ router.get('/admin/staff', requireStaff, async (req: AuthenticatedRequest, res: 
     {
       id: 'staff-1',
       name: 'Henri de Montmirail',
-      email: 'henri@auralic.paris',
+      email: 'henri@aurelic.paris',
       role: 'master_jeweller',
       specialty: 'High Jewellery Solitaires & Platinum Mounting',
       activeTicketsCount: 3,
@@ -1666,7 +1666,7 @@ router.get('/admin/staff', requireStaff, async (req: AuthenticatedRequest, res: 
     {
       id: 'staff-2',
       name: 'Eléonore Vance',
-      email: 'eleonore@auralic.paris',
+      email: 'eleonore@aurelic.paris',
       role: 'senior_gemologist',
       specialty: 'GIA / IGI Certification & Diamond Selection',
       activeTicketsCount: 2,
@@ -1674,7 +1674,7 @@ router.get('/admin/staff', requireStaff, async (req: AuthenticatedRequest, res: 
     {
       id: 'staff-3',
       name: 'Benoît Laurent',
-      email: 'benoit@auralic.paris',
+      email: 'benoit@aurelic.paris',
       role: 'atelier_director',
       specialty: 'Executive Commissions & Armored Logistics',
       activeTicketsCount: 4,

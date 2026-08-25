@@ -28,7 +28,7 @@ export default function AboutPage() {
         <div className="relative aspect-4/3 w-full bg-[#f5efe6] overflow-hidden border border-[#c5b49e]/40">
           <Image
             src="https://images.unsplash.com/photo-1534447677768-be436bb09401?auto=format&fit=crop&w=1200&q=80"
-            alt="Maison Auralic Atelier Craftsmanship"
+            alt="Aurelic Jewels Atelier Craftsmanship"
             fill
             className="object-cover"
             referrerPolicy="no-referrer"
@@ -43,7 +43,7 @@ export default function AboutPage() {
             From Gouache Sketches to 22K Solid Gold Masterpieces
           </h2>
           <p className="text-xs sm:text-sm text-[#4a4237] leading-relaxed">
-            Every creation at Maison Auralic is born from a dialogue between the customer and the master artisan. We do not mass manufacture; our Master Jewellers cast in 18K and 22K gold alloy formulations, meticulously setting each GIA-certified diamond and Colombian emerald under 40x stereoscopic microscopes.
+            Every creation at Aurelic Jewels is born from a dialogue between the customer and the master artisan. We do not mass manufacture; our Master Jewellers cast in 18K and 22K gold alloy formulations, meticulously setting each GIA-certified diamond and Colombian emerald under 40x stereoscopic microscopes.
           </p>
           <p className="text-xs sm:text-sm text-[#4a4237] leading-relaxed">
             Beyond our signature ready-to-wear collections, our customers enjoy complete creative freedom to modify any design in our catalog or commission an entirely new bespoke piece from personal concepts.

@@ -1,5 +1,5 @@
 -- ==========================================================
--- 001_initial_schema.sql: Core Production Schema for Maison Auralic
+-- 001_initial_schema.sql: Core Production Schema for Aurelic Jewels
 -- ==========================================================
 
 CREATE EXTENSION IF NOT EXISTS "uuid-ossp";

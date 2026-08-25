@@ -172,7 +172,7 @@ function CheckoutContent() {
             <span>Return to Gallery</span>
           </Link>
           <h1 className="font-serif text-3xl sm:text-4xl text-[#141210] uppercase font-light">
-            Maison Secure Acquisition
+            Aurelic Jewels Secure Acquisition
           </h1>
         </div>
 
@@ -495,7 +495,7 @@ function CheckoutContent() {
 
             {paymentMethod === 'wire' && (
               <div className="p-4 bg-white border border-[#c5b49e]/60 text-xs text-[#4a4237] space-y-2">
-                <p className="font-semibold text-[#141210]">Maison Auralic Private Client Escrow Account:</p>
+                <p className="font-semibold text-[#141210]">Aurelic Jewels Private Client Escrow Account:</p>
                 <p>Bank: BNP Paribas Paris Place Vendôme</p>
                 <p>IBAN: FR76 3000 4001 2345 6789 0123 456</p>
                 <p>BIC/SWIFT: BNPAFRPP</p>
@@ -508,7 +508,7 @@ function CheckoutContent() {
             {paymentMethod === 'consignment' && (
               <div className="p-4 bg-white border border-[#c5b49e]/60 text-xs text-[#4a4237] space-y-2">
                 <p className="font-semibold text-[#141210]">Direct Atelier Consignment:</p>
-                <p>An official Maison Auralic itemized VAT invoice will be dispatched directly to your confidential email.</p>
+                <p>An official Aurelic Jewels itemized VAT invoice will be dispatched directly to your confidential email.</p>
                 <p className="text-[11px] text-[#73685a]">
                   Payment settlement will be handled by our private client advisor prior to courier dispatch.
                 </p>

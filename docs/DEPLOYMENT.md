@@ -1,6 +1,6 @@
 # Deployment Guide
 
-Maison Auralic is designed as a decoupled architecture:
+Aurelic Jewels is designed as a decoupled architecture:
 1. **Frontend**: Next.js App Router (Deploy on Vercel)
 2. **Backend**: Node.js Express Server (Deploy on Render, Heroku, AWS, etc.)
 3. **Database**: Managed PostgreSQL (Cloud SQL, Neon, Supabase, RDS)

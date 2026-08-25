@@ -22,7 +22,7 @@ export type ProductCategory =
   | 'Custom Jewellery';
 
 export interface DiamondCertification {
-  issuer: 'GIA' | 'IGI' | 'HRD' | 'SGL' | 'Maison Hallmark Certificate';
+  issuer: 'GIA' | 'IGI' | 'HRD' | 'SGL' | 'Aurelic Jewels Hallmark Certificate';
   certificateNumber: string;
   reportUrl?: string;
   shape: DiamondShape;

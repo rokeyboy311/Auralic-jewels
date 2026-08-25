@@ -85,7 +85,7 @@ export default function AuthCard({
           {forgotPasswordView
             ? 'Password Recovery'
             : activeTab === 'signin'
-            ? 'Sign In to Maison Auralic'
+            ? 'Sign In to Aurelic Jewels'
             : 'Create Client Profile'}
         </h2>
         <p className="text-xs text-[#73685a] leading-relaxed">
@@ -394,7 +394,7 @@ export default function AuthCard({
       {/* Security Guarantee */}
       <div className="mt-6 pt-4 border-t border-[#ebdccd] flex items-center justify-center gap-1.5 text-[10px] text-[#8c7e6e]">
         <ShieldCheck className="w-3.5 h-3.5 text-[#9b7e46]" />
-        <span>256-Bit SSL Encrypted • Confidential Maison Data Protection</span>
+        <span>256-Bit SSL Encrypted • Confidential Aurelic Jewels Data Protection</span>
       </div>
     </div>
   );

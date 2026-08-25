@@ -15,16 +15,16 @@ if (isProduction && !databaseUrl) {
 export const config = {
   env: process.env.NODE_ENV || 'development',
   port: parseInt(process.env.PORT || '5000', 10),
-  frontendUrl: process.env.FRONTEND_URL || 'https://auralic-jewels.vercel.app',
-  apiUrl: process.env.API_URL || 'https://auralic-jewels.onrender.com',
+  frontendUrl: process.env.FRONTEND_URL || 'https://aurelic-jewels.vercel.app',
+  apiUrl: process.env.API_URL || 'https://aurelic-jewels.onrender.com',
   databaseUrl: databaseUrl,
-  jwtSecret: process.env.JWT_SECRET || (isProduction ? 'prod_jwt_secret_key_luxury_auralic_jewels_32_chars' : 'dev_jwt_secret_change_in_production_key_32_chars_min'),
+  jwtSecret: process.env.JWT_SECRET || (isProduction ? 'prod_jwt_secret_key_luxury_aurelic_jewels_32_chars' : 'dev_jwt_secret_change_in_production_key_32_chars_min'),
   jwtExpiresIn: process.env.JWT_EXPIRES_IN || '7d',
-  cookieName: 'auralic_auth_token',
+  cookieName: 'aurelic_auth_token',
   google: {
     clientId: process.env.GOOGLE_CLIENT_ID || '',
     clientSecret: process.env.GOOGLE_CLIENT_SECRET || '',
-    callbackUrl: process.env.GOOGLE_CALLBACK_URL || 'https://auralic-jewels.onrender.com/api/auth/google/callback',
+    callbackUrl: process.env.GOOGLE_CALLBACK_URL || 'https://aurelic-jewels.onrender.com/api/auth/google/callback',
   },
   // Payment integration disabled (Direct invoice / Bank Wire / Vault Escrow)
   payments: {
@@ -34,8 +34,8 @@ export const config = {
   // Email service temporarily paused
   email: {
     enabled: false,
-    from: process.env.EMAIL_FROM || 'Maison Auralic <concierge@auralic-jewels.vercel.app>',
-    adminEmail: process.env.ADMIN_EMAIL || 'admin@auralic-jewels.vercel.app',
+    from: process.env.EMAIL_FROM || 'Aurelic Jewels <concierge@aurelic-jewels.vercel.app>',
+    adminEmail: process.env.ADMIN_EMAIL || 'admin@aurelic-jewels.vercel.app',
   },
   // Media uploads stored natively in Neon PostgreSQL database
   media: {

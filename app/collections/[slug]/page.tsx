@@ -57,7 +57,7 @@ export default function CollectionDetailPage({ params }: { params: Promise<{ slu
       {/* Breadcrumb */}
       <nav className="flex items-center gap-2 text-xs text-[#73685a] uppercase tracking-wider">
         <Link href="/" className="hover:text-[#141210]">
-          Maison
+          Aurelic Jewels
         </Link>
         <ChevronRight className="w-3 h-3 text-[#c5b49e]" />
         <Link href="/collections" className="hover:text-[#141210]">

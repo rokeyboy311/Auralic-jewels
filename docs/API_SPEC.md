@@ -1,13 +1,13 @@
 # REST API SPECIFICATIONS & ENDPOINT CONTRACTS
 
 Base URL in development: `http://localhost:5000/api`  
-Base URL in production: `https://auralic-jewels.onrender.com/api`
+Base URL in production: `https://aurelic-jewels.onrender.com/api`
 
 ---
 
 ## 1. System Health
 - **`GET /health`**
-  - Response: `{ status: "healthy", service: "Maison Auralic High Jewellery REST API", uptime: 1204, timestamp: "2026-08-19T..." }`
+  - Response: `{ status: "healthy", service: "Aurelic Jewels High Jewellery REST API", uptime: 1204, timestamp: "2026-08-19T..." }`
 
 ---
 

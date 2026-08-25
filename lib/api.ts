@@ -14,7 +14,7 @@ import {
 } from './types';
 
 // Centralized API Base URL
-// In production on Vercel, NEXT_PUBLIC_API_URL points to the Render backend API (e.g. https://auralic-jewels.onrender.com)
+// In production on Vercel, NEXT_PUBLIC_API_URL points to the Render backend API (e.g. https://aurelic-jewels.onrender.com)
 // Automatically handles trailing slashes, missing /api prefix, and double slashes
 export function getApiBaseUrl(): string {
   let envUrl = process.env.NEXT_PUBLIC_API_URL || '';
@@ -26,7 +26,7 @@ export function getApiBaseUrl(): string {
     return envUrl;
   }
   // Fallback to Render URL instead of localhost
-  return 'https://auralic-jewels.onrender.com/api';
+  return 'https://aurelic-jewels.onrender.com/api';
 }
 
 export interface ProductQueryParams {
@@ -67,7 +67,7 @@ export async function fetchApi<T>(
     }
 
     const response = await fetch(url, {
-      credentials: 'include', // Automatically passes secure HttpOnly auralic_auth_token cookie
+      credentials: 'include', // Automatically passes secure HttpOnly aurelic_auth_token cookie
       ...options,
       headers,
     });
@@ -286,7 +286,7 @@ export async function executePasswordReset(token: string, newPassword: string) {
 }
 
 // Media Upload via Neon Database Image Vault
-export async function uploadImage(file: File, folder: string = 'auralic_jewels') {
+export async function uploadImage(file: File, folder: string = 'aurelic_jewels') {
   const formData = new FormData();
   formData.append('file', file);
   formData.append('folder', folder);

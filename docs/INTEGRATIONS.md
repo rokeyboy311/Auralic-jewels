@@ -7,20 +7,20 @@ This document details how to configure third-party services for Google OAuth, St
 ## 1. Google OAuth 2.0 Configuration
 
 1. Open the [Google Cloud Console](https://console.cloud.google.com).
-2. Create or select a project named **Maison Auralic**.
+2. Create or select a project named **Aurelic Jewels**.
 3. Under **APIs & Services > OAuth Consent Screen**:
    - Set **User Type** to `External`.
-   - Set **App Name** to `Maison Auralic Haute Joaillerie`.
-   - Set **User Support Email** to `concierge@auralic-jewels.vercel.app`.
+   - Set **App Name** to `Aurelic Jewels`.
+   - Set **User Support Email** to `concierge@aurelic-jewels.vercel.app`.
 4. Under **APIs & Services > Credentials > Create Credentials > OAuth 2.0 Client ID**:
    - **Application Type**: `Web application`
    - **Authorized JavaScript Origins**:
      - `http://localhost:3000`
-     - `https://auralic-jewels.vercel.app`
+     - `https://aurelic-jewels.vercel.app`
      - `https://your-frontend.vercel.app`
    - **Authorized Redirect URIs**:
      - `http://localhost:5000/api/auth/google/callback`
-     - `https://auralic-jewels.onrender.com/api/auth/google/callback`
+     - `https://aurelic-jewels.onrender.com/api/auth/google/callback`
 5. Save the **Client ID** and **Client Secret** into your `.env` files:
    - Frontend: `NEXT_PUBLIC_GOOGLE_CLIENT_ID`
    - Backend: `GOOGLE_CLIENT_ID` and `GOOGLE_CLIENT_SECRET`
@@ -35,7 +35,7 @@ This document details how to configure third-party services for Google OAuth, St
    - `Secret Key` (`sk_live_...` or `sk_test_...`) -> Set as `STRIPE_SECRET_KEY` on Backend.
 3. Configure Webhooks under **Developers > Webhooks**:
    - Click **Add Endpoint**.
-   - **Endpoint URL**: `https://auralic-jewels.onrender.com/api/payments/webhook`
+   - **Endpoint URL**: `https://aurelic-jewels.onrender.com/api/payments/webhook`
    - **Events to Listen For**:
      - `payment_intent.succeeded`
      - `payment_intent.payment_failed`
@@ -47,12 +47,12 @@ This document details how to configure third-party services for Google OAuth, St
 ## 3. Resend Transactional Email Setup
 
 1. Sign up at [Resend](https://resend.com).
-2. In **Domains**, add your domain (e.g. `auralic-jewels.vercel.app`) and add the DNS records (DKIM, SPF, MX) to your domain registrar.
+2. In **Domains**, add your domain (e.g. `aurelic-jewels.vercel.app`) and add the DNS records (DKIM, SPF, MX) to your domain registrar.
 3. In **API Keys**, generate a new API key with *Full Access*.
 4. Configure in `backend/.env`:
    ```bash
    RESEND_API_KEY="re_123456789"
-   EMAIL_FROM="Maison Auralic <concierge@auralic-jewels.vercel.app>"
+   EMAIL_FROM="Aurelic Jewels <concierge@aurelic-jewels.vercel.app>"
    ```
 
 ---

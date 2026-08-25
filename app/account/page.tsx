@@ -538,7 +538,7 @@ export default function AccountPage() {
                   <p className="font-mono text-sm text-[#141210]">{user.phone || '+1 (212) 555-0199'}</p>
                 </div>
                 <div>
-                  <span className="text-[#73685a] uppercase tracking-wider block">Maison Membership</span>
+                  <span className="text-[#73685a] uppercase tracking-wider block">Aurelic Jewels Membership</span>
                   <p className="text-[#9b7e46] uppercase tracking-wider font-semibold">
                     {user.role === 'admin' ? 'Atelier Administrator' : 'Haute Joaillerie Customer'}
                   </p>

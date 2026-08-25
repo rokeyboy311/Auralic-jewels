@@ -142,7 +142,7 @@ export default function AdminDashboardPage() {
     setIsSendingReply(true);
     try {
       const res = await sendConversationMessage(selectedConversation.id, {
-        senderName: user?.name || 'Maison Auralic Atelier Director',
+        senderName: user?.name || 'Aurelic Jewels Atelier Director',
         senderRole: 'master_jeweller',
         content: adminReplyText.trim(),
         isInternalNote,
@@ -244,7 +244,7 @@ export default function AdminDashboardPage() {
         name: prodName,
         slug,
         sku: `AUR-JW-${Date.now().toString().slice(-4)}`,
-        brand: 'Maison Auralic',
+        brand: 'Aurelic Jewels',
         category: prodCategory as any,
         collection: 'Solitaire Masterpieces',
         gender: 'Women' as const,
@@ -257,7 +257,7 @@ export default function AdminDashboardPage() {
         goldKarat: `${prodPurity} Solid Gold`,
         grossWeightGrams: Number(prodGrossWeight),
         netGoldWeightGrams: Math.round((Number(prodGrossWeight) * 0.9) * 10) / 10,
-        hallmarkAssayOffice: 'Paris Assay Office Eagle Head Hallmark & Maison Atelier Stamp',
+        hallmarkAssayOffice: 'Paris Assay Office Eagle Head Hallmark & Aurelic Jewels Atelier Stamp',
         stoneType: prodStone as any,
         stoneWeightCarats: Number(prodStoneCarats),
         totalCaratWeight: Number(prodStoneCarats),
@@ -311,7 +311,7 @@ export default function AdminDashboardPage() {
   };
 
   const handleDeleteProduct = async (id: string) => {
-    if (!confirm('Are you sure you want to retire this piece from the Maison active catalogue?')) return;
+    if (!confirm('Are you sure you want to retire this piece from the Aurelic Jewels active catalogue?')) return;
     const res = await deleteAdminProduct(id);
     if (res.success) {
       setProducts(products.filter((p) => p.id !== id));
@@ -366,7 +366,7 @@ export default function AdminDashboardPage() {
             </div>
             <div>
               <span className="text-[9px] uppercase tracking-[0.35em] text-[#9b7e46] font-semibold block">
-                Maison Auralic Paris
+                Aurelic Jewels Paris
               </span>
               <h1 className="font-serif text-2xl sm:text-3xl text-[#141210] mt-1 font-light">
                 Atelier Admin Portal
@@ -398,7 +398,7 @@ export default function AdminDashboardPage() {
             <div>
               <label htmlFor="admin-login-email-input" className="block text-[11px] uppercase tracking-wider text-[#4a4237] font-medium mb-1.5 flex items-center justify-between">
                 <span>Staff Email Address</span>
-                <span className="text-[10px] text-[#73685a] lowercase">admin@auralic.com</span>
+                <span className="text-[10px] text-[#73685a] lowercase">admin@aurelic.com</span>
               </label>
               <div className="relative">
                 <Mail className="w-4 h-4 text-[#73685a] absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
@@ -413,7 +413,7 @@ export default function AdminDashboardPage() {
                     setAdminEmail(e.target.value);
                     setAuthErrorMessage('');
                   }}
-                  placeholder="admin@auralic.com"
+                  placeholder="admin@aurelic.com"
                   className="w-full bg-[#faf8f5] border border-[#c5b49e]/60 pl-10 pr-3.5 py-3 text-xs text-[#141210] focus:outline-none focus:border-[#9b7e46] focus:bg-white transition-colors"
                 />
               </div>
@@ -477,7 +477,7 @@ export default function AdminDashboardPage() {
             <p className="text-[11px] text-[#73685a]">
               Customer Customer?{' '}
               <Link href="/" className="text-[#9b7e46] hover:underline font-medium inline-flex items-center gap-1">
-                <span>Return to Maison Boutique</span>
+                <span>Return to Aurelic Jewels Boutique</span>
                 <ArrowRight className="w-3 h-3" />
               </Link>
             </p>
@@ -494,7 +494,7 @@ export default function AdminDashboardPage() {
         <div>
           <div className="flex items-center gap-2">
             <span className="text-[10px] tracking-[0.35em] text-[#9b7e46] uppercase font-semibold">
-              Maison Atelier Control Center
+              Aurelic Jewels Atelier Control Center
             </span>
             <span className="px-2 py-0.5 bg-emerald-100 text-emerald-800 text-[9px] uppercase tracking-wider font-semibold rounded-xs">
               Live Session
@@ -504,7 +504,7 @@ export default function AdminDashboardPage() {
             Executive Operations
           </h1>
           <p className="text-xs text-[#73685a] mt-0.5">
-            Logged in as <strong className="text-[#141210]">{user?.name || 'Maison Atelier Director'}</strong> ({user?.email}) • Paris Place Vendôme Node
+            Logged in as <strong className="text-[#141210]">{user?.name || 'Aurelic Jewels Atelier Director'}</strong> ({user?.email}) • Paris Place Vendôme Node
           </p>
         </div>
 
@@ -1278,7 +1278,7 @@ export default function AdminDashboardPage() {
         <div className="bg-white border border-[#ebdccd] overflow-hidden">
           <div className="p-4 border-b border-[#ebdccd] flex justify-between items-center bg-[#faf8f5]">
             <div>
-              <h3 className="font-serif text-lg text-[#141210]">Maison Atelier Specialists & Gemologists</h3>
+              <h3 className="font-serif text-lg text-[#141210]">Aurelic Jewels Atelier Specialists & Gemologists</h3>
               <p className="text-xs text-[#73685a]">
                 Directory of senior goldsmiths and gemological directors active across our salons.
               </p>

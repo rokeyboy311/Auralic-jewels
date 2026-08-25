@@ -1,4 +1,4 @@
-# MAISON AURALIC / AURALIC JEWELS — MASTER PRODUCTION AUDIT REPORT
+# Aurelic Jewels / Aurelic Jewels — MASTER PRODUCTION AUDIT REPORT
 
 **Date of Audit**: August 20, 2026  
 **Auditor**: Lead Software Architect, Senior Full-Stack & Security Engineer  
@@ -17,7 +17,7 @@
 | **Payments & Order Integrity** | Client creates simulated PaymentIntent; amounts not server-recalculated | **CRITICAL** | Server-side price recalculation, Stripe Payment Element, webhook signatures & idempotency |
 | **Atelier Concierge Chat Desk** | UI exists; messages and tickets stored in memory without ownership checks | **HIGH** | PostgreSQL-backed conversations, participant verification, staff assignment, attachments |
 | **International Commerce** | Multi-currency matrix exists; historical exchange rates not locked in orders | **HIGH** | Historical rate snapshots on orders, multi-tier tax & duties engine, armored courier logistics |
-| **Brand Identity** | Inconsistencies between Auralic Jewels, Maison Auralic, and domainname.com | **MEDIUM** | Single canonical brand configuration (`Auralic Jewels / Maison Auralic`) |
+| **Brand Identity** | Inconsistencies between Aurelic Jewels, Aurelic Jewels, and domainname.com | **MEDIUM** | Single canonical brand configuration (`Aurelic Jewels / Aurelic Jewels`) |
 | **Future 3D Compatibility** | Schema columns exist; no WebGL bloat before required | **LOW** (Compliant) | Clean schema and TypeScript interfaces ready for Three.js/GLB model URLs |
 
 ---
@@ -156,7 +156,7 @@
 
 ## O. UX & P. DATA CLEANUP
 1. **Canonical Brand Standardization**:
-   - Standardize all references to **Auralic Jewels** / **Maison Auralic** across `brandConfig.ts`, navigation, meta tags, and transactional emails.
+   - Standardize all references to **Aurelic Jewels** / **Aurelic Jewels** across `brandConfig.ts`, navigation, meta tags, and transactional emails.
 
 ---
 

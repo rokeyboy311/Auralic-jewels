@@ -15,7 +15,7 @@ export default function Footer() {
     e.preventDefault();
     if (!newsletterEmail.trim()) return;
     setIsSubscribed(true);
-    success('Maison Auralic Gazette', 'You have been enrolled for private collection previews and salon invitations.');
+    success('Aurelic Jewels Gazette', 'You have been enrolled for private collection previews and salon invitations.');
     setNewsletterEmail('');
   };
 
@@ -60,13 +60,13 @@ export default function Footer() {
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 pb-12 border-b border-white/10">
           <div className="lg:col-span-6 space-y-4">
             <span className="text-[10px] uppercase tracking-[0.4em] text-[#C5A059] font-semibold">
-              Maison de Haute Joaillerie
+              Aurelic Jewels
             </span>
             <h3 className="serif text-3xl sm:text-4xl text-white tracking-[0.2em] uppercase font-light">
               {brandConfig.name}
             </h3>
             <p className="text-xs sm:text-sm text-white/70 max-w-lg leading-relaxed font-light">
-              Founded at Place Vendôme, Maison Auralic curates exceptional certified natural diamonds, rare untreated Colombian emeralds, and bespoke 18K/22K gold heirlooms. Each piece is hallmarked with individual serial certification and lifetime authenticity.
+              Founded at Place Vendôme, Aurelic Jewels curates exceptional certified natural diamonds, rare untreated Colombian emeralds, and bespoke 18K/22K gold heirlooms. Each piece is hallmarked with individual serial certification and lifetime authenticity.
             </p>
           </div>
 
@@ -180,7 +180,7 @@ export default function Footer() {
               </li>
               <li>
                 <Link href="/our-story" className="hover:text-white transition-colors">
-                  Maison Heritage
+                  Aurelic Jewels Heritage
                 </Link>
               </li>
             </ul>
@@ -223,7 +223,7 @@ export default function Footer() {
           {/* Col 4: Legal & Policies */}
           <div className="space-y-3">
             <p className="serif text-sm uppercase tracking-widest text-[#C5A059]">
-              Maison Policies
+              Aurelic Jewels Policies
             </p>
             <ul className="space-y-2 text-white/70">
               <li>

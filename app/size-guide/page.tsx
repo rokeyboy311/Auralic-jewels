@@ -20,13 +20,13 @@ export default function SizeGuidePage() {
     <div className="max-w-4xl mx-auto px-4 sm:px-8 py-12 space-y-10">
       <div className="text-center space-y-3">
         <span className="text-[10px] tracking-[0.35em] text-[#9b7e46] uppercase font-medium">
-          Maison Auralic Fit & Proportion
+          Aurelic Jewels Fit & Proportion
         </span>
         <h1 className="font-serif text-3xl sm:text-5xl text-[#141210] uppercase font-light">
           International Ring & Jewellery Size Guide
         </h1>
         <p className="text-xs sm:text-sm text-[#73685a] max-w-lg mx-auto font-light leading-relaxed">
-          Ensure a flawless fit for your fine jewellery acquisition. Maison Auralic provides one complimentary ring resizing within 90 days of order receipt.
+          Ensure a flawless fit for your fine jewellery acquisition. Aurelic Jewels provides one complimentary ring resizing within 90 days of order receipt.
         </p>
       </div>
 
@@ -73,7 +73,7 @@ export default function SizeGuidePage() {
 
         <div className="bg-white p-6 border border-[#c5b49e]/40 space-y-2">
           <h3 className="font-serif text-base text-[#141210] font-medium">
-            Method B: Complimentary Maison Sizer
+            Method B: Complimentary Aurelic Jewels Sizer
           </h3>
           <p className="leading-relaxed">
             Unsure of your size? Contact our concierge to receive a complimentary physical plastic ring sizing belt dispatched by express mail prior to your acquisition.

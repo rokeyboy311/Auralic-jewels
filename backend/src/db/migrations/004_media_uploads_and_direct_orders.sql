@@ -12,7 +12,7 @@ CREATE TABLE IF NOT EXISTS media_uploads (
   mime_type VARCHAR(100) NOT NULL DEFAULT 'image/jpeg',
   data_base64 TEXT NOT NULL,
   file_size INT NOT NULL DEFAULT 0,
-  folder VARCHAR(100) DEFAULT 'auralic_jewels',
+  folder VARCHAR(100) DEFAULT 'aurelic_jewels',
   created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );
 

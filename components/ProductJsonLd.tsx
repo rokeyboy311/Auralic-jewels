@@ -8,7 +8,7 @@ interface ProductJsonLdProps {
 
 export const ProductJsonLd: React.FC<ProductJsonLdProps> = ({
   product,
-  siteUrl = 'https://auralic-jewels.vercel.app',
+  siteUrl = 'https://aurelic-jewels.vercel.app',
 }) => {
   const primaryImage = product.images?.[0]?.url || 'https://images.unsplash.com/photo-1605100804763-247f67b3557e?auto=format&fit=crop&w=1200&q=85';
   const productUrl = `${siteUrl}/product/${product.slug}`;
@@ -23,7 +23,7 @@ export const ProductJsonLd: React.FC<ProductJsonLdProps> = ({
     mpn: product.sku,
     brand: {
       '@type': 'Brand',
-      name: 'Maison Auralic',
+      name: 'Aurelic Jewels',
     },
     offers: {
       '@type': 'Offer',
@@ -38,7 +38,7 @@ export const ProductJsonLd: React.FC<ProductJsonLdProps> = ({
           : 'https://schema.org/OutOfStock',
       seller: {
         '@type': 'Organization',
-        name: 'Maison Auralic Haute Joaillerie',
+        name: 'Aurelic Jewels',
       },
     },
     aggregateRating: {

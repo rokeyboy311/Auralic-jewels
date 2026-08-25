@@ -4,4 +4,4 @@ Disallow: /admin
 Disallow: /account
 Disallow: /api/
 
-Sitemap: https://auralic-jewels.vercel.app/sitemap.xml
+Sitemap: https://aurelic-jewels.vercel.app/sitemap.xml

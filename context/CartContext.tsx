@@ -31,17 +31,17 @@ const CartContext = createContext<CartContextType | undefined>(undefined);
 function subscribeCart(callback: () => void) {
   if (typeof window === 'undefined') return () => {};
   window.addEventListener('storage', callback);
-  window.addEventListener('auralic_cart_change', callback);
+  window.addEventListener('aurelic_cart_change', callback);
   return () => {
     window.removeEventListener('storage', callback);
-    window.removeEventListener('auralic_cart_change', callback);
+    window.removeEventListener('aurelic_cart_change', callback);
   };
 }
 
 function getCartSnapshot(): string {
   if (typeof window === 'undefined') return '[]';
   try {
-    return localStorage.getItem('auralic_cart') || '[]';
+    return localStorage.getItem('aurelic_cart') || '[]';
   } catch {
     return '[]';
   }
@@ -70,8 +70,8 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
   const saveItems = (newItems: CartItem[]) => {
     if (typeof window !== 'undefined') {
       try {
-        localStorage.setItem('auralic_cart', JSON.stringify(newItems));
-        window.dispatchEvent(new Event('auralic_cart_change'));
+        localStorage.setItem('aurelic_cart', JSON.stringify(newItems));
+        window.dispatchEvent(new Event('aurelic_cart_change'));
       } catch {
         // ignore write error
       }

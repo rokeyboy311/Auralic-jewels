@@ -1,5 +1,5 @@
 /**
- * Production DTO (Data Transfer Object) Mappers for Maison Auralic REST API
+ * Production DTO (Data Transfer Object) Mappers for Aurelic Jewels REST API
  * Normalizes PostgreSQL snake_case rows into client-safe camelCase structures
  */
 

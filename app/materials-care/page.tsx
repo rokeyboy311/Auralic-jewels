@@ -7,7 +7,7 @@ export default function MaterialsCarePage() {
     <div className="max-w-4xl mx-auto px-4 sm:px-8 py-12 space-y-10">
       <div className="text-center space-y-3">
         <span className="text-[10px] tracking-[0.35em] text-[#9b7e46] uppercase font-medium">
-          Maison Auralic Longevity Protocol
+          Aurelic Jewels Longevity Protocol
         </span>
         <h1 className="font-serif text-3xl sm:text-5xl text-[#141210] uppercase font-light">
           Fine Jewellery Materials & Care Guide
@@ -21,7 +21,7 @@ export default function MaterialsCarePage() {
         <div className="bg-[#faf8f5] border border-[#c5b49e]/40 p-6 sm:p-8 space-y-3">
           <h2 className="font-serif text-xl text-[#141210] uppercase">1. Daily Wear & Storage Rituals</h2>
           <p className="text-xs text-[#4a4237] leading-relaxed">
-            Apply cosmetics, perfumes, lotions, and hairspray before putting on your jewellery. Store each creation separately inside its dedicated Auralic chamois pouch or velvet-lined jewelry chest to prevent gemstones from scratching adjacent precious metal surfaces.
+            Apply cosmetics, perfumes, lotions, and hairspray before putting on your jewellery. Store each creation separately inside its dedicated Aurelic chamois pouch or velvet-lined jewelry chest to prevent gemstones from scratching adjacent precious metal surfaces.
           </p>
         </div>
 
@@ -42,7 +42,7 @@ export default function MaterialsCarePage() {
         <div className="bg-[#faf8f5] border border-[#c5b49e]/40 p-6 sm:p-8 space-y-3">
           <h2 className="font-serif text-xl text-[#141210] uppercase">4. Complimentary Annual Atelier Spa</h2>
           <p className="text-xs text-[#4a4237] leading-relaxed">
-            Every Auralic piece includes lifetime complimentary annual prong tightening, ultrasonic inspection, and steam polishing at our Place Vendôme atelier or via our insured courier service.
+            Every Aurelic piece includes lifetime complimentary annual prong tightening, ultrasonic inspection, and steam polishing at our Place Vendôme atelier or via our insured courier service.
           </p>
         </div>
       </div>

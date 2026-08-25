@@ -166,13 +166,13 @@ export default function CustomDesignModal({
           <div className="text-center mb-6">
             <div className="inline-flex items-center gap-1.5 text-[10px] tracking-[0.35em] text-[#9b7e46] uppercase font-medium">
               <Sparkles className="w-3.5 h-3.5" />
-              <span>Maison Auralic Bespoke Atelier</span>
+              <span>Aurelic Jewels Bespoke Atelier</span>
             </div>
             <h2 className="font-serif text-2xl sm:text-3xl text-[#141210] mt-1 font-light uppercase">
               Custom Jewellery & Design Modifications
             </h2>
             <p className="text-xs text-[#73685a] mt-1 leading-relaxed max-w-md mx-auto">
-              Select an existing Maison creation to customize, submit your own sketch from scratch, or consult with our Master Goldsmiths.
+              Select an existing Aurelic Jewels creation to customize, submit your own sketch from scratch, or consult with our Master Goldsmiths.
             </p>
 
             {/* Mode Tabs */}
@@ -260,7 +260,7 @@ export default function CustomDesignModal({
                 onClick={handleReset}
                 className="mt-4 px-8 py-3 bg-[#141210] hover:bg-[#9b7e46] text-[#faf8f5] text-xs uppercase tracking-[0.2em] font-medium transition-colors"
               >
-                Return to Maison
+                Return to Aurelic Jewels
               </button>
             </div>
           ) : (
@@ -362,7 +362,7 @@ export default function CustomDesignModal({
                         className="w-full bg-white border border-[#c5b49e]/60 px-3 py-2 text-xs text-[#141210] focus:outline-none focus:border-[#9b7e46]"
                       >
                         <option>Classic 4-Claw Cathedral</option>
-                        <option>Iconic 6-Claw Auralic Crown</option>
+                        <option>Iconic 6-Claw Aurelic Crown</option>
                         <option>Modern Full Bezel Protective Mount</option>
                         <option>Hidden Diamond Halo Undermount</option>
                         <option>Vintage Hand-Milgrain Pavé</option>

@@ -3,7 +3,7 @@ import path from 'path';
 import { getDbPool } from './connection';
 
 /**
- * Enterprise Schema Migration Runner for Maison Auralic PostgreSQL Database
+ * Enterprise Schema Migration Runner for Aurelic Jewels PostgreSQL Database
  * Ensures idempotent, sequential execution of SQL migrations with tracking table.
  */
 export async function runMigrations() {

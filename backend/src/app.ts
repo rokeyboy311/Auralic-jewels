@@ -25,7 +25,7 @@ export function createApp() {
   // Strict CORS Configuration
   const allowedOrigins = [
     config.frontendUrl,
-    'https://auralic-jewels.vercel.app',
+    'https://aurelic-jewels.vercel.app',
   ].filter(Boolean);
 
   app.use(
@@ -79,7 +79,7 @@ export function createApp() {
   app.get('/', (_req, res) => {
     res.json({
       success: true,
-      service: 'Maison Auralic Haute Joaillerie REST API',
+      service: 'Aurelic Jewels REST API',
       status: 'online',
       mediaStorage: 'Neon PostgreSQL Image Vault',
       payments: 'Direct Atelier Consignment',
@@ -91,7 +91,7 @@ export function createApp() {
   app.get('/health', (_req, res) => {
     res.json({
       status: 'healthy',
-      service: 'Maison Auralic Haute Joaillerie REST API',
+      service: 'Aurelic Jewels REST API',
       uptime: process.uptime(),
       timestamp: new Date().toISOString(),
     });

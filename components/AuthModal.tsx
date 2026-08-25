@@ -107,7 +107,7 @@ export default function AuthModal({ isOpen, onClose, initialMode = 'signin' }: A
           <div className="text-center mb-6">
             <div className="inline-flex items-center justify-center gap-1.5 px-3 py-1 bg-[#f0e7dc] border border-[#d8c7b5] text-[10px] uppercase tracking-[0.25em] text-[#9b7e46] mb-3">
               <Sparkles className="w-3 h-3" />
-              <span>Maison Auralic</span>
+              <span>Aurelic Jewels</span>
             </div>
             <h2 className="font-serif text-2xl sm:text-3xl text-[#141210] font-normal tracking-wide">
               {forgotPasswordView

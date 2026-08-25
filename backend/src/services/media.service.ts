@@ -8,7 +8,7 @@ export class MediaService {
     buffer: Buffer,
     filename: string = 'jewellery_image.jpg',
     mimeType: string = 'image/jpeg',
-    folder: string = 'auralic_jewels'
+    folder: string = 'aurelic_jewels'
   ): Promise<{ url: string; id: string; format: string; bytes: number }> {
     const pool = getDbPool();
     const base64Data = buffer.toString('base64');

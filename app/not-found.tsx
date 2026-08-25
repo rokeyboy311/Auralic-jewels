@@ -27,7 +27,7 @@ export default function NotFound() {
             className="inline-flex items-center gap-2 px-6 py-3 bg-[#141210] hover:bg-[#9b7e46] text-[#faf8f5] text-xs uppercase tracking-[0.2em] font-medium transition-colors"
           >
             <ArrowLeft className="w-4 h-4" />
-            <span>Return to Maison</span>
+            <span>Return to Aurelic Jewels</span>
           </Link>
         </div>
       </div>

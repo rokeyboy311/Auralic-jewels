@@ -71,7 +71,7 @@ export default function AtelierConciergeChat() {
       const file = e.target.files[0];
       setIsUploadingAttachment(true);
       try {
-        const res = await uploadImage(file, 'auralic_concierge_chat');
+        const res = await uploadImage(file, 'aurelic_concierge_chat');
         if (res.success && res.data?.url) {
           setPendingAttachment({
             id: `att-${Date.now()}`,
@@ -176,7 +176,7 @@ export default function AtelierConciergeChat() {
               )}
               <div>
                 <div className="flex items-center gap-2">
-                  <span className="font-serif text-base tracking-wide">Maison Aurelia Concierge</span>
+                  <span className="font-serif text-base tracking-wide">Aurelic Jewels Concierge</span>
                   <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
                 </div>
                 <p className="text-[10px] text-[#dfd0b5] tracking-wider uppercase">

@@ -1,7 +1,7 @@
 {
-  "name": "auralic-jewellery-backend",
+  "name": "aurelic-jewellery-backend",
   "version": "1.0.0",
-  "description": "Production-Ready REST API for Auralic International Luxury Fine Jewellery E-Commerce",
+  "description": "Production-Ready REST API for Aurelic International Luxury Fine Jewellery E-Commerce",
   "main": "dist/index.js",
   "scripts": {
     "dev": "ts-node-dev --respawn --transpile-only src/index.ts",

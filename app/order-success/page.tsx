@@ -37,13 +37,13 @@ function OrderSuccessContent() {
           <CheckCircle2 className="w-8 h-8" />
         </div>
         <span className="text-[10px] tracking-[0.35em] text-[#9b7e46] uppercase font-medium">
-          Maison Acquisition Secured
+          Aurelic Jewels Acquisition Secured
         </span>
         <h1 className="font-serif text-3xl sm:text-4xl text-[#141210] uppercase font-light">
           Thank You for Your Customerage
         </h1>
         <p className="text-xs sm:text-sm text-[#73685a] max-w-md mx-auto leading-relaxed">
-          Your order has been recorded in the Maison Auralic archives. Our master gemologists and hallmarking artisans are preparing your creations.
+          Your order has been recorded in the Aurelic Jewels archives. Our master gemologists and hallmarking artisans are preparing your creations.
         </p>
       </div>
 

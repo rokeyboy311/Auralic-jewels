@@ -54,7 +54,7 @@ export default function ProductCard({ product }: ProductCardProps) {
           )}
           {product.isBestSeller && !product.isNewArrival && (
             <span className="bg-[#C5A059] text-white text-[9px] uppercase tracking-widest px-2.5 py-1 font-medium">
-              Maison Signature
+              Aurelic Jewels Signature
             </span>
           )}
           {product.stoneType && product.stoneType !== 'None' && (

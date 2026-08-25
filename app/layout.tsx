@@ -3,19 +3,19 @@ import './globals.css';
 import LayoutClientWrapper from '@/components/LayoutClientWrapper';
 
 export const metadata: Metadata = {
-  title: 'AURALIC — Haute Joaillerie & High Fine Jewellery Paris',
+  title: 'AURELIC — Haute Joaillerie & High Fine Jewellery Paris',
   description:
-    'Maison Auralic handcrafts certified conflict-free diamond solitaires, untreated Colombian emeralds, and 18K/22K gold heirlooms with insured worldwide armored courier delivery.',
+    'Aurelic Jewels handcrafts certified conflict-free diamond solitaires, untreated Colombian emeralds, and 18K/22K gold heirlooms with insured worldwide armored courier delivery.',
   openGraph: {
-    title: 'AURALIC — Haute Joaillerie & High Fine Jewellery Paris',
+    title: 'AURELIC — Haute Joaillerie & High Fine Jewellery Paris',
     description:
       'Certified conflict-free diamond solitaires, rare Colombian emeralds, and 18K/22K gold masterworks.',
     type: 'website',
-    url: 'https://auralic-jewels.vercel.app',
+    url: 'https://aurelic-jewels.vercel.app',
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'AURALIC — Haute Joaillerie Paris',
+    title: 'AURELIC — Haute Joaillerie Paris',
     description: 'International Fine Jewellery & Bespoke Diamond Atelier.',
   },
 };

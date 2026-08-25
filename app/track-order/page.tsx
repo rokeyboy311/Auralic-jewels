@@ -37,7 +37,7 @@ function TrackOrderContent() {
       }
     } catch {
       setTrackingData(null);
-      setErrorMsg('Failed to connect to the Maison logistics registry.');
+      setErrorMsg('Failed to connect to the Aurelic Jewels logistics registry.');
     } finally {
       setIsLoading(false);
     }
@@ -71,7 +71,7 @@ function TrackOrderContent() {
     <div className="max-w-4xl mx-auto px-4 sm:px-12 py-12 space-y-12 bg-[#FDFCF8]">
       <div className="text-center space-y-2">
         <span className="text-[10px] uppercase tracking-[0.4em] text-[#C5A059] font-semibold">
-          Maison Logistics Registry
+          Aurelic Jewels Logistics Registry
         </span>
         <h1 className="font-serif text-3xl sm:text-4xl text-[#1A1A1A] uppercase font-light">
           Track Your Fine Jewellery Consignment
@@ -206,7 +206,7 @@ function TrackOrderContent() {
             Complete Armored Vault Transit Insurance
           </h3>
           <p className="text-[11px] text-[#1A1A1A]/70 leading-relaxed font-light">
-            Every Maison Auralic creation travels in high-security tamper-evident vaults under full Lloyd&apos;s of London transit insurance with mandatory physical signature and identity verification upon delivery.
+            Every Aurelic Jewels creation travels in high-security tamper-evident vaults under full Lloyd&apos;s of London transit insurance with mandatory physical signature and identity verification upon delivery.
           </p>
         </div>
       </div>

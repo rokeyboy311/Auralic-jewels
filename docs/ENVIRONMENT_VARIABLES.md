@@ -1,6 +1,6 @@
 # Environment Variables
 
-Maison Auralic requires configuration across both the Frontend (Next.js) and Backend (Express) environments.
+Aurelic Jewels requires configuration across both the Frontend (Next.js) and Backend (Express) environments.
 
 ## Frontend (`/.env.example`)
 Place these in the root directory.

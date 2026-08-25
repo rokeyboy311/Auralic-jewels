@@ -120,7 +120,7 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* 2. MAISON PILLARS / PROMISES */}
+      {/* 2. AURELIC JEWELS PILLARS / PROMISES */}
       <section className="max-w-7xl mx-auto px-4 sm:px-12">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8 py-10 border-y border-black/5 bg-[#F5F2ED]/60 px-6 sm:px-10">
           <div className="flex items-start gap-4">
@@ -282,7 +282,7 @@ export default function HomePage() {
           <div className="lg:col-span-6 relative aspect-4/3 sm:aspect-16/10 overflow-hidden border border-white/10">
             <Image
               src="https://images.unsplash.com/photo-1588444837495-c6cfeb53f32d?auto=format&fit=crop&w=1400&q=85"
-              alt="Maison Auralic Master Goldsmith Crafting Fine Jewellery"
+              alt="Aurelic Jewels Master Goldsmith Crafting Fine Jewellery"
               fill
               className="object-cover"
               referrerPolicy="no-referrer"
@@ -298,7 +298,7 @@ export default function HomePage() {
               <span className="italic font-normal text-[#C5A059]">Flawless Precision</span>
             </h2>
             <p className="text-xs sm:text-sm text-white/70 leading-relaxed font-light">
-              Every creation at Maison Auralic is forged by generational French artisans with over 30 years of discipline. From initial gouache sketches to high-precision micro-prong setting under microscope, we ensure that every diamond facet captures and returns maximum luminosity.
+              Every creation at Aurelic Jewels is forged by generational French artisans with over 30 years of discipline. From initial gouache sketches to high-precision micro-prong setting under microscope, we ensure that every diamond facet captures and returns maximum luminosity.
             </p>
             <div className="grid grid-cols-2 gap-6 pt-2">
               <div className="border-l-2 border-[#C5A059] pl-4 space-y-1">
@@ -315,7 +315,7 @@ export default function HomePage() {
                 href="/about"
                 className="inline-flex items-center gap-2 text-[11px] uppercase tracking-widest text-[#C5A059] hover:text-white transition-colors border-b border-[#C5A059] pb-1"
               >
-                <span>Discover Maison Heritage</span>
+                <span>Discover Aurelic Jewels Heritage</span>
                 <ChevronRight className="w-4 h-4" />
               </Link>
             </div>
@@ -330,7 +330,7 @@ export default function HomePage() {
             Signature Curation
           </span>
           <h2 className="serif text-3xl sm:text-4xl text-[#1A1A1A] font-light tracking-wide uppercase">
-            Maison Collections
+            Aurelic Jewels Collections
           </h2>
         </div>
 

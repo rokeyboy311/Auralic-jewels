@@ -63,7 +63,7 @@ export default function CategoryDetailPage({ params }: { params: Promise<{ slug:
       {/* Breadcrumb */}
       <nav className="flex items-center gap-2 text-xs text-[#73685a] uppercase tracking-wider">
         <Link href="/" className="hover:text-[#141210]">
-          Maison
+          Aurelic Jewels
         </Link>
         <ChevronRight className="w-3 h-3 text-[#c5b49e]" />
         <Link href="/shop" className="hover:text-[#141210]">
@@ -88,7 +88,7 @@ export default function CategoryDetailPage({ params }: { params: Promise<{ slug:
         )}
         <div className="relative z-10 space-y-3 max-w-2xl">
           <span className="text-[10px] tracking-[0.35em] text-[#d4af37] uppercase font-medium">
-            Maison Jewellery Category
+            Aurelic Jewels Jewellery Category
           </span>
           <h1 className="font-serif text-3xl sm:text-5xl text-[#faf8f5] font-light uppercase tracking-wide">
             {categoryName}

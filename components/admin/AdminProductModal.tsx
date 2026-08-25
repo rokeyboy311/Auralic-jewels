@@ -17,7 +17,7 @@ export default function AdminProductModal({ onClose, onSaveProduct }: AdminProdu
   const [prodPurity, setProdPurity] = useState<GoldPurity>('18K');
   const [prodStone, setProdStone] = useState<StoneType>('Natural Diamond');
   const [prodStoneCarats, setProdStoneCarats] = useState<number>(2.5);
-  const [prodCertIssuer, setProdCertIssuer] = useState<'GIA' | 'IGI' | 'HRD' | 'SGL' | 'Maison Hallmark Certificate'>('GIA');
+  const [prodCertIssuer, setProdCertIssuer] = useState<'GIA' | 'IGI' | 'HRD' | 'SGL' | 'Aurelic Jewels Hallmark Certificate'>('GIA');
   const [prodCertNumber, setProdCertNumber] = useState('GIA-2184910482');
   const [prodStock, setProdStock] = useState<number>(5);
   const [prodGrossWeight, setProdGrossWeight] = useState<number>(4.8);
@@ -35,7 +35,7 @@ export default function AdminProductModal({ onClose, onSaveProduct }: AdminProdu
       name: prodName,
       slug,
       sku: `AUR-JW-${Date.now().toString().slice(-4)}`,
-      brand: 'Maison Auralic',
+      brand: 'Aurelic Jewels',
       category: prodCategory,
       collection: 'Solitaire Masterpieces',
       gender: 'Women',
@@ -48,7 +48,7 @@ export default function AdminProductModal({ onClose, onSaveProduct }: AdminProdu
       goldKarat: `${prodPurity} Solid Gold`,
       grossWeightGrams: Number(prodGrossWeight),
       netGoldWeightGrams: Math.round((Number(prodGrossWeight) * 0.9) * 10) / 10,
-      hallmarkAssayOffice: 'Paris Assay Office Eagle Head Hallmark & Maison Atelier Stamp',
+      hallmarkAssayOffice: 'Paris Assay Office Eagle Head Hallmark & Aurelic Jewels Atelier Stamp',
       stoneType: prodStone,
       stoneWeightCarats: Number(prodStoneCarats),
       totalCaratWeight: Number(prodStoneCarats),
