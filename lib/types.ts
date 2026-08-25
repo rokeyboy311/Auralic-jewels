@@ -441,7 +441,7 @@ export interface ConversationMessage {
   content: string;
   attachments?: ConversationAttachment[];
   attachmentUrl?: string;
-  isInternalNote?: boolean; // Visible only to admins/staff
+  isInternalNote?: boolean; // Visible only to admins
   createdAt: string;
   isReadByRecipient?: boolean;
 }
@@ -489,9 +489,7 @@ export interface Conversation {
   orderId?: string;
   orderContext?: ConversationOrderContext;
   
-  // Assignment & Internal Notes
-  assignedStaffId?: string;
-  assignedStaffName?: string;
+  // Internal Notes
   internalNotes?: string;
   
   // Messages & Activity

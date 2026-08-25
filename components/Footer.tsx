@@ -248,7 +248,7 @@ export default function Footer() {
               </li>
               <li>
                 <Link href="/admin" className="hover:text-[#C5A059] transition-colors">
-                  Workshop Staff Portal
+                  Admin Portal
                 </Link>
               </li>
             </ul>

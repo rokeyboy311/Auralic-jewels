@@ -1129,9 +1129,7 @@ router.get('/conversations', optionalAuth, async (req: AuthenticatedRequest, res
       type: row.type || 'concierge',
       status: row.status || 'open',
       priority: row.priority || 'standard',
-      assignedStaffId: row.assigned_staff_id,
-      assignedStaffName: row.assigned_staff_name || 'Place Vendôme Workshop',
-      messages: row.messages || [],
+                  messages: row.messages || [],
       createdAt: row.created_at,
       updatedAt: row.updated_at,
     }));
@@ -1207,7 +1205,7 @@ router.post('/conversations', optionalAuth, async (req: AuthenticatedRequest, re
 
     const insertRes = await pool.query(
       `INSERT INTO conversations (
-        user_id, user_name, user_email, user_phone, subject, type, status, priority, assigned_staff_name
+        user_id, user_name, user_email, user_phone, subject, type, status, priority
       ) VALUES ($1, $2, $3, $4, $5, $6, 'open', $7, 'Place Vendôme Workshop')
       RETURNING *`,
       [req.user?.id || null, effectiveName, effectiveEmail, userPhone || null, subject || 'Haute Joaillerie Inquiry', type, priority]
@@ -1652,35 +1650,6 @@ router.put('/admin/orders/:id/status', async (req: AuthenticatedRequest, res: Re
   }
 });
 
-router.get('/admin/staff', async (req: AuthenticatedRequest, res: Response) => {
-  const staff = [
-    {
-      id: 'staff-1',
-      name: 'Henri de Montmirail',
-      email: 'henri@aurelic.paris',
-      role: 'master_jeweller',
-      specialty: 'High Jewellery Solitaires & Platinum Mounting',
-      activeTicketsCount: 3,
-    },
-    {
-      id: 'staff-2',
-      name: 'Eléonore Vance',
-      email: 'eleonore@aurelic.paris',
-      role: 'senior_gemologist',
-      specialty: 'GIA / IGI Certification & Diamond Selection',
-      activeTicketsCount: 2,
-    },
-    {
-      id: 'staff-3',
-      name: 'Benoît Laurent',
-      email: 'benoit@aurelic.paris',
-      role: 'workshop_director',
-      specialty: 'Executive Commissions & Armored Logistics',
-      activeTicketsCount: 4,
-    },
-  ];
-
-  return res.json({ success: true, data: staff });
 });
 
 export default router;

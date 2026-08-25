@@ -880,7 +880,7 @@ export default function AdminDashboardPage() {
                 <option value="OPEN">Open</option>
                 <option value="IN_PROGRESS">In Progress</option>
                 <option value="WAITING_FOR_USER">Waiting for Customer</option>
-                <option value="WAITING_FOR_ADMIN">Requires Staff Action</option>
+                <option value="WAITING_FOR_ADMIN">Requires Admin Action</option>
                 <option value="RESOLVED">Resolved / Complete</option>
               </select>
             </div>
@@ -978,7 +978,7 @@ export default function AdminDashboardPage() {
                         )}
 
                         <div className="flex items-center justify-between pt-1 border-t border-[#ebdccd]/50 text-[10px] text-[#73685a]">
-                          <span>Assigned: {conv.assignedStaffName?.split(' ')[0] || 'Workshop'}</span>
+                          <span>Assigned: Admin</span>
                           {conv.unreadByAdminCount > 0 && (
                             <span className="px-1.5 py-0.2 bg-rose-600 text-white rounded-full font-bold">
                               {conv.unreadByAdminCount} unread
@@ -1150,7 +1150,7 @@ export default function AdminDashboardPage() {
                           className="accent-[#9b7e46]"
                         />
                         <span className={`text-[11px] font-medium ${isInternalNote ? 'text-amber-900 font-bold' : 'text-[#73685a]'}`}>
-                          Internal Note (Visible only to Workshop Staff & Admins)
+                          Internal Note (Visible only to Admins)
                         </span>
                       </label>
 
@@ -1172,7 +1172,7 @@ export default function AdminDashboardPage() {
                         onChange={(e) => setAdminReplyText(e.target.value)}
                         placeholder={
                           isInternalNote
-                            ? 'Record private staff instructions, workshop updates, or gem sourcing notes...'
+                            ? 'Record private admin instructions, workshop updates, or gem sourcing notes...'
                             : 'Compose response to customer...'
                         }
                         className={`flex-1 text-xs p-2.5 border outline-none resize-none ${

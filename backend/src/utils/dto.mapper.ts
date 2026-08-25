@@ -167,8 +167,6 @@ export function toConversationDTO(conv: any, messages: any[] = []) {
     userName: conv.user_name,
     userEmail: conv.user_email,
     userPhone: conv.user_phone,
-    assignedStaffId: conv.assigned_staff_id,
-    assignedStaffName: conv.assigned_staff_name,
     subject: conv.subject,
     status: conv.status,
     priority: conv.priority,
@@ -210,7 +208,6 @@ export function toBespokeInquiryDTO(inq: any) {
     notes: inq.notes,
     inspirationImages: typeof inq.inspiration_images === 'string' ? JSON.parse(inq.inspiration_images) : inq.inspiration_images || [],
     status: inq.status,
-    assignedStaffId: inq.assigned_staff_id,
     createdAt: inq.created_at,
     updatedAt: inq.updated_at,
   };

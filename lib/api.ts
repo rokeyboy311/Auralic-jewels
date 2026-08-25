@@ -9,8 +9,7 @@ import {
   ShippingMethod, 
   BespokeInquiry,
   Conversation,
-  ConversationMessage,
-  WorkshopStaff
+  ConversationMessage
 } from './types';
 
 // Centralized API Base URL
@@ -450,8 +449,6 @@ export async function updateConversation(
   payload: {
     status?: string;
     priority?: string;
-    assignedStaffId?: string;
-    assignedStaffName?: string;
     internalNotes?: string;
   }
 ) {
@@ -461,6 +458,3 @@ export async function updateConversation(
   });
 }
 
-export async function getStaffDirectory() {
-  return await fetchApi<WorkshopStaff[]>('/admin/staff');
-}

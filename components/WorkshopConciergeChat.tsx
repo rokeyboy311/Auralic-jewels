@@ -375,7 +375,7 @@ export default function WorkshopConciergeChat() {
 
                     <div className="flex items-center justify-between pt-1 border-t border-[#ebdccd]/40 text-[10px]">
                       <span className="text-[#8c7f70]">
-                        {c.assignedStaffName || 'Workshop Director'}
+                        Admin
                       </span>
                       {c.unreadByUserCount > 0 && (
                         <span className="px-1.5 py-0.5 bg-rose-600 text-white rounded-full text-[9px] font-bold">

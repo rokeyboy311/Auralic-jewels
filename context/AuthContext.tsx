@@ -14,7 +14,6 @@ interface AuthContextType {
   user: User | null;
   loading: boolean;
   isAdmin: boolean;
-  isStaff: boolean;
   setUser: (user: User | null) => void;
   login: (email: string, pass?: string) => Promise<boolean>;
   loginWithEmail: (email: string, pass?: string) => Promise<boolean>;
@@ -129,15 +128,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const role = (user?.role || '').toLowerCase();
   const isAdmin = role === 'admin';
-  const isStaff = isAdmin; // isStaff is synonymous with isAdmin now
-
   return (
     <AuthContext.Provider
       value={{
         user,
         loading,
         isAdmin,
-        isStaff,
         setUser,
         login: loginWithEmail,
         loginWithEmail,
