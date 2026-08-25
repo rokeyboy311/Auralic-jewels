@@ -16,13 +16,7 @@ export class MediaService {
     const format = mimeType.split('/')[1] || 'jpeg';
 
     if (!pool) {
-      console.warn('[MediaService] Database pool unavailable. Returning inline base64 data URI.');
-      return {
-        url: `data:${mimeType};base64,${base64Data}`,
-        id: `mock_${Date.now()}`,
-        format,
-        bytes,
-      };
+      throw new Error('Database pool unavailable for image storage.');
     }
 
     try {
@@ -44,13 +38,7 @@ export class MediaService {
       };
     } catch (err: any) {
       console.error('[MediaService] Error storing image in Neon database:', err.message);
-      // Graceful fallback to inline data URI if DB insert encounters issue
-      return {
-        url: `data:${mimeType};base64,${base64Data}`,
-        id: `fallback_${Date.now()}`,
-        format,
-        bytes,
-      };
+      throw new Error('Failed to store image in database: ' + err.message);
     }
   }
 

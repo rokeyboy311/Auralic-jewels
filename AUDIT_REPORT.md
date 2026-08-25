@@ -1,108 +1,80 @@
-# AUDIT REPORT — MAISON AURELIA INTERNATIONAL LUXURY JEWELLERY
-**Date:** August 19, 2026
-**Architectural Verification Level:** Lead Full-Stack Architect, UI/UX Designer & QA Auditor
+# MASTER PRODUCTION SAFETY AUDIT — AURALIC JEWELS
 
----
+## CRITICAL
 
-## 1. EXECUTIVE SUMMARY & ROUTE CONTRACT AUDIT
+1. **Unsecured Admin Backdoor (Hardcoded Passwords & Auto-Role Escalation)**
+   - **File:** `backend/src/routes/api.routes.ts` (Lines 115-200)
+   - **Problem:** Unconditional acceptance of 'admin123', 'password123', etc. for any user containing 'admin' or 'director' in their email. If 'admin' is in the email, their role in the database is automatically escalated to `admin`.
+   - **Production impact:** Anyone can gain full admin access and database control just by using `admin@example.com` and `admin123`.
+   - **Security impact:** Complete system compromise.
+   - **Recommended fix:** Remove all hardcoded passwords and automatic role upgrades. Verify role and password strictly against PostgreSQL.
 
-### Core Architectural Requirement:
-The system strictly enforces **two main public access points**:
-1. **User Website**: `https://domainname.com` (Encompasses all client shopping, bespoke customization, account management, multi-currency pricing, and client-side chat interactions).
-2. **Admin Panel**: `https://domainname.com/admin` (The singular, centralized command hub for staff, master gemologists, orders, catalog, and live conversation triage).
+2. **Order Transactions Trust Frontend Data & Lack ACID Properties**
+   - **File:** `backend/src/routes/api.routes.ts` (POST `/orders`)
+   - **Problem:** No `BEGIN`/`COMMIT`/`ROLLBACK` block for order creation. Falls back to frontend-provided prices (`itm.unitPriceUSD`) if product isn't found.
+   - **Production impact:** Partial orders can be created if insertion fails midway. Customers can submit orders with forged $0 prices or custom product IDs.
+   - **Security impact:** Financial loss, data corruption.
+   - **Recommended fix:** Wrap order creation in a PostgreSQL transaction. Reject order entirely if product IDs are invalid. Always use database-authoritative pricing.
 
-No detached public portals (e.g. `/patron`, `/atelier`, `/staff`, `/customer`) are present or permitted. Internal Atelier staff operate inside `/admin` governed by internal role-based authorizations (`SUPER_ADMIN`, `ADMIN`, `ATELIER_STAFF`).
+3. **Database Unavailability Creates Fake Sessions (Silent Failure)**
+   - **File:** `backend/src/routes/api.routes.ts` (Auth endpoints)
+   - **Problem:** If `getDbPool()` is null/offline, the backend gracefully creates a signed JWT for a "fallbackUser".
+   - **Production impact:** System pretends to be working while actually offline, allowing phantom users to navigate authenticated routes.
+   - **Security impact:** Phantom sessions could bypass checks if not validated later.
+   - **Recommended fix:** Return HTTP 503 strictly if the database is unavailable. Never issue fallback JWTs.
 
----
+4. **Conversations and Admin Endpoints Lack Proper Authorization**
+   - **File:** `backend/src/routes/api.routes.ts` (`/conversations`, etc.)
+   - **Problem:** Many endpoints verify the user is logged in, but don't strictly enforce that customers can only view their own conversations or that staff privileges are required for admin routes.
+   - **Production impact:** IDOR (Insecure Direct Object Reference) allowing users to see other users' private concierge chats.
+   - **Security impact:** Data breach of customer inquiries.
+   - **Recommended fix:** Enforce RBAC in Express middleware and specifically check `user.id` against resource ownership for customers.
 
-## 2. DETAILED AUDIT MATRIX
+## HIGH
 
-### [CRITICAL]
-- **Chat System Integration**: Need dedicated `/api/conversations` and `/api/conversations/[id]/messages` routes and state management so users can initiate product modification chats, custom jewellery inquiries, and order inquiries directly from product and order pages.
-- **Google Auth Endpoint Restoration**: `/app/api/auth/google/route.ts` was deleted and needs clean restoration to handle OAuth requests without server errors.
+5. **Fake Production Data (Fallback Products/Categories)**
+   - **File:** `backend/src/routes/api.routes.ts`, `lib/api.ts`
+   - **Problem:** If database fails or no data exists, the backend and frontend return massive static arrays of `FALLBACK_PRODUCTS`.
+   - **Production impact:** Customers could see and try to purchase products that do not exist in the live database, leading to fulfillment failures.
+   - **Security impact:** None, but severely damages brand reputation.
+   - **Recommended fix:** Remove all `FALLBACK_*` constants. Return empty arrays or 503 errors if the DB fails.
 
-### [HIGH]
-- **Admin Chat Management**: The `/admin` panel requires a comprehensive "Conversations" triage interface allowing admins and atelier staff to search, filter by status (`OPEN`, `PENDING`, `IN_PROGRESS`, `WAITING_FOR_USER`, `WAITING_FOR_ADMIN`, `RESOLVED`, `CLOSED`), assign internal staff, reply, add internal private notes, and attach files.
-- **Product → Chat Linkage**: Clicking "Customize / Request Modification" on any product page (`/product/[slug]`) must immediately open the chat drawer preloaded with the product's SKU, title, selected size, metal, stone, and direct link.
-- **Order → Chat Linkage**: In `/account` under orders, clicking "Contact Atelier / Request Assistance" must open a conversation preloaded with the order number, item titles, and dispatch tracking details.
+6. **Payment & Email Fake Success**
+   - **File:** `backend/src/services/payment.service.ts`, `email.service.ts` (and usage in `api.routes.ts`)
+   - **Problem:** Order creation logic might still assume payment success or simulate it. 
+   - **Production impact:** Orders might be marked as paid when payment is explicitly disabled.
+   - **Security impact:** Financial accounting errors.
+   - **Recommended fix:** Hardcode order status to `pending` or `direct_consignment`. Explicitly return 503 for payment endpoints.
 
-### [SECURITY]
-- Single unified user identity model across patron services, cart, and chat.
-- User conversations are scoped strictly to the authenticated `userId` unless queried by authorized admin roles.
-- Server-side recalculation of prices, discounts, shipping, and taxes on all orders before database commitment.
-- Token and session cookies configured for production (`httpOnly`, `sameSite`, `secure`).
+7. **Inconsistent DB Schema vs Queries**
+   - **File:** `backend/src/db/schema.sql`, `backend/src/routes/api.routes.ts`
+   - **Problem:** Schema fields and backend query fields may misalign (e.g., `image_url` vs `image`, etc).
+   - **Production impact:** SQL query errors crashing endpoints.
+   - **Security impact:** None.
+   - **Recommended fix:** Audit all SQL queries against the actual Neon migration schema.
 
-### [UI/UX]
-- Anti-AI luxury aesthetic preserved: Warm ivory neutrals (`#faf8f5`), champagne gold accents (`#9b7e46`), deep charcoal typography (`#141210`), serif display headings (`Cormorant Garamond` / `Playfair Display`), and generous editorial whitespace.
-- Floating Atelier Concierge Chat widget accessible across all customer pages with live unread indicators, minimizable states, quick inquiry chips, and conversation switching.
-- Single-line button controls with truncation safety.
+## MEDIUM
 
-### [DATABASE & SCHEMA]
-- In-memory mock store (`lib/db/mockDb.ts` & `lib/db/store.ts`) + PostgreSQL schema (`backend/src/db/schema.sql`) synchronized.
-- Tables & entities supported:
-  - `users`, `products`, `product_variants`, `categories`, `collections`, `product_images`, `inventory`, `carts`, `cart_items`, `wishlists`, `orders`, `order_items`, `payments`, `addresses`, `reviews`, `coupons`, `shipping_methods`, `notifications`, `conversations`, `conversation_messages`, `conversation_attachments`, `customization_requests`.
-- Database schema supports future 3D model properties (`model_url`, `model_thumbnail`, `has_3d_model`, `model_status`) without requiring Three.js bundling now.
+8. **Image Storage / Cloudinary Configuration**
+   - **File:** `backend/src/services/cloudinary.service.ts`, `backend/src/routes/api.routes.ts`
+   - **Problem:** Cloudinary is requested NOT to be used, but code exists for it. Images should go to Neon PostgreSQL.
+   - **Production impact:** Broken image uploads if Cloudinary is removed but DB storage isn't implemented properly.
+   - **Security impact:** None.
+   - **Recommended fix:** Fully remove Cloudinary service and ensure the PostgreSQL media storage mechanism works securely.
 
-### [API]
-- REST API conventions consistently applied across `/api/*` routes and Express `/backend`.
-- Response structure: `{ success: boolean, data?: T, message?: string, error?: string }`.
-- Centralized base URL configuration: `NEXT_PUBLIC_API_URL` (supports local `http://localhost:5000` and production `https://api.yourdomain.com`).
+9. **Frontend Admin Login Pre-fill**
+   - **File:** `app/admin/page.tsx`
+   - **Problem:** "Quick Fill Admin Credentials" button exists in production UI.
+   - **Production impact:** Unprofessional appearance on a luxury site.
+   - **Security impact:** Discloses target admin email patterns.
+   - **Recommended fix:** Remove the quick fill button and associated state logic.
 
-### [AUTHENTICATION]
-- Single unified user account model for all patron activities.
-- Unified registration, login, and Google OAuth integration.
-- Protected client-side state synchronized via `useSyncExternalStore` in `context/AuthContext.tsx`.
+## LOW
 
-### [CHAT & WORKFLOW]
-- Workflow from User to Admin:
-  1. User triggers chat from Product, Order, or Global Concierge button.
-  2. Conversation created with unique ID, status `OPEN`, priority `medium` or `high`.
-  3. Admin notification triggered; appears in `/admin` conversation inbox.
-  4. Atelier staff or Admin opens conversation, reviews attached product/order context, and replies.
-  5. User receives response in real-time or upon next session with unread notification badge.
-  6. Status updates to `WAITING_FOR_USER`, `IN_PROGRESS`, or `RESOLVED`.
+10. **Environment Variable Parity**
+    - **Problem:** Need to ensure all variables (`NEXT_PUBLIC_API_URL`, etc.) are properly documented and aligned between Vercel and Render.
+    - **Recommended fix:** Update `docs/ENVIRONMENT_VARIABLES.md`.
 
-### [ADMIN PANEL]
-- Route: `/admin` exclusively.
-- Sidebar sections:
-  - Dashboard Overview
-  - Conversations (Live Chat Triage & Support)
-  - Customization & Bespoke Requests
-  - Products & Variant Inventory
-  - Orders & Armored Logistics
-  - Patrons & Client Directory
-  - Currencies & Tax Rates
-  - Marketing & Privileges (Coupons)
-  - Atelier Staff & Roles
-
-### [INTERNATIONAL JEWELLERY]
-- Multi-currency support: USD ($), EUR (€), GBP (£), INR (₹), AED (د.إ), AUD (A$), CAD (C$).
-- Dynamic currency rate conversion and country-specific tax rules (VAT, GST, Sales Tax, de minimis thresholds).
-- Armored air transport integration specifications (FedEx Priority Valuables, Ferrari Group, Brinks Global).
-
-### [DEPLOYMENT]
-- Frontend: Vercel-ready with zero localhost hardcoding.
-- Backend: Render-ready Express architecture.
-- Database: Neon PostgreSQL ready with migration scripts (`backend/src/db/schema.sql`).
-- Environment configuration: Complete `.env.example`.
-
-### [FUTURE 3D COMPATIBILITY]
-- Product data interfaces contain `modelUrl`, `modelThumbnail`, and `has3DModel` fields ready for Three.js/GLTF integration without current heavyweight dependencies.
-
----
-
-## 3. IMPLEMENTATION ACTION PLAN
-1. **Recreate `/app/api/auth/google/route.ts`** to complete authentication flows.
-2. **Implement Conversation & Chat Types** in `lib/types.ts`.
-3. **Add Conversation Storage & Helper Methods** in `lib/db/mockDb.ts` and `lib/db/store.ts`.
-4. **Create API Endpoints**:
-   - `/app/api/conversations/route.ts`
-   - `/app/api/conversations/[id]/route.ts`
-   - `/app/api/conversations/[id]/messages/route.ts`
-5. **Create Chat Client Helpers & Context** (`context/ChatContext.tsx`, `lib/api.ts`).
-6. **Build Floating Atelier Concierge Chat Component** (`components/AtelierConciergeChat.tsx`) and mount it globally in `app/layout.tsx`.
-7. **Connect Product Page to Chat** (`app/product/[slug]/page.tsx` - "Customize / Request Modification" button triggers pre-filled conversation).
-8. **Connect Account Orders to Chat** (`app/account/page.tsx` - "Contact Atelier" button triggers order-linked conversation, plus added "Atelier Messages" tab).
-9. **Build Admin Conversations & Chat Management Hub** inside `/app/admin/page.tsx`.
-10. **Update Database SQL Schemas & README documentation**.
-11. **Verify compilation, linting, and user flows**.
+11. **Future 3D Support Fields**
+    - **Problem:** Need to verify 3D fields (`model_3d_url`) are present in schema but unused in frontend.
+    - **Recommended fix:** Keep in DB, remove any active 3D rendering scripts in frontend.

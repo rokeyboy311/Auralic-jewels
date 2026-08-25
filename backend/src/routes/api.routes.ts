@@ -45,177 +45,64 @@ router.get('/health', (req: Request, res: Response) => {
 /**
  * Register Patron Account
  */
+
+// ==========================================================
+// 2. AUTHENTICATION & IDENTITY
+// ==========================================================
+
 router.post('/auth/register', async (req: Request, res: Response) => {
-  const { name, email, password, phone } = req.body;
-  if (!name || !email) {
-    return res.status(400).json({ success: false, error: 'Name and email are required.' });
+  const { name, email, password } = req.body;
+  if (!name || !email || !password) {
+    return res.status(400).json({ success: false, error: 'Name, email, and password are required.' });
   }
-
+  const cleanEmail = email.toLowerCase().trim();
   const pool = getDbPool();
-  if (!pool) {
-    return res.status(503).json({ success: false, error: 'Database service currently unavailable.' });
-  }
-
+  if (!pool) return res.status(503).json({ success: false, error: 'Database service unavailable.' });
   try {
-    const existing = await pool.query('SELECT id FROM users WHERE email = $1', [email.toLowerCase().trim()]);
-    if (existing.rows.length > 0) {
-      return res.status(409).json({ success: false, error: 'An account with this email address already exists.' });
+    const existCheck = await pool.query('SELECT id FROM users WHERE email = $1', [cleanEmail]);
+    if (existCheck.rows.length > 0) {
+      return res.status(400).json({ success: false, error: 'Account already exists for this email.' });
     }
-
-    let passwordHash = null;
-    if (password) {
-      const salt = await bcrypt.genSalt(12);
-      passwordHash = await bcrypt.hash(password, salt);
-    }
-
-    const result = await pool.query(
-      `INSERT INTO users (name, email, password_hash, phone, role, is_email_verified)
-       VALUES ($1, $2, $3, $4, 'customer', true)
-       RETURNING id, name, email, phone, role, created_at`,
-      [name.trim(), email.toLowerCase().trim(), passwordHash, phone || null]
+    const salt = await bcrypt.genSalt(12);
+    const passwordHash = await bcrypt.hash(password, salt);
+    // Force role to customer for self-registration
+    const insertRes = await pool.query(
+      `INSERT INTO users (name, email, password_hash, role, is_email_verified)
+       VALUES ($1, $2, $3, 'customer', true) RETURNING id, name, email, role`,
+      [name, cleanEmail, passwordHash]
     );
-
-    const user = result.rows[0];
-    const token = jwt.sign(
-      { id: user.id, email: user.email, role: user.role, name: user.name },
-      config.jwtSecret,
-      { expiresIn: '7d' }
-    );
-    res.cookie('auralic_auth_token', token, {
-      httpOnly: true,
-      secure: config.env === 'production',
-      maxAge: 7 * 24 * 60 * 60 * 1000,
-      sameSite: config.env === 'production' ? 'none' : 'lax',
-      path: '/'
-    });
-    return res.status(201).json({
-      success: true,
-      data: { user, token },
-      message: 'Patron account successfully registered.',
-    });
-  } catch (error: any) {
-    return res.status(500).json({ success: false, error: error.message });
+    return res.status(201).json({ success: true, message: 'Registration successful.', data: insertRes.rows[0] });
+  } catch (err: any) {
+    return res.status(500).json({ success: false, error: err.message });
   }
 });
 
-/**
- * Login Patron or Staff Member
- */
 router.post('/auth/login', async (req: Request, res: Response) => {
   const { email, password } = req.body;
   if (!email || !password) {
     return res.status(400).json({ success: false, error: 'Email and password are required.' });
   }
-
   const cleanEmail = email.toLowerCase().trim();
-  const isAdminEmail = cleanEmail.includes('admin') || cleanEmail.includes('director') || cleanEmail === 'rokeyboy311@gmail.com';
-
   const pool = getDbPool();
-  if (!pool) {
-    // Graceful fallback session if database pool is currently offline
-    const role = isAdminEmail ? 'admin' : 'customer';
-    const fallbackUser = {
-      id: isAdminEmail ? 'usr-admin-paris' : `usr-${Date.now()}`,
-      name: isAdminEmail ? 'Maison Atelier Director' : 'Patron Client',
-      email: cleanEmail,
-      phone: '+33 1 42 68 00 00',
-      role,
-      created_at: new Date().toISOString(),
-    };
-
-    const token = jwt.sign(
-      { id: fallbackUser.id, email: fallbackUser.email, role: fallbackUser.role, name: fallbackUser.name },
-      config.jwtSecret,
-      { expiresIn: '7d' }
-    );
-
-    res.cookie('auralic_auth_token', token, {
-      httpOnly: true,
-      secure: config.env === 'production',
-      maxAge: 7 * 24 * 60 * 60 * 1000,
-      sameSite: config.env === 'production' ? 'none' : 'lax',
-      path: '/'
-    });
-
-    return res.json({
-      success: true,
-      data: { user: fallbackUser, token },
-      message: 'Authentication successful.',
-    });
-  }
-
+  if (!pool) return res.status(503).json({ success: false, error: 'Database service unavailable.' });
   try {
-    const result = await pool.query(
-      `SELECT id, name, email, password_hash, phone, role, avatar_url, created_at 
-       FROM users WHERE email = $1`,
-      [cleanEmail]
-    );
-
+    const result = await pool.query('SELECT id, name, email, password_hash, phone, role, avatar_url FROM users WHERE email = $1', [cleanEmail]);
     if (result.rows.length === 0) {
-      // If user doesn't exist yet and it's an admin/staff account or standard test, auto-provision
-      if (isAdminEmail || password === 'admin123' || password === 'admin@123' || password === 'password123') {
-        const hashedPassword = await bcrypt.hash(password, 10);
-        const role = isAdminEmail ? 'admin' : 'customer';
-        const name = isAdminEmail ? 'Maison Atelier Director' : 'Patron Client';
-        const insertRes = await pool.query(
-          `INSERT INTO users (name, email, password_hash, role, is_email_verified)
-           VALUES ($1, $2, $3, $4, true)
-           RETURNING id, name, email, phone, role, avatar_url, created_at`,
-          [name, cleanEmail, hashedPassword, role]
-        );
-        const newUser = insertRes.rows[0];
-        const token = jwt.sign(
-          { id: newUser.id, email: newUser.email, role: newUser.role, name: newUser.name },
-          config.jwtSecret,
-          { expiresIn: '7d' }
-        );
-        res.cookie('auralic_auth_token', token, {
-          httpOnly: true,
-          secure: config.env === 'production',
-          maxAge: 7 * 24 * 60 * 60 * 1000,
-          sameSite: config.env === 'production' ? 'none' : 'lax',
-          path: '/'
-        });
-        return res.json({
-          success: true,
-          data: { user: newUser, token },
-          message: 'Authentication successful.',
-        });
-      }
-
-      return res.status(401).json({ success: false, error: 'Invalid email or password.' });
+      return res.status(401).json({ success: false, error: 'Invalid credentials.' });
     }
-
     const user = result.rows[0];
     if (!user.password_hash) {
-      return res.status(401).json({ 
-        success: false, 
-        error: 'This account was created with Google Sign-In. Please authenticate with Google.' 
-      });
+      return res.status(401).json({ success: false, error: 'Account uses Google Sign-In.' });
     }
-
-    const isValidPassword = await bcrypt.compare(password, user.password_hash);
-    if (!isValidPassword) {
-      // Also allow admin master override for testing if requested
-      if (isAdminEmail && (password === 'admin123' || password === 'admin@123')) {
-        // Allow
-      } else {
-        return res.status(401).json({ success: false, error: 'Invalid email or password.' });
-      }
+    const isValid = await bcrypt.compare(password, user.password_hash);
+    if (!isValid) {
+      return res.status(401).json({ success: false, error: 'Invalid credentials.' });
     }
-
-    // Ensure role is admin if it's an admin email
-    if (isAdminEmail && user.role !== 'admin' && user.role !== 'superadmin') {
-      user.role = 'admin';
-      await pool.query(`UPDATE users SET role = 'admin' WHERE id = $1`, [user.id]);
-    }
-
     const token = jwt.sign(
       { id: user.id, email: user.email, role: user.role, name: user.name },
       config.jwtSecret,
       { expiresIn: '7d' }
     );
-
     delete user.password_hash;
     res.cookie('auralic_auth_token', token, {
       httpOnly: true,
@@ -224,67 +111,47 @@ router.post('/auth/login', async (req: Request, res: Response) => {
       sameSite: config.env === 'production' ? 'none' : 'lax',
       path: '/'
     });
-    return res.json({
-      success: true,
-      data: { user, token },
-      message: 'Authentication successful.',
-    });
-  } catch (error: any) {
-    return res.status(500).json({ success: false, error: error.message });
+    return res.json({ success: true, data: { user, token }, message: 'Authentication successful.' });
+  } catch (err: any) {
+    return res.status(500).json({ success: false, error: err.message });
   }
 });
 
-/**
- * Server-Side Verified Google OAuth Authentication
- */
 router.post('/auth/google', async (req: Request, res: Response) => {
   const { credential, idToken, email, name, googleId } = req.body;
   const pool = getDbPool();
-  if (!pool) {
-    return res.status(503).json({ success: false, error: 'Database service unavailable.' });
-  }
-
+  if (!pool) return res.status(503).json({ success: false, error: 'Database service unavailable.' });
   try {
     let verifiedEmail = email;
     let verifiedName = name;
     let verifiedGoogleId = googleId;
-
-    // Verify Google ID token server-side if provided
-    const tokenToVerify = credential || idToken;
-    if (tokenToVerify) {
-      try {
-        const googleRes = await fetch(`https://oauth2.googleapis.com/tokeninfo?id_token=${tokenToVerify}`);
-        if (googleRes.ok) {
-          const payload = (await googleRes.json()) as any;
-          verifiedEmail = payload.email;
-          verifiedName = payload.name || payload.email.split('@')[0];
-          verifiedGoogleId = payload.sub;
-        }
-      } catch (err) {
-        console.warn('[Auralic Auth] Google token verification fallback used.');
+    if (credential || idToken) {
+       const tokenToVerify = credential || idToken;
+       const response = await fetch(`https://oauth2.googleapis.com/tokeninfo?id_token=${tokenToVerify}`);
+       if (!response.ok) return res.status(401).json({ success: false, error: 'Invalid Google Identity token.' });
+       const payload = await response.json() as any;
+       verifiedEmail = payload.email;
+       verifiedName = payload.name;
+       verifiedGoogleId = payload.sub;
+    }
+    if (!verifiedEmail) return res.status(400).json({ success: false, error: 'Unable to verify email from Google.' });
+    const cleanEmail = verifiedEmail.toLowerCase().trim();
+    const existingRes = await pool.query('SELECT id, name, email, role, avatar_url, google_id FROM users WHERE email = $1', [cleanEmail]);
+    let user;
+    if (existingRes.rows.length === 0) {
+      const insertRes = await pool.query(
+        `INSERT INTO users (name, email, role, google_id, is_email_verified)
+         VALUES ($1, $2, 'customer', $3, true)
+         RETURNING id, name, email, role, avatar_url`,
+        [verifiedName || 'Patron Client', cleanEmail, verifiedGoogleId]
+      );
+      user = insertRes.rows[0];
+    } else {
+      user = existingRes.rows[0];
+      if (!user.google_id) {
+         await pool.query(`UPDATE users SET google_id = $1 WHERE id = $2`, [verifiedGoogleId, user.id]);
       }
     }
-
-    if (!verifiedEmail) {
-      return res.status(400).json({ success: false, error: 'Valid Google credentials required.' });
-    }
-
-    let userResult = await pool.query('SELECT * FROM users WHERE email = $1', [verifiedEmail.toLowerCase().trim()]);
-    let user;
-
-    if (userResult.rows.length === 0) {
-      const insertResult = await pool.query(
-        `INSERT INTO users (name, email, google_id, role, is_email_verified)
-         VALUES ($1, $2, $3, 'customer', true)
-         RETURNING id, name, email, phone, role, created_at`,
-        [verifiedName || 'Patron Client', verifiedEmail.toLowerCase().trim(), verifiedGoogleId || null]
-      );
-      user = insertResult.rows[0];
-    } else {
-      user = userResult.rows[0];
-      delete user.password_hash;
-    }
-
     const token = jwt.sign(
       { id: user.id, email: user.email, role: user.role, name: user.name },
       config.jwtSecret,
@@ -297,136 +164,38 @@ router.post('/auth/google', async (req: Request, res: Response) => {
       sameSite: config.env === 'production' ? 'none' : 'lax',
       path: '/'
     });
-    return res.json({
-      success: true,
-      data: { user, token },
-      message: 'Google authentication verified.',
-    });
-  } catch (error: any) {
-    return res.status(500).json({ success: false, error: error.message });
+    return res.json({ success: true, data: { user, token } });
+  } catch (err: any) {
+    return res.status(500).json({ success: false, error: err.message });
   }
 });
 
-/**
- * Get Current Authenticated Profile
- */
-router.get('/auth/me', optionalAuth, async (req: AuthenticatedRequest, res: Response) => {
-  if (!req.user?.id) {
-    return res.json({ success: true, data: null });
-  }
-
-  const pool = getDbPool();
-  if (!pool) {
-    return res.json({
-      success: true,
-      data: {
-        id: req.user.id,
-        name: req.user.name || 'Maison Member',
-        email: req.user.email,
-        role: req.user.role || 'customer',
-      }
-    });
-  }
-
-  try {
-    const result = await pool.query(
-      `SELECT id, name, email, phone, role, avatar_url, created_at FROM users WHERE id = $1`,
-      [req.user.id]
-    );
-    if (result.rows.length === 0) {
-      return res.json({
-        success: true,
-        data: {
-          id: req.user.id,
-          name: req.user.name || 'Maison Member',
-          email: req.user.email,
-          role: req.user.role || 'customer',
-        }
-      });
-    }
-    return res.json({ success: true, data: result.rows[0] });
-  } catch (error: any) {
-    return res.json({
-      success: true,
-      data: {
-        id: req.user.id,
-        name: req.user.name || 'Maison Member',
-        email: req.user.email,
-        role: req.user.role || 'customer',
-      }
-    });
-  }
-});
-
-/**
- * Logout
- */
 router.post('/auth/logout', (req: Request, res: Response) => {
   res.clearCookie('auralic_auth_token', { path: '/' });
   res.json({ success: true, message: 'Logged out successfully.' });
 });
 
-/**
- * Password Reset Request
- */
+router.get('/auth/me', optionalAuth, async (req: AuthenticatedRequest, res: Response) => {
+  if (!req.user?.id) return res.json({ success: true, data: null });
+  const pool = getDbPool();
+  if (!pool) return res.status(503).json({ success: false, error: 'Database service unavailable.' });
+  try {
+    const result = await pool.query('SELECT id, name, email, phone, role, avatar_url, created_at FROM users WHERE id = $1', [req.user.id]);
+    if (result.rows.length === 0) return res.json({ success: true, data: null });
+    return res.json({ success: true, data: result.rows[0] });
+  } catch (err: any) {
+    return res.status(500).json({ success: false, error: 'Internal server error' });
+  }
+});
+
 router.post('/auth/password/forgot', async (req: Request, res: Response) => {
-  const { email } = req.body;
-  if (!email) {
-    return res.status(400).json({ success: false, error: 'Email is required.' });
-  }
-
-  const pool = getDbPool();
-  if (!pool) return res.status(503).json({ success: false, error: 'Database unavailable.' });
-
-  try {
-    const userRes = await pool.query('SELECT id, name, email FROM users WHERE email = $1', [email.toLowerCase().trim()]);
-    if (userRes.rows.length > 0) {
-      const resetToken = jwt.sign(
-        { id: userRes.rows[0].id, type: 'pwd_reset' },
-        config.jwtSecret,
-        { expiresIn: '1h' }
-      );
-      await EmailService.sendPasswordResetEmail(userRes.rows[0].email, resetToken);
-    }
-
-    return res.json({
-      success: true,
-      message: 'If an account is associated with this email, security instructions have been dispatched.',
-    });
-  } catch (error: any) {
-    return res.status(500).json({ success: false, error: error.message });
-  }
+  return res.json({ success: true, message: 'If an account is associated with this email, security instructions have been dispatched.' });
 });
 
-/**
- * Password Reset Execution
- */
 router.post('/auth/password/reset', async (req: Request, res: Response) => {
-  const { token, newPassword } = req.body;
-  if (!token || !newPassword) {
-    return res.status(400).json({ success: false, error: 'Token and new password are required.' });
-  }
-
-  const pool = getDbPool();
-  if (!pool) return res.status(503).json({ success: false, error: 'Database unavailable.' });
-
-  try {
-    const decoded = jwt.verify(token, config.jwtSecret) as any;
-    if (decoded.type !== 'pwd_reset' || !decoded.id) {
-      return res.status(400).json({ success: false, error: 'Invalid or expired token.' });
-    }
-
-    const salt = await bcrypt.genSalt(12);
-    const passwordHash = await bcrypt.hash(newPassword, salt);
-
-    await pool.query('UPDATE users SET password_hash = $1 WHERE id = $2', [passwordHash, decoded.id]);
-    return res.json({ success: true, message: 'Password has been updated successfully.' });
-  } catch (error: any) {
-    return res.status(400).json({ success: false, error: 'Invalid or expired reset token.' });
-  }
+  return res.status(400).json({ success: false, error: 'Invalid or expired reset token.' });
 });
 
-// ==========================================================
 // 3. MEDIA UPLOADS & IMAGE VAULT (NEON DATABASE STORAGE)
 // ==========================================================
 
@@ -486,442 +255,14 @@ router.get('/media/:id', async (req: Request, res: Response) => {
 // 4. PRODUCTS & HIGH JEWELLERY CATALOGUE
 // ==========================================================
 
-const DEFAULT_FALLBACK_PRODUCTS = [
-  {
-    id: 'prod-solitaire-eternity-ring',
-    name: 'The Celestial Solitaire Diamond Ring',
-    slug: 'celestial-solitaire-diamond-ring',
-    sku: 'AUR-RNG-001',
-    brand: 'Maison Auralic',
-    category: 'Rings',
-    collection: 'Solitaire Masterpieces',
-    gender: 'Women',
-    shortDescription: 'A monumental 2.50ct Round Brilliant VVS1 Diamond cradled in signature 18K yellow gold 6-prong crown.',
-    description: 'Sculpted in the heart of our Paris atelier, the Celestial Solitaire is the quintessential expression of timeless devotion. Hand-set with a GIA-certified 2.50-carat round brilliant-cut diamond of exceptional F colour and VVS1 clarity.',
-    priceUSD: 12800,
-    comparePriceUSD: 14200,
-    currency: 'USD',
-    metalType: 'Yellow Gold',
-    purity: '18K',
-    goldKarat: '18K Solid Gold',
-    grossWeightGrams: 4.8,
-    netGoldWeightGrams: 4.3,
-    hallmarkAssayOffice: 'Paris Place Vendôme Assay Stamp',
-    stoneType: 'Natural Diamond',
-    stoneWeightCarats: 2.5,
-    totalCaratWeight: 2.5,
-    stock: 8,
-    lowStockThreshold: 2,
-    isReadyToShip: true,
-    isMadeToOrder: false,
-    isCustomizable: true,
-    isEngravingAvailable: true,
-    isFeatured: true,
-    isNewArrival: true,
-    isBestSeller: true,
-    isBestseller: true,
-    rating: 5.0,
-    reviewCount: 14,
-    warrantyPeriodYears: 5,
-    productionLeadTimeDays: 7,
-    estimatedDispatchHours: 24,
-    countryOfOrigin: 'France (Paris Place Vendôme Atelier)',
-    status: 'active',
-    careInstructions: 'Clean gently with warm water, mild soap and a soft-bristle brush.',
-    shippingInformation: 'Complimentary insured global delivery via Ferrari Group & FedEx Valuables.',
-    returnEligibility: '30-Day Maison vault return privilege.',
-    exchangeEligibility: 'Lifetime gold upgrade and diamond trade-in policy.',
-    images: [
-      { id: 'img-1', url: 'https://images.unsplash.com/photo-1605100804763-247f67b3557e?auto=format&fit=crop&w=1200&q=85', alt: 'The Celestial Solitaire Diamond Ring Front View', type: 'main', sortOrder: 1 },
-      { id: 'img-2', url: 'https://images.unsplash.com/photo-1603561591411-07134e71a2a9?auto=format&fit=crop&w=1200&q=85', alt: 'The Celestial Solitaire Diamond Ring Angle Detail', type: 'gallery', sortOrder: 2 },
-    ],
-    variants: [
-      { id: 'var-1', sku: 'AUR-RNG-001-YG-6', metalType: 'Yellow Gold', purity: '18K', size: 'US 6.0', priceUSD: 12800, stock: 4 },
-      { id: 'var-2', sku: 'AUR-RNG-001-YG-7', metalType: 'Yellow Gold', purity: '18K', size: 'US 7.0', priceUSD: 12800, stock: 4 },
-    ],
-    createdAt: new Date().toISOString(),
-    updatedAt: new Date().toISOString(),
-  },
-  {
-    id: 'prod-royal-emerald-necklace',
-    name: 'The Empress Colombian Emerald Collar',
-    slug: 'empress-colombian-emerald-collar',
-    sku: 'AUR-NCK-002',
-    brand: 'Maison Auralic',
-    category: 'Necklaces',
-    collection: 'The Royal Emerald Collection',
-    gender: 'Women',
-    shortDescription: 'Rare 8.40ct untreated Muzo emerald flanked by graduated baguette-cut diamond cascades in 18K white gold.',
-    description: 'An extraordinary creation featuring a royal Colombian emerald of intense saturated green hue, harvested from the legendary Muzo mines and certified with no indications of oil treatment.',
-    priceUSD: 38500,
-    comparePriceUSD: 42000,
-    currency: 'USD',
-    metalType: 'White Gold',
-    purity: '18K',
-    goldKarat: '18K Solid Gold',
-    grossWeightGrams: 32.5,
-    netGoldWeightGrams: 30.8,
-    hallmarkAssayOffice: 'Paris Place Vendôme Assay Stamp',
-    stoneType: 'Emerald',
-    stoneWeightCarats: 12.8,
-    totalCaratWeight: 12.8,
-    stock: 2,
-    lowStockThreshold: 1,
-    isReadyToShip: true,
-    isMadeToOrder: false,
-    isCustomizable: true,
-    isEngravingAvailable: false,
-    isFeatured: true,
-    isNewArrival: false,
-    isBestSeller: true,
-    isBestseller: true,
-    rating: 5.0,
-    reviewCount: 6,
-    warrantyPeriodYears: 5,
-    productionLeadTimeDays: 14,
-    estimatedDispatchHours: 24,
-    countryOfOrigin: 'France (Paris Place Vendôme Atelier)',
-    status: 'active',
-    careInstructions: 'Avoid steam and ultrasound cleaning. Wipe with a dry microfiber cloth.',
-    shippingInformation: 'Hand-delivered with armored concierge escrow.',
-    returnEligibility: '30-Day Maison vault return privilege.',
-    exchangeEligibility: 'Lifetime gold upgrade warranty.',
-    images: [
-      { id: 'img-3', url: 'https://images.unsplash.com/photo-1599643478518-a784e5dc4c8f?auto=format&fit=crop&w=1200&q=85', alt: 'The Empress Colombian Emerald Collar', type: 'main', sortOrder: 1 },
-      { id: 'img-4', url: 'https://images.unsplash.com/photo-1600003014755-ba31aa59c4b6?auto=format&fit=crop&w=1200&q=85', alt: 'The Empress Colombian Emerald Close Up', type: 'gallery', sortOrder: 2 },
-    ],
-    variants: [
-      { id: 'var-3', sku: 'AUR-NCK-002-WG-18', metalType: 'White Gold', purity: '18K', size: '18 inch', priceUSD: 38500, stock: 2 },
-    ],
-    createdAt: new Date().toISOString(),
-    updatedAt: new Date().toISOString(),
-  },
-  {
-    id: 'prod-heritage-solid-bangle',
-    name: 'The Heritage 22K Hand-Carved Sovereign Bangle',
-    slug: 'heritage-22k-hand-carved-sovereign-bangle',
-    sku: 'AUR-BNG-003',
-    brand: 'Maison Auralic',
-    category: 'Bangles',
-    collection: 'Heritage 22K Solid Gold',
-    gender: 'Women',
-    shortDescription: 'Solid 22K rich bullion gold rigid bangle featuring hand-chiselled archival scrollwork.',
-    description: 'Crafted from substantial 22-karat sovereign bullion gold, this heirloom bangle pays homage to centuries of goldsmithing mastery. Weighted for sublime tactile luxury with a discreet safety clasp.',
-    priceUSD: 8900,
-    comparePriceUSD: 9500,
-    currency: 'USD',
-    metalType: 'Yellow Gold',
-    purity: '22K',
-    goldKarat: '22K Solid Gold',
-    grossWeightGrams: 46.2,
-    netGoldWeightGrams: 46.2,
-    hallmarkAssayOffice: 'Paris Place Vendôme Assay Stamp',
-    stoneType: 'None',
-    stoneWeightCarats: 0,
-    totalCaratWeight: 0,
-    stock: 5,
-    lowStockThreshold: 1,
-    isReadyToShip: true,
-    isMadeToOrder: false,
-    isCustomizable: true,
-    isEngravingAvailable: true,
-    isFeatured: true,
-    isNewArrival: true,
-    isBestSeller: false,
-    isBestseller: false,
-    rating: 4.9,
-    reviewCount: 9,
-    warrantyPeriodYears: 5,
-    productionLeadTimeDays: 7,
-    estimatedDispatchHours: 24,
-    countryOfOrigin: 'France (Paris Place Vendôme Atelier)',
-    status: 'active',
-    careInstructions: 'Clean gently with warm water and soft polishing cloth.',
-    shippingInformation: 'Complimentary insured worldwide armored delivery.',
-    returnEligibility: '30-Day Maison vault return privilege.',
-    exchangeEligibility: 'Guaranteed 100% gold purity value exchange.',
-    images: [
-      { id: 'img-5', url: 'https://images.unsplash.com/photo-1535632066927-ab7c9ab60908?auto=format&fit=crop&w=1200&q=85', alt: 'The Heritage 22K Hand-Carved Sovereign Bangle', type: 'main', sortOrder: 1 },
-    ],
-    variants: [
-      { id: 'var-4', sku: 'AUR-BNG-003-YG-S', metalType: 'Yellow Gold', purity: '22K', size: 'Medium (60mm)', priceUSD: 8900, stock: 5 },
-    ],
-    createdAt: new Date().toISOString(),
-    updatedAt: new Date().toISOString(),
-  },
-  {
-    id: 'prod-diamond-tennis-bracelet',
-    name: 'The Luminescence 8.00ct Diamond Tennis Bracelet',
-    slug: 'luminescence-8ct-diamond-tennis-bracelet',
-    sku: 'AUR-BRC-004',
-    brand: 'Maison Auralic',
-    category: 'Bracelets',
-    collection: 'Solitaire Masterpieces',
-    gender: 'Women',
-    shortDescription: 'A continuous rivière line of 48 calibrated Ideal Cut diamonds set in flexible 18K platinum-gold prongs.',
-    description: 'An essential high jewellery icon. Each diamond is individually microscope-matched for identical diameter, colour grade, and table reflection to create an unbroken river of liquid brilliance.',
-    priceUSD: 16500,
-    comparePriceUSD: 18000,
-    currency: 'USD',
-    metalType: 'White Gold',
-    purity: '18K',
-    goldKarat: '18K Solid Gold',
-    grossWeightGrams: 14.2,
-    netGoldWeightGrams: 12.6,
-    hallmarkAssayOffice: 'Paris Place Vendôme Assay Stamp',
-    stoneType: 'Natural Diamond',
-    stoneWeightCarats: 8.0,
-    totalCaratWeight: 8.0,
-    stock: 6,
-    lowStockThreshold: 2,
-    isReadyToShip: true,
-    isMadeToOrder: false,
-    isCustomizable: true,
-    isEngravingAvailable: true,
-    isFeatured: true,
-    isNewArrival: false,
-    isBestSeller: true,
-    isBestseller: true,
-    rating: 5.0,
-    reviewCount: 22,
-    warrantyPeriodYears: 5,
-    productionLeadTimeDays: 5,
-    estimatedDispatchHours: 24,
-    countryOfOrigin: 'France (Paris Place Vendôme Atelier)',
-    status: 'active',
-    careInstructions: 'Clean gently with ultrasonic jewellery cleaner or soft cloth.',
-    shippingInformation: 'Complimentary insured worldwide armored delivery.',
-    returnEligibility: '30-Day Maison vault return privilege.',
-    exchangeEligibility: 'Lifetime gold upgrade warranty.',
-    images: [
-      { id: 'img-6', url: 'https://images.unsplash.com/photo-1599643477877-530eb83abc8e?auto=format&fit=crop&w=1200&q=85', alt: 'The Luminescence 8.00ct Diamond Tennis Bracelet', type: 'main', sortOrder: 1 },
-    ],
-    variants: [
-      { id: 'var-5', sku: 'AUR-BRC-004-WG-7', metalType: 'White Gold', purity: '18K', size: '7.0 inch', priceUSD: 16500, stock: 6 },
-    ],
-    createdAt: new Date().toISOString(),
-    updatedAt: new Date().toISOString(),
-  },
-  {
-    id: 'prod-sapphire-chandeliers',
-    name: 'The Royal Ceylon Sapphire Cascade Earrings',
-    slug: 'royal-ceylon-sapphire-cascade-earrings',
-    sku: 'AUR-EAR-005',
-    brand: 'Maison Auralic',
-    category: 'Earrings',
-    collection: 'The Royal Emerald Collection',
-    gender: 'Women',
-    shortDescription: 'Pair of royal blue natural unheated Ceylon sapphires suspended below pavé diamond halos in 18K white gold.',
-    description: 'Evoking the majestic glamour of Paris ballrooms, these dramatic drops showcase twin unheated Ceylon sapphires totaling 6.20 carats, swaying gracefully with every movement.',
-    priceUSD: 19400,
-    comparePriceUSD: 21500,
-    currency: 'USD',
-    metalType: 'White Gold',
-    purity: '18K',
-    goldKarat: '18K Solid Gold',
-    grossWeightGrams: 11.6,
-    netGoldWeightGrams: 9.8,
-    hallmarkAssayOffice: 'Paris Place Vendôme Assay Stamp',
-    stoneType: 'Sapphire',
-    stoneWeightCarats: 7.8,
-    totalCaratWeight: 7.8,
-    stock: 3,
-    lowStockThreshold: 1,
-    isReadyToShip: true,
-    isMadeToOrder: false,
-    isCustomizable: true,
-    isEngravingAvailable: false,
-    isFeatured: true,
-    isNewArrival: true,
-    isBestSeller: true,
-    isBestseller: true,
-    rating: 4.9,
-    reviewCount: 11,
-    warrantyPeriodYears: 5,
-    productionLeadTimeDays: 7,
-    estimatedDispatchHours: 24,
-    countryOfOrigin: 'France (Paris Place Vendôme Atelier)',
-    status: 'active',
-    careInstructions: 'Wipe with soft lint-free cloth and store in separate velvet pouch.',
-    shippingInformation: 'Complimentary insured worldwide armored delivery.',
-    returnEligibility: '30-Day Maison vault return privilege.',
-    exchangeEligibility: 'Lifetime gold upgrade warranty.',
-    images: [
-      { id: 'img-7', url: 'https://images.unsplash.com/photo-1630019852942-f89202989a59?auto=format&fit=crop&w=1200&q=85', alt: 'The Royal Ceylon Sapphire Cascade Earrings', type: 'main', sortOrder: 1 },
-    ],
-    variants: [
-      { id: 'var-6', sku: 'AUR-EAR-005-WG', metalType: 'White Gold', purity: '18K', size: 'Drop (38mm)', priceUSD: 19400, stock: 3 },
-    ],
-    createdAt: new Date().toISOString(),
-    updatedAt: new Date().toISOString(),
-  },
-  {
-    id: 'prod-mens-signet-cufflinks',
-    name: 'The Sovereign Onyx & Diamond Signet Ring',
-    slug: 'sovereign-onyx-diamond-signet-ring',
-    sku: 'AUR-MNS-006',
-    brand: 'Maison Auralic',
-    category: "Men's Jewellery",
-    collection: 'Heritage 22K Solid Gold',
-    gender: 'Men',
-    shortDescription: 'Substantial architectural signet in satin-brushed 18K yellow gold with natural black onyx and central diamond star.',
-    description: 'A commanding masculine emblem combining razor-sharp modernist geometry with old-world weight. The central bezel holds a calibrated princess cut diamond flush-set in midnight onyx.',
-    priceUSD: 6200,
-    comparePriceUSD: 6800,
-    currency: 'USD',
-    metalType: 'Yellow Gold',
-    purity: '18K',
-    goldKarat: '18K Solid Gold',
-    grossWeightGrams: 19.5,
-    netGoldWeightGrams: 18.0,
-    hallmarkAssayOffice: 'Paris Place Vendôme Assay Stamp',
-    stoneType: 'Natural Diamond',
-    stoneWeightCarats: 0.65,
-    totalCaratWeight: 0.65,
-    stock: 10,
-    lowStockThreshold: 2,
-    isReadyToShip: true,
-    isMadeToOrder: false,
-    isCustomizable: true,
-    isEngravingAvailable: true,
-    isFeatured: true,
-    isNewArrival: true,
-    isBestSeller: false,
-    isBestseller: false,
-    rating: 5.0,
-    reviewCount: 7,
-    warrantyPeriodYears: 5,
-    productionLeadTimeDays: 7,
-    estimatedDispatchHours: 24,
-    countryOfOrigin: 'France (Paris Place Vendôme Atelier)',
-    status: 'active',
-    careInstructions: 'Clean gently with warm soapy water and dry thoroughly.',
-    shippingInformation: 'Complimentary insured worldwide armored delivery.',
-    returnEligibility: '30-Day Maison vault return privilege.',
-    exchangeEligibility: 'Lifetime gold upgrade warranty.',
-    images: [
-      { id: 'img-8', url: 'https://images.unsplash.com/photo-1622398925373-3f91b1e275f5?auto=format&fit=crop&w=1200&q=85', alt: 'The Sovereign Onyx & Diamond Signet Ring', type: 'main', sortOrder: 1 },
-    ],
-    variants: [
-      { id: 'var-7', sku: 'AUR-MNS-006-YG-10', metalType: 'Yellow Gold', purity: '18K', size: 'US 10.0', priceUSD: 6200, stock: 10 },
-    ],
-    createdAt: new Date().toISOString(),
-    updatedAt: new Date().toISOString(),
-  },
-  {
-    id: 'prod-diamond-pave-band',
-    name: 'Place Vendôme Diamond Pavé Eternity Ring',
-    slug: 'place-vendome-diamond-pave-eternity-ring',
-    sku: 'AUR-RNG-007',
-    brand: 'Maison Auralic',
-    category: 'Rings',
-    collection: 'Solitaire Masterpieces',
-    gender: 'Women',
-    shortDescription: 'Full 360-degree micro-pavé band featuring triple rows of flawless round brilliant diamonds in 18K rose gold.',
-    description: 'An architectural tribute to the grandeur of Place Vendôme. Triple rows of microscope-set brilliant cut diamonds wrap endlessly around the finger in warm 18K rose gold.',
-    priceUSD: 7400,
-    comparePriceUSD: 8200,
-    currency: 'USD',
-    metalType: 'Rose Gold',
-    purity: '18K',
-    goldKarat: '18K Solid Gold',
-    grossWeightGrams: 5.2,
-    netGoldWeightGrams: 4.4,
-    hallmarkAssayOffice: 'Paris Place Vendôme Assay Stamp',
-    stoneType: 'Natural Diamond',
-    stoneWeightCarats: 1.85,
-    totalCaratWeight: 1.85,
-    stock: 7,
-    lowStockThreshold: 2,
-    isReadyToShip: true,
-    isMadeToOrder: false,
-    isCustomizable: true,
-    isEngravingAvailable: true,
-    isFeatured: true,
-    isNewArrival: true,
-    isBestSeller: true,
-    isBestseller: true,
-    rating: 5.0,
-    reviewCount: 18,
-    warrantyPeriodYears: 5,
-    productionLeadTimeDays: 7,
-    estimatedDispatchHours: 24,
-    countryOfOrigin: 'France (Paris Place Vendôme Atelier)',
-    status: 'active',
-    careInstructions: 'Clean gently with warm water and soft cloth.',
-    shippingInformation: 'Complimentary insured worldwide delivery.',
-    returnEligibility: '30-Day Maison vault return privilege.',
-    exchangeEligibility: 'Lifetime gold upgrade warranty.',
-    images: [
-      { id: 'img-9', url: 'https://images.unsplash.com/photo-1603561591411-07134e71a2a9?auto=format&fit=crop&w=1200&q=85', alt: 'Place Vendôme Diamond Pavé Eternity Ring', type: 'main', sortOrder: 1 },
-    ],
-    variants: [
-      { id: 'var-8', sku: 'AUR-RNG-007-RG-6', metalType: 'Rose Gold', purity: '18K', size: 'US 6.0', priceUSD: 7400, stock: 7 },
-    ],
-    createdAt: new Date().toISOString(),
-    updatedAt: new Date().toISOString(),
-  },
-  {
-    id: 'prod-riviera-yellow-diamond-pendant',
-    name: 'The Riviera Fancy Intense Yellow Diamond Pendant',
-    slug: 'riviera-fancy-yellow-diamond-pendant',
-    sku: 'AUR-PND-008',
-    brand: 'Maison Auralic',
-    category: 'Pendants',
-    collection: 'Solitaire Masterpieces',
-    gender: 'Women',
-    shortDescription: 'Cushion-cut 3.20ct Fancy Intense Yellow Diamond framed in a double halo of collection white diamonds.',
-    description: 'Radiating the warmth of the French Riviera sun, this one-of-a-kind pendant showcases a certified Fancy Intense Yellow diamond of breathtaking saturation, set in dual 18K yellow and white gold.',
-    priceUSD: 24800,
-    comparePriceUSD: 27500,
-    currency: 'USD',
-    metalType: 'Yellow Gold',
-    purity: '18K',
-    goldKarat: '18K Solid Gold',
-    grossWeightGrams: 8.9,
-    netGoldWeightGrams: 7.8,
-    hallmarkAssayOffice: 'Paris Place Vendôme Assay Stamp',
-    stoneType: 'Natural Diamond',
-    stoneWeightCarats: 4.4,
-    totalCaratWeight: 4.4,
-    stock: 2,
-    lowStockThreshold: 1,
-    isReadyToShip: true,
-    isMadeToOrder: false,
-    isCustomizable: true,
-    isEngravingAvailable: true,
-    isFeatured: true,
-    isNewArrival: true,
-    isBestSeller: true,
-    isBestseller: true,
-    rating: 5.0,
-    reviewCount: 8,
-    warrantyPeriodYears: 5,
-    productionLeadTimeDays: 7,
-    estimatedDispatchHours: 24,
-    countryOfOrigin: 'France (Paris Place Vendôme Atelier)',
-    status: 'active',
-    careInstructions: 'Clean with delicate diamond cleaner and microfiber towel.',
-    shippingInformation: 'Complimentary insured worldwide armored delivery.',
-    returnEligibility: '30-Day Maison vault return privilege.',
-    exchangeEligibility: 'Lifetime gold upgrade warranty.',
-    images: [
-      { id: 'img-10', url: 'https://images.unsplash.com/photo-1515562141207-7a88fb7ce338?auto=format&fit=crop&w=1200&q=85', alt: 'The Riviera Fancy Intense Yellow Diamond Pendant', type: 'main', sortOrder: 1 },
-    ],
-    variants: [
-      { id: 'var-9', sku: 'AUR-PND-008-YG', metalType: 'Yellow Gold', purity: '18K', size: 'Standard (18 inch chain included)', priceUSD: 24800, stock: 2 },
-    ],
-    createdAt: new Date().toISOString(),
-    updatedAt: new Date().toISOString(),
-  }
-];
+
 
 /**
  * List Catalogue Products
  */
 router.get('/products', async (req: Request, res: Response) => {
   const pool = getDbPool();
-  if (!pool) return res.json({ success: true, data: DEFAULT_FALLBACK_PRODUCTS });
+  if (!pool) return res.status(503).json({ success: false, error: 'Database service unavailable.' });
 
   try {
     const {
@@ -1077,12 +418,12 @@ router.get('/products', async (req: Request, res: Response) => {
     }));
 
     if (formatted.length === 0) {
-      return res.json({ success: true, data: DEFAULT_FALLBACK_PRODUCTS });
+      return res.json({ success: true, data: [] });
     }
 
     return res.json({ success: true, data: formatted });
   } catch (error: any) {
-    return res.json({ success: true, data: DEFAULT_FALLBACK_PRODUCTS });
+    return res.json({ success: true, data: [] });
   }
 });
 
@@ -1093,8 +434,7 @@ router.get('/products/:slugOrId', async (req: Request, res: Response) => {
   const { slugOrId } = req.params;
   const pool = getDbPool();
   if (!pool) {
-    const fallback = DEFAULT_FALLBACK_PRODUCTS.find(p => p.slug === slugOrId || p.id === slugOrId);
-    if (fallback) return res.json({ success: true, data: fallback });
+    
     return res.status(404).json({ success: false, error: 'Product not found.' });
   }
 
@@ -1192,8 +532,7 @@ router.get('/products/:slugOrId', async (req: Request, res: Response) => {
 
     return res.json({ success: true, data: product });
   } catch (error: any) {
-    const fallback = DEFAULT_FALLBACK_PRODUCTS.find(p => p.slug === slugOrId || p.id === slugOrId);
-    if (fallback) return res.json({ success: true, data: fallback });
+    
     return res.status(500).json({ success: false, error: error.message });
   }
 });
@@ -1296,151 +635,13 @@ router.delete('/admin/products/:id', optionalAuth, async (req: AuthenticatedRequ
 // ==========================================================
 
 // Default High Joaillerie Categories with curated luxury imagery
-const DEFAULT_FALLBACK_CATEGORIES = [
-  {
-    id: 'cat-rings',
-    name: 'Rings',
-    slug: 'rings',
-    description: 'Solitaires, pavé eternity bands, and sculptural cocktail rings in 18K and 22K gold.',
-    imageUrl: 'https://images.unsplash.com/photo-1605100804763-247f67b3557e?auto=format&fit=crop&w=1000&q=80',
-    image: 'https://images.unsplash.com/photo-1605100804763-247f67b3557e?auto=format&fit=crop&w=1000&q=80',
-    itemCount: 24,
-    featured: true,
-  },
-  {
-    id: 'cat-necklaces',
-    name: 'Necklaces',
-    slug: 'necklaces',
-    description: 'High jewellery diamond collars, tennis necklaces, and gemstone chokers.',
-    imageUrl: 'https://images.unsplash.com/photo-1599643478518-a784e5dc4c8f?auto=format&fit=crop&w=1000&q=80',
-    image: 'https://images.unsplash.com/photo-1599643478518-a784e5dc4c8f?auto=format&fit=crop&w=1000&q=80',
-    itemCount: 18,
-    featured: true,
-  },
-  {
-    id: 'cat-earrings',
-    name: 'Earrings',
-    slug: 'earrings',
-    description: 'Brilliant cut diamond studs, celestial chandeliers, and emerald drops.',
-    imageUrl: 'https://images.unsplash.com/photo-1630019852942-f89202989a59?auto=format&fit=crop&w=1000&q=80',
-    image: 'https://images.unsplash.com/photo-1630019852942-f89202989a59?auto=format&fit=crop&w=1000&q=80',
-    itemCount: 16,
-    featured: true,
-  },
-  {
-    id: 'cat-bracelets',
-    name: 'Bracelets',
-    slug: 'bracelets',
-    description: 'Iconic tennis bracelets, diamond line cuffs, and gold link creations.',
-    imageUrl: 'https://images.unsplash.com/photo-1599643477877-530eb83abc8e?auto=format&fit=crop&w=1000&q=80',
-    image: 'https://images.unsplash.com/photo-1599643477877-530eb83abc8e?auto=format&fit=crop&w=1000&q=80',
-    itemCount: 14,
-    featured: true,
-  },
-  {
-    id: 'cat-bangles',
-    name: 'Bangles',
-    slug: 'bangles',
-    description: 'Solid 18K & 22K gold rigid bangles with intricate filigree and hidden diamond hinges.',
-    imageUrl: 'https://images.unsplash.com/photo-1535632066927-ab7c9ab60908?auto=format&fit=crop&w=1000&q=80',
-    image: 'https://images.unsplash.com/photo-1535632066927-ab7c9ab60908?auto=format&fit=crop&w=1000&q=80',
-    itemCount: 12,
-    featured: true,
-  },
-  {
-    id: 'cat-pendants',
-    name: 'Pendants',
-    slug: 'pendants',
-    description: 'Symbolic talismans, bezel-set certified solitaires, and architectural medallions.',
-    imageUrl: 'https://images.unsplash.com/photo-1515562141207-7a88fb7ce338?auto=format&fit=crop&w=1000&q=80',
-    image: 'https://images.unsplash.com/photo-1515562141207-7a88fb7ce338?auto=format&fit=crop&w=1000&q=80',
-    itemCount: 15,
-    featured: true,
-  },
-  {
-    id: 'cat-chains',
-    name: 'Chains',
-    slug: 'chains',
-    description: 'Heavy curb, wheat, rope, and box chains hand-spun in solid 18K yellow and rose gold.',
-    imageUrl: 'https://images.unsplash.com/photo-1602751584552-8ba73aad10e1?auto=format&fit=crop&w=1000&q=80',
-    image: 'https://images.unsplash.com/photo-1602751584552-8ba73aad10e1?auto=format&fit=crop&w=1000&q=80',
-    itemCount: 9,
-    featured: true,
-  },
-  {
-    id: 'cat-mens',
-    name: "Men's Jewellery",
-    slug: 'mens-jewellery',
-    description: 'Architectural signet rings, solid platinum cuff links, and heavy diamond link bands.',
-    imageUrl: 'https://images.unsplash.com/photo-1622398925373-3f91b1e275f5?auto=format&fit=crop&w=1000&q=80',
-    image: 'https://images.unsplash.com/photo-1622398925373-3f91b1e275f5?auto=format&fit=crop&w=1000&q=80',
-    itemCount: 11,
-    featured: true,
-  },
-  {
-    id: 'cat-womens',
-    name: "Women's Jewellery",
-    slug: 'womens-jewellery',
-    description: 'Elegantly proportioned feminine creations capturing eternal light.',
-    imageUrl: 'https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?auto=format&fit=crop&w=1000&q=80',
-    image: 'https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?auto=format&fit=crop&w=1000&q=80',
-    itemCount: 42,
-    featured: true,
-  },
-  {
-    id: 'cat-custom',
-    name: 'Custom Jewellery',
-    slug: 'custom-jewellery',
-    description: 'Bespoke commissions designed alongside our Master Gemologists.',
-    imageUrl: 'https://images.unsplash.com/photo-1588444837495-c6cfeb53f32d?auto=format&fit=crop&w=1000&q=80',
-    image: 'https://images.unsplash.com/photo-1588444837495-c6cfeb53f32d?auto=format&fit=crop&w=1000&q=80',
-    itemCount: 6,
-    featured: true,
-  }
-];
 
-const DEFAULT_FALLBACK_COLLECTIONS = [
-  {
-    id: 'col-solitaire-masterpieces',
-    name: 'Solitaire Masterpieces',
-    slug: 'solitaire-masterpieces',
-    subtitle: 'Exceptional GIA Certified Diamonds in Iconic Auralic Prongs',
-    description: 'A celebration of pure brilliance. Each diamond is hand-selected for its extraordinary fire and cut.',
-    bannerImage: 'https://images.unsplash.com/photo-1515562141207-7a88fb7ce338?auto=format&fit=crop&w=1800&q=85',
-    heroImage: 'https://images.unsplash.com/photo-1515562141207-7a88fb7ce338?auto=format&fit=crop&w=1800&q=85',
-    imageUrl: 'https://images.unsplash.com/photo-1515562141207-7a88fb7ce338?auto=format&fit=crop&w=1800&q=85',
-    itemCount: 12,
-    theme: 'Exceptional GIA Certified Diamonds in Iconic Auralic Prongs',
-  },
-  {
-    id: 'col-royal-emerald',
-    name: 'The Royal Emerald Collection',
-    slug: 'royal-emerald',
-    subtitle: 'Colombian Muzo Emeralds Paired with Brilliant Cut Diamonds',
-    description: 'Deep verdant greens reflecting ancient royalty, framed by sculptural 18K yellow gold.',
-    bannerImage: 'https://images.unsplash.com/photo-1600003014755-ba31aa59c4b6?auto=format&fit=crop&w=1800&q=85',
-    heroImage: 'https://images.unsplash.com/photo-1600003014755-ba31aa59c4b6?auto=format&fit=crop&w=1800&q=85',
-    imageUrl: 'https://images.unsplash.com/photo-1600003014755-ba31aa59c4b6?auto=format&fit=crop&w=1800&q=85',
-    itemCount: 8,
-    theme: 'Colombian Muzo Emeralds Paired with Brilliant Cut Diamonds',
-  },
-  {
-    id: 'col-heritage-gold',
-    name: 'Heritage 22K Solid Gold',
-    slug: 'heritage-gold',
-    subtitle: 'Pure Radiance Hand-Carved by Master Goldsmiths',
-    description: 'Rich, lustrous 22K gold forged with timeless textures and substantial weight.',
-    bannerImage: 'https://images.unsplash.com/photo-1535632066927-ab7c9ab60908?auto=format&fit=crop&w=1800&q=85',
-    heroImage: 'https://images.unsplash.com/photo-1535632066927-ab7c9ab60908?auto=format&fit=crop&w=1800&q=85',
-    imageUrl: 'https://images.unsplash.com/photo-1535632066927-ab7c9ab60908?auto=format&fit=crop&w=1800&q=85',
-    itemCount: 10,
-    theme: 'Pure Radiance Hand-Carved by Master Goldsmiths',
-  }
-];
+
+
 
 router.get('/categories', async (req: Request, res: Response) => {
   const pool = getDbPool();
-  if (!pool) return res.json({ success: true, data: DEFAULT_FALLBACK_CATEGORIES });
+  if (!pool) return res.status(503).json({ success: false, error: 'Database service unavailable.' });
 
   try {
     const result = await pool.query(`
@@ -1458,34 +659,34 @@ router.get('/categories', async (req: Request, res: Response) => {
     `);
 
     if (result.rows.length === 0) {
-      return res.json({ success: true, data: DEFAULT_FALLBACK_CATEGORIES });
+      return res.json({ success: true, data: [] });
     }
 
     const categories = result.rows.map((row: any) => {
-      const fallback = DEFAULT_FALLBACK_CATEGORIES.find(f => f.slug === row.slug || f.id === row.id);
-      const resolvedImg = row.image_url || fallback?.imageUrl || 'https://images.unsplash.com/photo-1605100804763-247f67b3557e?auto=format&fit=crop&w=1000&q=80';
+      
+      const resolvedImg = row.image_url || 'https://images.unsplash.com/photo-1605100804763-247f67b3557e?auto=format&fit=crop&w=1000&q=80';
       return {
         id: row.id,
         name: row.name,
         slug: row.slug,
-        description: row.description || fallback?.description || '',
+        description: row.description || '',
         imageUrl: resolvedImg,
         image: resolvedImg,
         image_url: resolvedImg,
-        itemCount: parseInt(row.product_count || '0', 10) || fallback?.itemCount || 12,
+        itemCount: parseInt(row.product_count || '0', 10) || 12,
         featured: true,
       };
     });
 
     return res.json({ success: true, data: categories });
   } catch (error: any) {
-    return res.json({ success: true, data: DEFAULT_FALLBACK_CATEGORIES });
+    return res.json({ success: true, data: [] });
   }
 });
 
 router.get('/collections', async (req: Request, res: Response) => {
   const pool = getDbPool();
-  if (!pool) return res.json({ success: true, data: DEFAULT_FALLBACK_COLLECTIONS });
+  if (!pool) return res.status(503).json({ success: false, error: 'Database service unavailable.' });
 
   try {
     const result = await pool.query(`
@@ -1504,29 +705,29 @@ router.get('/collections', async (req: Request, res: Response) => {
     `);
 
     if (result.rows.length === 0) {
-      return res.json({ success: true, data: DEFAULT_FALLBACK_COLLECTIONS });
+      return res.json({ success: true, data: [] });
     }
 
     const collections = result.rows.map((row: any) => {
-      const fallback = DEFAULT_FALLBACK_COLLECTIONS.find(f => f.slug === row.slug || f.id === row.id);
-      const resolvedImg = row.banner_image || fallback?.bannerImage || 'https://images.unsplash.com/photo-1515562141207-7a88fb7ce338?auto=format&fit=crop&w=1800&q=85';
+      
+      const resolvedImg = row.banner_image || 'https://images.unsplash.com/photo-1515562141207-7a88fb7ce338?auto=format&fit=crop&w=1800&q=85';
       return {
         id: row.id,
         name: row.name,
         slug: row.slug,
-        description: row.description || fallback?.description || '',
+        description: row.description || '',
         bannerImage: resolvedImg,
         heroImage: resolvedImg,
         imageUrl: resolvedImg,
-        itemCount: parseInt(row.product_count || '0', 10) || fallback?.itemCount || 8,
-        subtitle: row.subtitle || fallback?.subtitle || 'Haute Joaillerie',
-        theme: row.subtitle || fallback?.subtitle || 'Haute Joaillerie',
+        itemCount: parseInt(row.product_count || '0', 10) || 8,
+        subtitle: row.subtitle || 'Haute Joaillerie',
+        theme: row.subtitle || 'Haute Joaillerie',
       };
     });
 
     return res.json({ success: true, data: collections });
   } catch (error: any) {
-    return res.json({ success: true, data: DEFAULT_FALLBACK_COLLECTIONS });
+    return res.json({ success: true, data: [] });
   }
 });
 
@@ -1634,46 +835,50 @@ router.post('/payments/create-intent', async (req: Request, res: Response) => {
 /**
  * Place Final Order Consignment (Direct Atelier Orders)
  */
+
 router.post('/orders', optionalAuth, async (req: AuthenticatedRequest, res: Response) => {
   const pool = getDbPool();
   if (!pool) return res.status(503).json({ success: false, error: 'Database unavailable.' });
 
+  const client = await pool.connect();
   try {
     const {
-      customerEmail,
-      customerPhone,
-      shippingAddress,
-      items,
-      couponCode,
-      shippingMethodId,
-      currency = 'USD',
-      paymentMethod = 'direct_consignment',
-      notes,
+      customerEmail, customerPhone, shippingAddress, items,
+      couponCode, shippingMethodId, currency = 'USD',
+      paymentMethod = 'direct_consignment', notes,
     } = req.body;
 
     if (!customerEmail || !shippingAddress || !items || items.length === 0) {
+      client.release();
       return res.status(400).json({ success: false, error: 'Incomplete consignment specifications.' });
     }
+
+    await client.query('BEGIN');
 
     let subtotalUSD = 0;
     const verifiedItems: any[] = [];
 
     for (const itm of items) {
-      const prodRes = await pool.query('SELECT id, name, price_usd, sku, metal_type, purity FROM products WHERE id = $1', [itm.productId || itm.id]);
-      let prod = prodRes.rows[0];
+      const prodRes = await client.query('SELECT id, name, price_usd, sku, metal_type, purity FROM products WHERE id = $1', [itm.productId || itm.id]);
+      const prod = prodRes.rows[0];
+      if (!prod) {
+        await client.query('ROLLBACK');
+        client.release();
+        return res.status(400).json({ success: false, error: `Product not found: ${itm.productId || itm.id}` });
+      }
 
-      let unitPriceUSD = prod ? parseFloat(prod.price_usd) : Number(itm.unitPriceUSD || itm.priceUSD || 5000);
+      const unitPriceUSD = parseFloat(prod.price_usd);
       const qty = parseInt(itm.quantity || 1, 10);
       const totalItemUSD = unitPriceUSD * qty;
       subtotalUSD += totalItemUSD;
 
       verifiedItems.push({
-        productId: prod?.id || itm.productId || itm.id || `prod-custom`,
+        productId: prod.id,
         variantId: itm.variantId || null,
-        name: prod?.name || itm.name || 'High Jewellery Piece',
-        sku: itm.sku || prod?.sku || `AUR-JW-${Date.now().toString().slice(-4)}`,
-        metalType: itm.metalType || prod?.metal_type || 'Yellow Gold',
-        purity: itm.purity || prod?.purity || '18K',
+        name: prod.name,
+        sku: itm.sku || prod.sku,
+        metalType: itm.metalType || prod.metal_type,
+        purity: itm.purity || prod.purity,
         size: itm.size || null,
         engravingText: itm.engravingText || null,
         unitPriceUSD,
@@ -1682,25 +887,21 @@ router.post('/orders', optionalAuth, async (req: AuthenticatedRequest, res: Resp
       });
     }
 
-    // Coupon discount
     let discountUSD = 0;
     if (couponCode) {
-      const coupRes = await pool.query('SELECT * FROM coupons WHERE code = $1 AND is_active = true', [couponCode.toUpperCase().trim()]);
+      const coupRes = await client.query('SELECT * FROM coupons WHERE code = $1 AND is_active = true', [couponCode.toUpperCase().trim()]);
       if (coupRes.rows.length > 0) {
         const coup = coupRes.rows[0];
-        if (coup.discount_type === 'percentage') {
-          discountUSD = (subtotalUSD * parseFloat(coup.discount_value)) / 100;
-        } else {
-          discountUSD = parseFloat(coup.discount_value);
-        }
+        discountUSD = coup.discount_type === 'percentage' 
+          ? (subtotalUSD * parseFloat(coup.discount_value)) / 100 
+          : parseFloat(coup.discount_value);
       }
     }
 
-    // Shipping cost
     let shippingUSD = 0;
     let carrierName = 'Ferrari Group Valuables';
     if (shippingMethodId) {
-      const shipRes = await pool.query('SELECT * FROM shipping_methods WHERE id = $1', [shippingMethodId]);
+      const shipRes = await client.query('SELECT * FROM shipping_methods WHERE id = $1', [shippingMethodId]);
       if (shipRes.rows.length > 0) {
         const sm = shipRes.rows[0];
         carrierName = sm.carrier || carrierName;
@@ -1711,58 +912,37 @@ router.post('/orders', optionalAuth, async (req: AuthenticatedRequest, res: Resp
     const totalUSD = Math.max(0, subtotalUSD - discountUSD + shippingUSD);
     const orderNumber = `AUR-${Date.now().toString().slice(-6)}-${Math.floor(100 + Math.random() * 900)}`;
 
-    const orderInsert = await pool.query(
+    const orderInsert = await client.query(
       `INSERT INTO orders (
         order_number, user_id, customer_email, customer_phone, status, payment_status, payment_method,
         currency, subtotal_usd, discount_usd, shipping_usd, total_usd,
         shipping_address, carrier_name, notes
-      ) VALUES ($1, $2, $3, $4, 'confirmed', 'pending', $5, $6, $7, $8, $9, $10, $11, $12, $13)
+      ) VALUES ($1, $2, $3, $4, 'pending', 'pending', $5, $6, $7, $8, $9, $10, $11, $12, $13)
       RETURNING *`,
       [
-        orderNumber,
-        req.user?.id || null,
-        customerEmail.toLowerCase().trim(),
-        customerPhone || null,
-        paymentMethod,
-        currency,
-        subtotalUSD,
-        discountUSD,
-        shippingUSD,
-        totalUSD,
-        JSON.stringify(shippingAddress),
-        carrierName,
-        notes || null,
+        orderNumber, req.user?.id || null, customerEmail.toLowerCase().trim(),
+        customerPhone || null, paymentMethod, currency, subtotalUSD, discountUSD,
+        shippingUSD, totalUSD, JSON.stringify(shippingAddress), carrierName, notes || null,
       ]
     );
 
     const createdOrder = orderInsert.rows[0];
 
     for (const itm of verifiedItems) {
-      await pool.query(
+      await client.query(
         `INSERT INTO order_items (
           order_id, product_id, variant_id, product_name, sku, metal_type, purity, size, engraving_text, unit_price_usd, quantity, total_usd
         ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)`,
         [
-          createdOrder.id,
-          itm.productId,
-          itm.variantId,
-          itm.name,
-          itm.sku,
-          itm.metalType,
-          itm.purity,
-          itm.size,
-          itm.engravingText,
-          itm.unitPriceUSD,
-          itm.quantity,
-          itm.totalUSD,
+          createdOrder.id, itm.productId, itm.variantId, itm.name, itm.sku,
+          itm.metalType, itm.purity, itm.size, itm.engravingText,
+          itm.unitPriceUSD, itm.quantity, itm.totalUSD,
         ]
       );
     }
 
-    EmailService.sendOrderConfirmation({
-      ...createdOrder,
-      items: verifiedItems,
-    }).catch(console.error);
+    await client.query('COMMIT');
+    client.release();
 
     return res.status(201).json({
       success: true,
@@ -1778,13 +958,12 @@ router.post('/orders', optionalAuth, async (req: AuthenticatedRequest, res: Resp
       },
     });
   } catch (error: any) {
+    await client.query('ROLLBACK');
+    client.release();
     return res.status(500).json({ success: false, error: error.message });
   }
 });
 
-/**
- * Get Patron Orders
- */
 router.get('/orders/my', requireAuth, async (req: AuthenticatedRequest, res: Response) => {
   const pool = getDbPool();
   if (!pool || !req.user?.id) return res.status(401).json({ success: false, error: 'Unauthenticated.' });

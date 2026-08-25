@@ -328,12 +328,7 @@ export default function AdminDashboardPage() {
 
   const { logout } = useAuth();
 
-  const handleQuickFillAdmin = () => {
-    setAdminEmail('admin@auralic.com');
-    setAdminPassword('admin123');
-    setAuthErrorMessage('');
-  };
-
+  
   const handleAdminAuthSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setAuthErrorMessage('');
@@ -456,17 +451,7 @@ export default function AdminDashboardPage() {
               </div>
             </div>
 
-            {/* Quick-Fill Helper for Testing */}
-            <div className="pt-1">
-              <button
-                type="button"
-                onClick={handleQuickFillAdmin}
-                className="w-full text-center py-2 px-3 bg-[#f4ece1]/70 hover:bg-[#f4ece1] text-[#7d602d] text-[11px] tracking-wide border border-[#c5b49e]/40 transition-colors flex items-center justify-center gap-1.5 cursor-pointer"
-              >
-                <Sparkles className="w-3.5 h-3.5 text-[#d4af37]" />
-                <span>Quick Fill Admin Credentials (admin@auralic.com / admin123)</span>
-              </button>
-            </div>
+            
 
             <button
               type="submit"
