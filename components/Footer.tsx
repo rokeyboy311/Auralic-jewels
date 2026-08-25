@@ -75,7 +75,7 @@ export default function Footer() {
               The Private Client Gazette
             </h4>
             <p className="text-xs text-white/70 mt-1 mb-4 leading-relaxed font-light">
-              Receive private invitations to confidential high-jewellery vernissages and private salon appointments.
+              Receive private invitations to confidential high-jewellery vernissages and private modifications.
             </p>
 
             {isSubscribed ? (

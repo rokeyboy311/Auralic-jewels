@@ -53,7 +53,7 @@ export default function Header({ onOpenSearch, onOpenAuth, onOpenAppointment }: 
             className="hidden md:flex items-center gap-1.5 text-[#C5A059] hover:text-white transition-colors"
           >
             <Sparkles className="w-3 h-3 text-[#D4AF37]" />
-            <span>Private Salon Appointment</span>
+            <span>Private Modification</span>
           </button>
 
           {/* Dynamic Currency Switcher */}
@@ -229,7 +229,7 @@ export default function Header({ onOpenSearch, onOpenAuth, onOpenAppointment }: 
               }}
               className="w-full py-2.5 bg-[#1A1A1A] text-white text-xs uppercase tracking-widest hover:bg-[#C5A059] transition-colors"
             >
-              Book Private Salon Appointment
+              Book Private Modification
             </button>
           </div>
         </div>
