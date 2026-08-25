@@ -40,7 +40,7 @@ function OrderSuccessContent() {
           Maison Acquisition Secured
         </span>
         <h1 className="font-serif text-3xl sm:text-4xl text-[#141210] uppercase font-light">
-          Thank You for Your Patronage
+          Thank You for Your Customerage
         </h1>
         <p className="text-xs sm:text-sm text-[#73685a] max-w-md mx-auto leading-relaxed">
           Your order has been recorded in the Maison Auralic archives. Our master gemologists and hallmarking artisans are preparing your creations.

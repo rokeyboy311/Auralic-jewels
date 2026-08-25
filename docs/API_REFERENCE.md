@@ -11,8 +11,8 @@ The backend Express application exposes the following RESTful routes:
 * `GET /api/collections` - Fetch active collections.
 
 ### Authentication
-* `POST /api/auth/register` - Create patron account. Returns JWT.
-* `POST /api/auth/login` - Authenticate patron/staff. Returns JWT.
+* `POST /api/auth/register` - Create customer account. Returns JWT.
+* `POST /api/auth/login` - Authenticate customer/staff. Returns JWT.
 * `POST /api/auth/google` - Authenticate via Google OAuth. Returns JWT.
 * `POST /api/auth/logout` - Clears HttpOnly cookie.
 
@@ -46,7 +46,7 @@ The backend Express application exposes the following RESTful routes:
 * `PUT /api/admin/orders/:id/status` - Update order tracking and status.
 
 ### Client Conversations
-* `GET /api/conversations` - List patron messages.
+* `GET /api/conversations` - List customer messages.
 * `GET /api/conversations/:id` - View conversation thread.
-* `POST /api/conversations/:id/messages` - Reply to patron.
+* `POST /api/conversations/:id/messages` - Reply to customer.
 * `PATCH /api/conversations/:id` - Update conversation status/assignment.

@@ -113,7 +113,7 @@ export default function AuthModal({ isOpen, onClose, initialMode = 'signin' }: A
               {forgotPasswordView
                 ? 'Security Recovery'
                 : activeTab === 'signin'
-                ? 'Patron Authentication'
+                ? 'Customer Authentication'
                 : 'Acquisition Account'}
             </h2>
             <p className="text-xs text-[#73685a] mt-1.5 max-w-xs mx-auto leading-relaxed">
@@ -162,7 +162,7 @@ export default function AuthModal({ isOpen, onClose, initialMode = 'signin' }: A
                         required
                         value={email}
                         onChange={(e) => setEmail(e.target.value)}
-                        placeholder="patron@domain.com"
+                        placeholder="customer@domain.com"
                         className="w-full bg-white border border-[#c5b49e]/70 pl-10 pr-3 py-2.5 text-xs text-[#141210] placeholder:text-[#a89b8c] focus:outline-none focus:border-[#9b7e46]"
                       />
                     </div>
@@ -300,7 +300,7 @@ export default function AuthModal({ isOpen, onClose, initialMode = 'signin' }: A
                       required
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
-                      placeholder="patron@domain.com"
+                      placeholder="customer@domain.com"
                       className="w-full bg-white border border-[#c5b49e]/70 pl-10 pr-3 py-2.5 text-xs text-[#141210] placeholder:text-[#a89b8c] focus:outline-none focus:border-[#9b7e46]"
                     />
                   </div>

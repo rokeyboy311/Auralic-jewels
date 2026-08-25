@@ -24,7 +24,7 @@ export default function AdminOrdersTab({ orders, onOpenUpdateModal }: AdminOrder
           <thead className="bg-[#f5ede3] text-[#73685a] uppercase text-[10px] tracking-wider border-b border-[#ebdccd]">
             <tr>
               <th className="py-3 px-4">Order ID & Date</th>
-              <th className="py-3 px-4">Patron & Destination</th>
+              <th className="py-3 px-4">Customer & Destination</th>
               <th className="py-3 px-4">Pieces</th>
               <th className="py-3 px-4">Total</th>
               <th className="py-3 px-4">Logistics Status</th>

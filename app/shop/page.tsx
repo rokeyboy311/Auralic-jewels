@@ -188,7 +188,7 @@ function ShopContent() {
               <option value="newest">Newest Acquisitions</option>
               <option value="price-low">Price: Low to High</option>
               <option value="price-high">Price: High to Low</option>
-              <option value="rating">Top Rated by Patrons</option>
+              <option value="rating">Top Rated by Customers</option>
             </select>
           </div>
         </div>

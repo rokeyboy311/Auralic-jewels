@@ -13,7 +13,7 @@ export function middleware(request: NextRequest) {
       return NextResponse.next();
     }
 
-    // In Next.js middleware, if no auth token is present, redirect to patron login
+    // In Next.js middleware, if no auth token is present, redirect to customer login
     if (!token) {
       const loginUrl = new URL('/login', request.url);
       loginUrl.searchParams.set('redirect', pathname);

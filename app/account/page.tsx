@@ -63,7 +63,7 @@ export default function AccountPage() {
         <div className="w-14 h-14 bg-[#141210] text-[#d4af37] flex items-center justify-center rounded-full mx-auto">
           <Lock className="w-6 h-6" />
         </div>
-        <h1 className="font-serif text-3xl text-[#141210]">Patron Authentication Required</h1>
+        <h1 className="font-serif text-3xl text-[#141210]">Customer Authentication Required</h1>
         <p className="text-xs text-[#73685a] leading-relaxed">
           Please sign in to access your private client portal, certified diamond dossiers, and bespoke commission records.
         </p>
@@ -72,7 +72,7 @@ export default function AccountPage() {
             href="/login"
             className="block w-full py-3.5 bg-[#141210] hover:bg-[#9b7e46] text-[#faf8f5] text-xs uppercase tracking-[0.2em] font-medium transition-colors"
           >
-            Sign In to Patron Profile
+            Sign In to Customer Profile
           </Link>
           <Link
             href="/"
@@ -186,7 +186,7 @@ export default function AccountPage() {
           >
             <span className="flex items-center gap-2">
               <User className="w-4 h-4 text-[#d4af37]" />
-              <span>Patron Identity</span>
+              <span>Customer Identity</span>
             </span>
           </button>
 
@@ -523,7 +523,7 @@ export default function AccountPage() {
           {/* TAB 4: PROFILE */}
           {activeTab === 'profile' && (
             <div className="space-y-6 max-w-lg">
-              <h2 className="font-serif text-2xl text-[#141210] uppercase">Patron Identity</h2>
+              <h2 className="font-serif text-2xl text-[#141210] uppercase">Customer Identity</h2>
               <div className="space-y-3 text-xs bg-white p-6 border border-[#ebdccd]">
                 <div>
                   <span className="text-[#73685a] uppercase tracking-wider block">Full Name</span>
@@ -540,7 +540,7 @@ export default function AccountPage() {
                 <div>
                   <span className="text-[#73685a] uppercase tracking-wider block">Maison Membership</span>
                   <p className="text-[#9b7e46] uppercase tracking-wider font-semibold">
-                    {user.role === 'admin' ? 'Atelier Administrator' : 'Haute Joaillerie Patron'}
+                    {user.role === 'admin' ? 'Atelier Administrator' : 'Haute Joaillerie Customer'}
                   </p>
                 </div>
               </div>

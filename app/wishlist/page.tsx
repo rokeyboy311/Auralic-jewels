@@ -40,7 +40,7 @@ export default function WishlistPage() {
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 border-b border-[#ebdccd] pb-4">
         <div>
           <span className="text-[10px] tracking-[0.35em] text-[#9b7e46] uppercase font-medium">
-            Private Patron Curations
+            Private Customer Curations
           </span>
           <h1 className="font-serif text-3xl sm:text-4xl text-[#141210] uppercase font-light">
             Your Desired Pieces ({wishlist.length})

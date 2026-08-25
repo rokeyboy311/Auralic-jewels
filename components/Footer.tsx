@@ -81,7 +81,7 @@ export default function Footer() {
             {isSubscribed ? (
               <div className="flex items-center gap-2 text-xs text-[#C5A059] bg-black/40 p-3 border border-[#C5A059]/40">
                 <Check className="w-4 h-4" />
-                <span>Your private patronage invitation has been registered.</span>
+                <span>Your private customerage invitation has been registered.</span>
               </div>
             ) : (
               <form onSubmit={handleNewsletter} className="flex gap-2">
@@ -214,7 +214,7 @@ export default function Footer() {
               </li>
               <li>
                 <Link href="/faq" className="hover:text-white transition-colors">
-                  Private Patron FAQ
+                  Private Customer FAQ
                 </Link>
               </li>
             </ul>

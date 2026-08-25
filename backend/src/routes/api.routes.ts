@@ -39,11 +39,11 @@ router.get('/health', (req: Request, res: Response) => {
 });
 
 // ==========================================================
-// 2. AUTHENTICATION & PATRON ACCOUNT SYSTEM
+// 2. AUTHENTICATION & CUSTOMER ACCOUNT SYSTEM
 // ==========================================================
 
 /**
- * Register Patron Account
+ * Register Customer Account
  */
 
 // ==========================================================
@@ -143,7 +143,7 @@ router.post('/auth/google', async (req: Request, res: Response) => {
         `INSERT INTO users (name, email, role, google_id, is_email_verified)
          VALUES ($1, $2, 'customer', $3, true)
          RETURNING id, name, email, role, avatar_url`,
-        [verifiedName || 'Patron Client', cleanEmail, verifiedGoogleId]
+        [verifiedName || 'Customer Client', cleanEmail, verifiedGoogleId]
       );
       user = insertRes.rows[0];
     } else {
@@ -1203,8 +1203,8 @@ router.post('/conversations', optionalAuth, async (req: AuthenticatedRequest, re
 
   try {
     const { subject, initialMessage, type = 'concierge', priority = 'standard', userName, userEmail, userPhone } = req.body;
-    const effectiveName = req.user?.name || userName || 'Patron Client';
-    const effectiveEmail = req.user?.email || userEmail || 'patron@auralic.paris';
+    const effectiveName = req.user?.name || userName || 'Customer Client';
+    const effectiveEmail = req.user?.email || userEmail || 'customer@auralic.paris';
 
     const insertRes = await pool.query(
       `INSERT INTO conversations (
@@ -1250,7 +1250,7 @@ router.post('/conversations/:id/messages', optionalAuth, async (req: Authenticat
     if (!content) return res.status(400).json({ success: false, error: 'Message content is required.' });
 
     const effectiveRole = req.user?.role || senderRole;
-    const effectiveName = req.user?.name || senderName || 'Valued Patron';
+    const effectiveName = req.user?.name || senderName || 'Valued Customer';
 
     const msgInsert = await pool.query(
       `INSERT INTO conversation_messages (conversation_id, sender_id, sender_name, sender_role, content, attachments, is_internal_note)
@@ -1324,7 +1324,7 @@ router.post('/reviews', optionalAuth, async (req: AuthenticatedRequest, res: Res
       return res.status(400).json({ success: false, error: 'Incomplete review data.' });
     }
 
-    const userName = req.user?.name || 'Verified Patron';
+    const userName = req.user?.name || 'Verified Customer';
 
     const result = await pool.query(
       `INSERT INTO reviews (product_id, user_id, user_name, user_country, rating, title, comment, is_verified_purchase, status)
@@ -1380,8 +1380,8 @@ router.post('/bespoke', optionalAuth, async (req: AuthenticatedRequest, res: Res
     } = req.body;
 
     const refNum = `BESPOKE-${Date.now().toString().slice(-5)}`;
-    const effectiveName = customerName || name || req.user?.name || 'Patron Client';
-    const effectiveEmail = customerEmail || email || req.user?.email || 'patron@auralic.paris';
+    const effectiveName = customerName || name || req.user?.name || 'Customer Client';
+    const effectiveEmail = customerEmail || email || req.user?.email || 'customer@auralic.paris';
     const effectivePhone = customerPhone || phone || null;
     const effectiveType = category || jewelleryType || 'Rings';
     const effectiveNotes = designDescription || notes || 'Custom Haute Joaillerie Commission';

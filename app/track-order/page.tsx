@@ -54,7 +54,7 @@ function TrackOrderContent() {
     { key: 'confirmed', label: 'Order Confirmed', desc: 'Payment verified & diamond allocated' },
     { key: 'processing', label: 'Hallmarking & Gemology', desc: 'Microscopic inspection & GIA sealing' },
     { key: 'shipped', label: 'Armored Vault Transit', desc: 'Ferrari Group / FedEx Valuables courier dispatch' },
-    { key: 'delivered', label: 'Patron Handover', desc: 'Physical signature verified delivery' },
+    { key: 'delivered', label: 'Customer Handover', desc: 'Physical signature verified delivery' },
   ];
 
   const getStepIndex = (status: string) => {

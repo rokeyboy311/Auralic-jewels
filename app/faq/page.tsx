@@ -38,7 +38,7 @@ export default function FAQPage() {
     <div className="max-w-4xl mx-auto px-4 sm:px-8 py-12 space-y-10">
       <div className="text-center space-y-3">
         <span className="text-[10px] tracking-[0.35em] text-[#9b7e46] uppercase font-medium">
-          Patron Assistance & Inquiries
+          Customer Assistance & Inquiries
         </span>
         <h1 className="font-serif text-3xl sm:text-5xl text-[#141210] uppercase font-light">
           Frequently Answered Questions

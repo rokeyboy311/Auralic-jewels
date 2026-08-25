@@ -219,13 +219,13 @@ export default function CartDrawer() {
                   ) : (
                     <form onSubmit={handleApplyPromo} className="flex gap-2">
                       <label htmlFor="cart-drawer-coupon-input" className="sr-only">
-                        Patron Privilege Promotion Code
+                        Customer Privilege Promotion Code
                       </label>
                       <input
                         id="cart-drawer-coupon-input"
                         name="couponCode"
                         type="text"
-                        placeholder="Patron Privilege Code (e.g. WELCOME10)"
+                        placeholder="Customer Privilege Code (e.g. WELCOME10)"
                         value={promoInput}
                         onChange={(e) => setPromoInput(e.target.value.toUpperCase())}
                         className="flex-1 bg-white border border-[#c5b49e]/60 px-3 py-2 text-xs text-[#141210] uppercase tracking-wider focus:outline-none focus:border-[#9b7e46]"
@@ -248,7 +248,7 @@ export default function CartDrawer() {
                     </div>
                     {discountUSD > 0 && (
                       <div className="flex justify-between text-[#9b7e46]">
-                        <span>Patron Privilege Discount</span>
+                        <span>Customer Privilege Discount</span>
                         <span className="font-mono">-{formatPrice(discountUSD)}</span>
                       </div>
                     )}

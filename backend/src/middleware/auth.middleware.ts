@@ -33,7 +33,7 @@ export function requireAuth(req: AuthenticatedRequest, res: Response, next: Next
   if (!token) {
     return res.status(401).json({
       success: false,
-      error: 'Authentication required. Please sign in to your patron account.',
+      error: 'Authentication required. Please sign in to your customer account.',
     });
   }
 

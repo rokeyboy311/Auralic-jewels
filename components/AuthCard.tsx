@@ -79,7 +79,7 @@ export default function AuthCard({
       <div className="text-center mb-6 space-y-1">
         <div className="inline-flex items-center gap-1.5 text-[10px] tracking-[0.35em] text-[#9b7e46] uppercase font-semibold">
           <Sparkles className="w-3 h-3 text-[#d4af37]" />
-          <span>Patron & Atelier Access</span>
+          <span>Customer & Atelier Access</span>
         </div>
         <h2 className="font-serif text-2xl sm:text-3xl text-[#141210] font-normal">
           {forgotPasswordView
@@ -142,7 +142,7 @@ export default function AuthCard({
                     required
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
-                    placeholder="patron@domain.com"
+                    placeholder="customer@domain.com"
                     className="w-full bg-[#faf8f5] border border-[#c5b49e]/70 pl-10 pr-3 py-2.5 text-xs text-[#141210] placeholder:text-[#a89b8c] focus:outline-none focus:border-[#9b7e46]"
                   />
                 </div>
@@ -271,7 +271,7 @@ export default function AuthCard({
                   required
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  placeholder="patron@domain.com"
+                  placeholder="customer@domain.com"
                   className="w-full bg-[#faf8f5] border border-[#c5b49e]/70 pl-10 pr-3 py-2.5 text-xs text-[#141210] placeholder:text-[#a89b8c] focus:outline-none focus:border-[#9b7e46]"
                 />
               </div>

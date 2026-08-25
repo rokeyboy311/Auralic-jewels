@@ -118,7 +118,7 @@ export default function ProductDetailPage({ params }: { params: Promise<{ slug: 
       rating: reviewRating,
       title: reviewTitle,
       comment: reviewComment,
-      userCountry: 'Verified Patron',
+      userCountry: 'Verified Customer',
     });
     setIsSubmittingReview(false);
     if (res.success && res.data) {
@@ -518,12 +518,12 @@ export default function ProductDetailPage({ params }: { params: Promise<{ slug: 
         )}
       </div>
 
-      {/* CLIENT REVIEWS & VERIFIED PATRON TESTIMONIALS */}
+      {/* CLIENT REVIEWS & VERIFIED CUSTOMER TESTIMONIALS */}
       <div className="pt-8 border-t border-[#ebdccd] space-y-6">
         <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
           <div>
             <span className="text-[10px] tracking-[0.35em] text-[#9b7e46] uppercase font-medium">
-              Verified Patron Feedback
+              Verified Customer Feedback
             </span>
             <h3 className="font-serif text-2xl text-[#141210] uppercase">
               Acquisition Reviews ({reviews.length})
@@ -544,7 +544,7 @@ export default function ProductDetailPage({ params }: { params: Promise<{ slug: 
             onSubmit={handleReviewSubmit}
             className="bg-[#f2ece2] p-6 border border-[#ebdccd] max-w-xl space-y-4"
           >
-            <h4 className="font-serif text-lg text-[#141210]">Record Your Patron Review</h4>
+            <h4 className="font-serif text-lg text-[#141210]">Record Your Customer Review</h4>
             <div>
               <label className="block text-[11px] uppercase tracking-wider text-[#4a4237] mb-1">
                 Rating
@@ -628,7 +628,7 @@ export default function ProductDetailPage({ params }: { params: Promise<{ slug: 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           {reviews.length === 0 ? (
             <p className="text-xs text-[#73685a] italic">
-              Be the first patron to record an acquisition review for this creation.
+              Be the first customer to record an acquisition review for this creation.
             </p>
           ) : (
             reviews.map((rev) => (

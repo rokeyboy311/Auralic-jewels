@@ -370,7 +370,7 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* 7. PATRON REVIEWS & TESTIMONIALS */}
+      {/* 7. CUSTOMER REVIEWS & TESTIMONIALS */}
       <section className="bg-[#F5F2ED] py-20 px-4 sm:px-12 border-y border-black/5">
         <div className="max-w-5xl mx-auto space-y-12 text-center">
           <div className="space-y-2">
@@ -378,7 +378,7 @@ export default function HomePage() {
               Verified Client Impressions
             </span>
             <h2 className="serif text-3xl sm:text-4xl text-[#1A1A1A] font-light tracking-wide uppercase">
-              Patron Testimonials
+              Customer Testimonials
             </h2>
           </div>
 

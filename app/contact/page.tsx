@@ -134,7 +134,7 @@ export default function ContactPage() {
                     required
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
-                    placeholder="patron@domain.com"
+                    placeholder="customer@domain.com"
                     className="w-full bg-white border border-[#c5b49e]/60 px-3 py-2 text-xs text-[#141210] focus:outline-none"
                   />
                 </div>

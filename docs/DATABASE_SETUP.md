@@ -29,11 +29,11 @@ psql $DATABASE_URL -f backend/src/db/seed.sql
 
 ## Schema Highlights
 
-* **Users**: Stores patrons and atelier staff with role-based access (`customer`, `admin`, `master_jeweller`, etc.).
+* **Users**: Stores customers and atelier staff with role-based access (`customer`, `admin`, `master_jeweller`, etc.).
 * **Products**: The authoritative jewellery catalogue, including materials, purity, stock, and pricing.
 * **Orders**: Tracks acquisitions, payment intents, and fulfilment status.
 * **Bespoke Inquiries**: Stores custom design dossier requests.
-* **Conversations**: Atelier staff-to-patron messaging.
+* **Conversations**: Atelier staff-to-customer messaging.
 
 ## Production Considerations
 * **Connection Pooling**: The application uses the `pg` driver with connection pooling. Ensure your database is configured to handle max connections (e.g., using PgBouncer).

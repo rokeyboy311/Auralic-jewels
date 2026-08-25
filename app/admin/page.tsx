@@ -475,7 +475,7 @@ export default function AdminDashboardPage() {
           {/* Return link to boutique storefront */}
           <div className="pt-2 text-center border-t border-[#ebdccd]">
             <p className="text-[11px] text-[#73685a]">
-              Customer Patron?{' '}
+              Customer Customer?{' '}
               <Link href="/" className="text-[#9b7e46] hover:underline font-medium inline-flex items-center gap-1">
                 <span>Return to Maison Boutique</span>
                 <ArrowRight className="w-3 h-3" />
@@ -659,7 +659,7 @@ export default function AdminDashboardPage() {
               <thead className="bg-[#f5ede3] text-[#73685a] uppercase text-[10px] tracking-wider border-b border-[#ebdccd]">
                 <tr>
                   <th className="py-3 px-4">Order ID & Date</th>
-                  <th className="py-3 px-4">Patron & Destination</th>
+                  <th className="py-3 px-4">Customer & Destination</th>
                   <th className="py-3 px-4">Pieces</th>
                   <th className="py-3 px-4">Total</th>
                   <th className="py-3 px-4">Logistics Status</th>
@@ -897,7 +897,7 @@ export default function AdminDashboardPage() {
             <div>
               <h3 className="font-serif text-lg text-[#141210]">Haute Joaillerie Concierge & Chat Desk</h3>
               <p className="text-xs text-[#73685a]">
-                Manage product modification requests, custom engravings, diamond carat queries, and VIP patron communications.
+                Manage product modification requests, custom engravings, diamond carat queries, and VIP customer communications.
               </p>
             </div>
             <div className="flex items-center gap-2">
@@ -910,7 +910,7 @@ export default function AdminDashboardPage() {
                 <option value="ALL">All Inquiries ({conversations.length})</option>
                 <option value="OPEN">Open</option>
                 <option value="IN_PROGRESS">In Progress</option>
-                <option value="WAITING_FOR_USER">Waiting for Patron</option>
+                <option value="WAITING_FOR_USER">Waiting for Customer</option>
                 <option value="WAITING_FOR_ADMIN">Requires Staff Action</option>
                 <option value="RESOLVED">Resolved / Complete</option>
               </select>
@@ -924,13 +924,13 @@ export default function AdminDashboardPage() {
                 <div className="relative">
                   <Search className="w-3.5 h-3.5 text-[#73685a] absolute left-3 top-1/2 -translate-y-1/2" />
                   <label htmlFor="admin-chat-search-input" className="sr-only">
-                    Search Patron Conversations
+                    Search Customer Conversations
                   </label>
                   <input
                     id="admin-chat-search-input"
                     name="chatSearch"
                     type="text"
-                    placeholder="Search ticket #, patron name, or piece..."
+                    placeholder="Search ticket #, customer name, or piece..."
                     value={chatSearch}
                     onChange={(e) => setChatSearch(e.target.value)}
                     className="w-full text-xs pl-8 pr-3 py-2 bg-[#faf8f5] border border-[#ebdccd] text-[#141210] focus:border-[#9b7e46] outline-none"
@@ -1052,7 +1052,7 @@ export default function AdminDashboardPage() {
                         >
                           <option value="OPEN">Status: OPEN</option>
                           <option value="IN_PROGRESS">Status: IN_PROGRESS</option>
-                          <option value="WAITING_FOR_USER">Status: WAITING FOR PATRON</option>
+                          <option value="WAITING_FOR_USER">Status: WAITING FOR CUSTOMER</option>
                           <option value="WAITING_FOR_ADMIN">Status: ACTION REQUIRED</option>
                           <option value="RESOLVED">Status: RESOLVED</option>
                         </select>
@@ -1236,7 +1236,7 @@ export default function AdminDashboardPage() {
                         placeholder={
                           isInternalNote
                             ? 'Record private staff instructions, workshop updates, or gem sourcing notes...'
-                            : 'Compose response to patron...'
+                            : 'Compose response to customer...'
                         }
                         className={`flex-1 text-xs p-2.5 border outline-none resize-none ${
                           isInternalNote
@@ -1264,7 +1264,7 @@ export default function AdminDashboardPage() {
                   <MessageSquare className="w-10 h-10 text-[#ebdccd] mb-3" />
                   <h4 className="font-serif text-lg text-[#141210]">No Inquiry Selected</h4>
                   <p className="text-xs max-w-xs mt-1">
-                    Select a patron conversation from the left queue to review inquiries, update ticket status, or reply directly.
+                    Select a customer conversation from the left queue to review inquiries, update ticket status, or reply directly.
                   </p>
                 </div>
               )}
@@ -1360,7 +1360,7 @@ export default function AdminDashboardPage() {
                 <option value="shipped">Dispatched with Armored Courier</option>
                 <option value="in_transit">In Transit (High-Security Escort)</option>
                 <option value="out_for_delivery">Armored Courier Out for Delivery</option>
-                <option value="delivered">Delivered to Patron Hand</option>
+                <option value="delivered">Delivered to Customer Hand</option>
                 <option value="cancelled">Cancelled & Refunded</option>
               </select>
             </div>

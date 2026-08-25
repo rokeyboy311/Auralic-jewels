@@ -75,9 +75,9 @@ export default function CustomJewelleryPage() {
   const [consultationDate, setConsultationDate] = useState('');
 
   // Common Contact Info
-  const [patronName, setPatronName] = useState('');
-  const [patronEmail, setPatronEmail] = useState('');
-  const [patronPhone, setPatronPhone] = useState('');
+  const [customerName, setCustomerName] = useState('');
+  const [customerEmail, setCustomerEmail] = useState('');
+  const [customerPhone, setCustomerPhone] = useState('');
 
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [submittedRef, setSubmittedRef] = useState('');
@@ -93,9 +93,9 @@ export default function CustomJewelleryPage() {
       // In a real integration, submit to bespoke API route
       const payload = {
         category: activeTab,
-        customerName: patronName,
-        customerEmail: patronEmail,
-        customerPhone: patronPhone,
+        customerName: customerName,
+        customerEmail: customerEmail,
+        customerPhone: customerPhone,
         metalPreference: activeTab === 'modify' ? selectedMetal : scratchMetal,
         stonePreference: activeTab === 'modify' ? selectedGemstone : scratchStone,
         designDescription: activeTab === 'new' ? scratchDescription : modificationNotes,
@@ -218,7 +218,7 @@ export default function CustomJewelleryPage() {
               </span>
               <h2 className="font-serif text-3xl text-[#141210]">Your Custom Vision Has Been Entrusted</h2>
               <p className="text-xs sm:text-sm text-[#73685a] leading-relaxed pt-2">
-                Thank you, <strong className="text-[#141210]">{patronName}</strong>. Our Master Goldsmiths and Chief Gemologist at Place Vendôme Atelier are reviewing your specifications. You will receive 3D gouache sketches and metallurgic quotation within 4–8 business hours.
+                Thank you, <strong className="text-[#141210]">{customerName}</strong>. Our Master Goldsmiths and Chief Gemologist at Place Vendôme Atelier are reviewing your specifications. You will receive 3D gouache sketches and metallurgic quotation within 4–8 business hours.
               </p>
             </div>
 
@@ -241,11 +241,11 @@ export default function CustomJewelleryPage() {
               </div>
               <div className="flex justify-between text-[#73685a]">
                 <span>Contact Email:</span>
-                <span className="font-medium text-[#141210]">{patronEmail}</span>
+                <span className="font-medium text-[#141210]">{customerEmail}</span>
               </div>
               <div className="flex justify-between text-[#73685a]">
                 <span>Telephone:</span>
-                <span className="font-medium text-[#141210]">{patronPhone}</span>
+                <span className="font-medium text-[#141210]">{customerPhone}</span>
               </div>
             </div>
 
@@ -671,13 +671,13 @@ export default function CustomJewelleryPage() {
               </div>
             )}
 
-            {/* Common Patron Contact Fields */}
+            {/* Common Customer Contact Fields */}
             <div className="pt-6 border-t border-[#ebdccd] space-y-4">
               <div>
                 <span className="text-[10px] font-mono uppercase tracking-widest text-[#9b7e46] font-bold">
                   Step 03
                 </span>
-                <h4 className="font-serif text-xl text-[#141210]">Patron Contact Information</h4>
+                <h4 className="font-serif text-xl text-[#141210]">Customer Contact Information</h4>
                 <p className="text-xs text-[#73685a]">
                   We will send your bespoke dossier, high-resolution CAD renderings, and metallurgical quotation confidentially.
                 </p>
@@ -685,51 +685,51 @@ export default function CustomJewelleryPage() {
 
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                 <div>
-                  <label htmlFor="custom-patron-name-input-full" className="block text-[11px] uppercase tracking-wider text-[#4a4237] mb-1">
+                  <label htmlFor="custom-customer-name-input-full" className="block text-[11px] uppercase tracking-wider text-[#4a4237] mb-1">
                     Full Name *
                   </label>
                   <input
-                    id="custom-patron-name-input-full"
+                    id="custom-customer-name-input-full"
                     name="name"
                     type="text"
                     autoComplete="name"
                     required
-                    value={patronName}
-                    onChange={(e) => setPatronName(e.target.value)}
+                    value={customerName}
+                    onChange={(e) => setCustomerName(e.target.value)}
                     placeholder="e.g. Victoria Sterling"
                     className="w-full bg-white border border-[#c5b49e]/60 px-3 py-2.5 text-xs text-[#141210] focus:outline-none focus:border-[#9b7e46]"
                   />
                 </div>
 
                 <div>
-                  <label htmlFor="custom-patron-email-input-full" className="block text-[11px] uppercase tracking-wider text-[#4a4237] mb-1">
+                  <label htmlFor="custom-customer-email-input-full" className="block text-[11px] uppercase tracking-wider text-[#4a4237] mb-1">
                     Email Address *
                   </label>
                   <input
-                    id="custom-patron-email-input-full"
+                    id="custom-customer-email-input-full"
                     name="email"
                     type="email"
                     autoComplete="email"
                     required
-                    value={patronEmail}
-                    onChange={(e) => setPatronEmail(e.target.value)}
-                    placeholder="patron@domain.com"
+                    value={customerEmail}
+                    onChange={(e) => setCustomerEmail(e.target.value)}
+                    placeholder="customer@domain.com"
                     className="w-full bg-white border border-[#c5b49e]/60 px-3 py-2.5 text-xs text-[#141210] focus:outline-none focus:border-[#9b7e46]"
                   />
                 </div>
 
                 <div>
-                  <label htmlFor="custom-patron-phone-input-full" className="block text-[11px] uppercase tracking-wider text-[#4a4237] mb-1">
+                  <label htmlFor="custom-customer-phone-input-full" className="block text-[11px] uppercase tracking-wider text-[#4a4237] mb-1">
                     Telephone Number *
                   </label>
                   <input
-                    id="custom-patron-phone-input-full"
+                    id="custom-customer-phone-input-full"
                     name="tel"
                     type="tel"
                     autoComplete="tel"
                     required
-                    value={patronPhone}
-                    onChange={(e) => setPatronPhone(e.target.value)}
+                    value={customerPhone}
+                    onChange={(e) => setCustomerPhone(e.target.value)}
                     placeholder="+1 (212) 555-0100"
                     className="w-full bg-white border border-[#c5b49e]/60 px-3 py-2.5 text-xs text-[#141210] focus:outline-none focus:border-[#9b7e46]"
                   />

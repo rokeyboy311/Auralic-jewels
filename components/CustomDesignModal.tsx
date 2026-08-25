@@ -77,10 +77,10 @@ export default function CustomDesignModal({
   const [consultationType, setConsultationType] = useState('Virtual 1-on-1 Master Gemologist Consultation');
   const [preferredDate, setPreferredDate] = useState('');
 
-  // Patron Contact Info
-  const [patronName, setPatronName] = useState('');
-  const [patronEmail, setPatronEmail] = useState('');
-  const [patronPhone, setPatronPhone] = useState('');
+  // Customer Contact Info
+  const [customerName, setCustomerName] = useState('');
+  const [customerEmail, setCustomerEmail] = useState('');
+  const [customerPhone, setCustomerPhone] = useState('');
 
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [referenceId, setReferenceId] = useState('');
@@ -102,9 +102,9 @@ export default function CustomDesignModal({
     try {
       const payload = {
         category: activeTab,
-        customerName: patronName,
-        customerEmail: patronEmail,
-        customerPhone: patronPhone,
+        customerName: customerName,
+        customerEmail: customerEmail,
+        customerPhone: customerPhone,
         metalPreference: activeTab === 'modify' ? metalChoice : scratchMetal,
         stonePreference: activeTab === 'modify' ? gemstoneChoice : scratchStone,
         designDescription: activeTab === 'new' ? scratchDescription : modificationNotes,
@@ -247,8 +247,8 @@ export default function CustomDesignModal({
                   </div>
                 )}
                 <div className="flex justify-between text-[#73685a]">
-                  <span>Patron:</span>
-                  <span className="font-medium text-[#141210]">{patronName || 'Privileged Client'}</span>
+                  <span>Customer:</span>
+                  <span className="font-medium text-[#141210]">{customerName || 'Privileged Client'}</span>
                 </div>
                 <div className="flex justify-between text-[#73685a]">
                   <span>Estimated Response:</span>
@@ -572,54 +572,54 @@ export default function CustomDesignModal({
               {/* Contact Information (Common to All Tabs) */}
               <div className="pt-2 border-t border-[#ebdccd] space-y-3">
                 <span className="text-[11px] uppercase tracking-wider text-[#4a4237] font-medium block">
-                  Patron Contact Information
+                  Customer Contact Information
                 </span>
 
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                   <div>
-                    <label htmlFor="custom-patron-name-input" className="sr-only">
+                    <label htmlFor="custom-customer-name-input" className="sr-only">
                       Full Name
                     </label>
                     <input
-                      id="custom-patron-name-input"
+                      id="custom-customer-name-input"
                       name="name"
                       type="text"
                       autoComplete="name"
                       required
-                      value={patronName}
-                      onChange={(e) => setPatronName(e.target.value)}
+                      value={customerName}
+                      onChange={(e) => setCustomerName(e.target.value)}
                       placeholder="Full Name *"
                       className="w-full bg-white border border-[#c5b49e]/60 px-3 py-2 text-xs text-[#141210] focus:outline-none focus:border-[#9b7e46]"
                     />
                   </div>
                   <div>
-                    <label htmlFor="custom-patron-email-input" className="sr-only">
+                    <label htmlFor="custom-customer-email-input" className="sr-only">
                       Email Address
                     </label>
                     <input
-                      id="custom-patron-email-input"
+                      id="custom-customer-email-input"
                       name="email"
                       type="email"
                       autoComplete="email"
                       required
-                      value={patronEmail}
-                      onChange={(e) => setPatronEmail(e.target.value)}
+                      value={customerEmail}
+                      onChange={(e) => setCustomerEmail(e.target.value)}
                       placeholder="Email Address *"
                       className="w-full bg-white border border-[#c5b49e]/60 px-3 py-2 text-xs text-[#141210] focus:outline-none focus:border-[#9b7e46]"
                     />
                   </div>
                   <div>
-                    <label htmlFor="custom-patron-phone-input" className="sr-only">
+                    <label htmlFor="custom-customer-phone-input" className="sr-only">
                       Telephone
                     </label>
                     <input
-                      id="custom-patron-phone-input"
+                      id="custom-customer-phone-input"
                       name="tel"
                       type="tel"
                       autoComplete="tel"
                       required
-                      value={patronPhone}
-                      onChange={(e) => setPatronPhone(e.target.value)}
+                      value={customerPhone}
+                      onChange={(e) => setCustomerPhone(e.target.value)}
                       placeholder="Telephone *"
                       className="w-full bg-white border border-[#c5b49e]/60 px-3 py-2 text-xs text-[#141210] focus:outline-none focus:border-[#9b7e46]"
                     />

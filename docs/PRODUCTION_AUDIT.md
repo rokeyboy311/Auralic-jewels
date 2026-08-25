@@ -79,7 +79,7 @@
 ### 1. Insecure Google Sign-In Simulation
 - **File**: `context/AuthContext.tsx` & `app/api/auth/google/route.ts`
 - **Classification**: **CRITICAL**
-- **Current Behavior**: Client defaults email to `patron@domain.com` or takes raw email from request body and generates a session.
+- **Current Behavior**: Client defaults email to `customer@domain.com` or takes raw email from request body and generates a session.
 - **Why Problem**: Allows full account takeover by submitting any victim's email address.
 - **Required Correction**: Server-side Google ID Token verification via Google API / tokeninfo endpoint, ensuring token signature and audience match `GOOGLE_CLIENT_ID`.
 - **Verification**: Attempt login with forged Google token payload; confirm server rejects request with 401 Unauthorized.
@@ -96,7 +96,7 @@
 - **File**: `app/api/conversations/[id]/route.ts`
 - **Classification**: **HIGH**
 - **Current Behavior**: Any user providing a conversation ID can view or post messages to that ticket.
-- **Why Problem**: Customers can view other patrons' private bespoke jewelry designs, addresses, and chat threads.
+- **Why Problem**: Customers can view other customers' private bespoke jewelry designs, addresses, and chat threads.
 - **Required Correction**: Server must verify `conversation.user_id === authenticatedUser.id` OR `authenticatedUser.role IN ('admin', 'superadmin', 'atelier_staff')`.
 - **Verification**: Query conversation ID belonging to User A while authenticated as User B; verify HTTP 403 Forbidden.
 

@@ -142,7 +142,7 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
     if (options.subject || options.initialMessage || options.productId) {
       await startNewConversation({
         subject: options.subject || 'Atelier Concierge Inquiry',
-        initialMessage: options.initialMessage || 'Greetings from a valued patron.',
+        initialMessage: options.initialMessage || 'Greetings from a valued customer.',
         type: options.type,
         priority: options.priority,
         productId: options.productId,
@@ -165,7 +165,7 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
         attachments,
         isInternalNote,
         senderRole: user?.role || 'customer',
-        senderName: user?.name || 'Valued Patron',
+        senderName: user?.name || 'Valued Customer',
       });
 
       if (res.success && res.data?.message) {

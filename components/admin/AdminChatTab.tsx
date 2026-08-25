@@ -61,7 +61,7 @@ export default function AdminChatTab({
         <div>
           <h3 className="font-serif text-lg text-[#141210]">Haute Joaillerie Concierge & Chat Desk</h3>
           <p className="text-xs text-[#73685a]">
-            Manage product modification requests, custom engravings, diamond carat queries, and VIP patron communications.
+            Manage product modification requests, custom engravings, diamond carat queries, and VIP customer communications.
           </p>
         </div>
         <div className="flex items-center gap-2">
@@ -74,7 +74,7 @@ export default function AdminChatTab({
             <option value="ALL">All Inquiries ({conversations.length})</option>
             <option value="OPEN">Open</option>
             <option value="IN_PROGRESS">In Progress</option>
-            <option value="WAITING_FOR_USER">Waiting for Patron</option>
+            <option value="WAITING_FOR_USER">Waiting for Customer</option>
             <option value="WAITING_FOR_ADMIN">Requires Staff Action</option>
             <option value="RESOLVED">Resolved / Complete</option>
           </select>
@@ -89,7 +89,7 @@ export default function AdminChatTab({
               <Search className="w-3.5 h-3.5 text-[#73685a] absolute left-3 top-1/2 -translate-y-1/2" />
               <input
                 type="text"
-                placeholder="Search ticket #, patron name, or piece..."
+                placeholder="Search ticket #, customer name, or piece..."
                 value={chatSearch}
                 onChange={(e) => setChatSearch(e.target.value)}
                 className="w-full text-xs pl-8 pr-3 py-2 bg-[#faf8f5] border border-[#ebdccd] text-[#141210] focus:border-[#9b7e46] outline-none"
@@ -352,7 +352,7 @@ export default function AdminChatTab({
                     placeholder={
                       isInternalNote
                         ? 'Record private atelier technical notes, CAD file updates, or gold melt calculations...'
-                        : 'Compose response to patron regarding jewelry modification or specifications...'
+                        : 'Compose response to customer regarding jewelry modification or specifications...'
                     }
                     value={adminReplyText}
                     onChange={(e) => setAdminReplyText(e.target.value)}

@@ -43,7 +43,7 @@ function CheckoutContent() {
   const [selectedShippingMethodId, setSelectedShippingMethodId] = useState<string>('ship-insured-priority');
   const [paymentMethod, setPaymentMethod] = useState<'wire' | 'consignment' | 'vault'>('wire');
 
-  // Patron Contact & Address Form
+  // Customer Contact & Address Form
   const [email, setEmail] = useState(user?.email || '');
   const [phone, setPhone] = useState(user?.phone || '');
   const [firstName, setFirstName] = useState((user?.name || '').split(' ')[0] || '');
@@ -111,7 +111,7 @@ function CheckoutContent() {
   const handleSubmitOrder = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!email || !phone || !firstName || !lastName || !addressLine1 || !city || !postalCode) {
-      error('Missing Information', 'Please complete all required patron contact and delivery fields.');
+      error('Missing Information', 'Please complete all required customer contact and delivery fields.');
       return;
     }
 
@@ -185,13 +185,13 @@ function CheckoutContent() {
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-start">
         {/* LEFT COLUMN: CHECKOUT FORMS */}
         <form onSubmit={handleSubmitOrder} className="lg:col-span-7 space-y-8">
-          {/* STEP 1: PATRON CONTACT */}
+          {/* STEP 1: CUSTOMER CONTACT */}
           <div className="bg-[#faf8f5] p-6 border border-[#c5b49e]/40 space-y-4">
             <h2 className="font-serif text-xl text-[#141210] uppercase tracking-wide flex items-center gap-2">
               <span className="w-6 h-6 bg-[#141210] text-[#d4af37] text-xs flex items-center justify-center font-mono">
                 1
               </span>
-              <span>Patron Identity & Communication</span>
+              <span>Customer Identity & Communication</span>
             </h2>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -207,7 +207,7 @@ function CheckoutContent() {
                   required
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  placeholder="patron@domain.com"
+                  placeholder="customer@domain.com"
                   className="w-full bg-white border border-[#c5b49e]/60 px-3 py-2 text-xs text-[#141210] focus:outline-none focus:border-[#9b7e46]"
                 />
               </div>
@@ -606,7 +606,7 @@ function CheckoutContent() {
             ) : (
               <div className="flex gap-2">
                 <label htmlFor="checkout-privilege-code-input" className="sr-only">
-                  Patron Privilege Code
+                  Customer Privilege Code
                 </label>
                 <input
                   id="checkout-privilege-code-input"
@@ -636,7 +636,7 @@ function CheckoutContent() {
             </div>
             {discountUSD > 0 && (
               <div className="flex justify-between text-[#9b7e46]">
-                <span>Patron Privilege Discount</span>
+                <span>Customer Privilege Discount</span>
                 <span className="font-mono">-{formatPrice(discountUSD)}</span>
               </div>
             )}

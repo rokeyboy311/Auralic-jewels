@@ -16,10 +16,10 @@ export default function PrivacyPolicyPage() {
       <div className="space-y-6 leading-relaxed bg-[#faf8f5] border border-[#c5b49e]/40 p-6 sm:p-10">
         <section className="space-y-2">
           <h2 className="font-serif text-base text-[#141210] uppercase font-medium">
-            1. Patron Data Confidentiality
+            1. Customer Data Confidentiality
           </h2>
           <p>
-            Maison Auralic Paris (&quot;Auralic&quot;, &quot;we&quot;, &quot;our&quot;) is committed to safeguarding the confidentiality and privacy of our global patrons. We collect only information required to fulfill fine jewellery acquisitions, coordinate insured delivery logistics, and provide bespoke concierge consultations.
+            Maison Auralic Paris (&quot;Auralic&quot;, &quot;we&quot;, &quot;our&quot;) is committed to safeguarding the confidentiality and privacy of our global customers. We collect only information required to fulfill fine jewellery acquisitions, coordinate insured delivery logistics, and provide bespoke concierge consultations.
           </p>
         </section>
 
@@ -43,10 +43,10 @@ export default function PrivacyPolicyPage() {
 
         <section className="space-y-2">
           <h2 className="font-serif text-base text-[#141210] uppercase font-medium">
-            4. GDPR & CCPA Patron Rights
+            4. GDPR & CCPA Customer Rights
           </h2>
           <p>
-            Patrons may at any time request a full export of their personal data or request permanent deletion from our client registry by contacting privacy@auralic-jewels.vercel.app.
+            Customers may at any time request a full export of their personal data or request permanent deletion from our client registry by contacting privacy@auralic-jewels.vercel.app.
           </p>
         </section>
       </div>

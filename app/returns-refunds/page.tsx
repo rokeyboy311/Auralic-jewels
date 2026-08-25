@@ -7,7 +7,7 @@ export default function ReturnsRefundsPage() {
     <div className="max-w-4xl mx-auto px-4 sm:px-8 py-12 space-y-10">
       <div className="text-center space-y-3">
         <span className="text-[10px] tracking-[0.35em] text-[#9b7e46] uppercase font-medium">
-          Patron Satisfaction Privilege
+          Customer Satisfaction Privilege
         </span>
         <h1 className="font-serif text-3xl sm:text-5xl text-[#141210] uppercase font-light">
           30-Day Privilege Returns & Exchanges
@@ -50,7 +50,7 @@ export default function ReturnsRefundsPage() {
             4. Bespoke & Engraved Creations
           </h2>
           <p className="leading-relaxed">
-            Custom-commissioned jewellery pieces and items with custom laser inscriptions are crafted uniquely to individual patron specifications and are not eligible for standard returns, though they retain full lifetime warranty and resizing privileges.
+            Custom-commissioned jewellery pieces and items with custom laser inscriptions are crafted uniquely to individual customer specifications and are not eligible for standard returns, though they retain full lifetime warranty and resizing privileges.
           </p>
         </div>
       </div>

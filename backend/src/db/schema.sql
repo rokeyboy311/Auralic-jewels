@@ -6,7 +6,7 @@
 -- UUID extension
 CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 
--- 1. USERS & PATRONS
+-- 1. USERS & CUSTOMERS
 CREATE TABLE IF NOT EXISTS users (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
     email VARCHAR(255) UNIQUE NOT NULL,
@@ -229,7 +229,7 @@ CREATE TABLE IF NOT EXISTS reviews (
     product_id VARCHAR(100) REFERENCES products(id) ON DELETE CASCADE,
     user_id UUID REFERENCES users(id) ON DELETE SET NULL,
     user_name VARCHAR(255) NOT NULL,
-    user_country VARCHAR(100) DEFAULT 'International Patron',
+    user_country VARCHAR(100) DEFAULT 'International Customer',
     rating INT NOT NULL CHECK (rating >= 1 AND rating <= 5),
     title VARCHAR(255),
     comment TEXT NOT NULL,

@@ -83,7 +83,7 @@ Maison Auralic is engineered with a strict **two-tier full-stack architecture** 
 │   ├── order-success/            # Order confirmation & dispatch invoice
 │   ├── track-order/              # Real-time Ferrari Group armored logistics tracker
 │   ├── wishlist/                 # Curated private wishlist & instant bag transfer
-│   ├── account/                  # Patron dashboard & Atelier inquiry threads
+│   ├── account/                  # Customer dashboard & Atelier inquiry threads
 │   ├── admin/                    # Executive control center & Concierge Chat desk
 │   ├── about/ & our-story/       # Maison heritage & Place Vendôme history
 │   ├── jewellery-guide/          # GIA 4Cs Diamond & Untreated Gemology Guide
@@ -91,9 +91,9 @@ Maison Auralic is engineered with a strict **two-tier full-stack architecture** 
 │   ├── materials-care/           # 18K/22K gold alloy care & maintenance charter
 │   ├── shipping-policy/          # Insured armored courier transit terms
 │   ├── returns-refunds/          # 30-day privilege return & lifetime trade-up
-│   ├── privacy-policy/           # GDPR & patron confidentiality charter
+│   ├── privacy-policy/           # GDPR & customer confidentiality charter
 │   ├── terms-conditions/         # Terms of acquisition & hallmarked authentication
-│   ├── contact/ & faq/           # Private appointments & patron inquiry desk
+│   ├── contact/ & faq/           # Private appointments & customer inquiry desk
 │   └── api/                      # Next.js server-side API proxy routes
 │
 ├── components/                   # Reusable UI & architectural components
@@ -103,12 +103,12 @@ Maison Auralic is engineered with a strict **two-tier full-stack architecture** 
 │   ├── AtelierConciergeChat.tsx  # Live sliding chat with Master Jeweller
 │   ├── CartDrawer.tsx            # Slide-out bag with dynamic subtotal calculations
 │   ├── SearchModal.tsx           # Instant search modal with SKU indexing
-│   ├── AuthModal.tsx             # Patron sign-in & Google OAuth popup
+│   ├── AuthModal.tsx             # Customer sign-in & Google OAuth popup
 │   ├── CustomDesignModal.tsx     # Quick bespoke inquiry modal
 │   └── ConciergeAppointmentModal.tsx # Private salon appointment booking
 │
 ├── context/                      # State management providers
-│   ├── AuthContext.tsx           # Patron and admin session authentication
+│   ├── AuthContext.tsx           # Customer and admin session authentication
 │   ├── CartContext.tsx           # Shopping bag persistence and tax calculations
 │   ├── WishlistContext.tsx       # Saved pieces persistence
 │   ├── CurrencyContext.tsx       # Live currency exchange rate engine (USD, EUR, GBP, INR, AED, AUD, CAD)
@@ -176,7 +176,7 @@ FRONTEND_URL="https://auralic-jewels.vercel.app"
 # PostgreSQL Database Connection URL (from Neon)
 DATABASE_URL="postgres://neondb_owner:password@ep-sweet-dawn-123456.us-east-2.aws.neon.tech/neondb?sslmode=require"
 
-# JWT Secret for Patron & Admin Authentication
+# JWT Secret for Customer & Admin Authentication
 JWT_SECRET="super-secure-random-jwt-secret-string-at-least-64-characters"
 
 # Google OAuth Credentials
@@ -406,14 +406,14 @@ The Express backend can be deployed to **Render** using a Web Service:
 | `/checkout` | Armored delivery checkout with server-side recalculation, Ferrari Group courier, and payment selector. |
 | `/order-success` | Authenticated order completion with GIA warranty breakdown and airbill tracking link. |
 | `/track-order` | Consignment tracking portal with carrier airbill timeline. |
-| `/wishlist` | Saved patron pieces with instant move-to-bag capabilities. |
-| `/account` | Patron portal managing addresses, previous consignments, and live Atelier message threads. |
+| `/wishlist` | Saved customer pieces with instant move-to-bag capabilities. |
+| `/account` | Customer portal managing addresses, previous consignments, and live Atelier message threads. |
 | `/jewellery-guide` | GIA Diamond 4Cs & untreated gemstone educational portal. |
 | `/size-guide` | International ring, collar, and wrist sizing comparison chart. |
 | `/materials-care` | Preservation guidelines for 18K/22K gold, platinum, and precious gemstones. |
 | `/shipping-policy` | Worldwide armored courier logistics terms and insurance coverage. |
 | `/returns-refunds` | 30-day privilege return and lifetime diamond trade-up policies. |
-| `/privacy-policy` | Patron privacy charter and security specifications. |
+| `/privacy-policy` | Customer privacy charter and security specifications. |
 | `/terms-conditions` | Legal terms of acquisition and authenticity warranties. |
 | `/contact` & `/faq` | Private showroom consultations and frequently asked questions. |
 
@@ -424,16 +424,16 @@ The Express backend can be deployed to **Render** using a Web Service:
 ### Public Floating Concierge
 - **Accessibility**: Available across all pages via the gold floating button at the bottom-right.
 - **Product Context**: Clicking "Chat with Atelier Jeweller" on any product automatically attaches the piece name, SKU, price, and selected metal alloy to the conversation.
-- **Patron Thread Storage**: Inquiries are saved under the patron's account and synchronized with the Maison ledger.
+- **Customer Thread Storage**: Inquiries are saved under the customer's account and synchronized with the Maison ledger.
 
 ### Maison Administration Portal (`/admin`)
 - **Access Control**: Role-gated dashboard for Maison Directors and Master Craftsmen (`SUPER_ADMIN`, `ADMIN`, `MASTER_JEWELLER`).
 - **Live Concierge Desk**:
   - Filter inquiries by status (`OPEN`, `IN_PROGRESS`, `WAITING_FOR_USER`, `WAITING_FOR_ADMIN`, `RESOLVED`).
-  - Search by ticket number, patron name, or piece SKU.
+  - Search by ticket number, customer name, or piece SKU.
   - Assign inquiries to specific specialists (e.g. Master Goldsmith Henri Vane, Senior Gemologist Dr. Vivienne Moreau).
   - Record private internal technical notes (visible only to staff).
-  - Dispatch official replies to patrons.
+  - Dispatch official replies to customers.
 - **Consignment Dispatch**: Real-time status update (`Pending`, `Confirmed`, `In Atelier Vault`, `Armored Courier In Transit`, `Delivered`).
 - **Inventory Management**: Create new GIA-certified pieces, manage stock levels, and update prices.
 
