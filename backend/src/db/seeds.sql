@@ -157,3 +157,16 @@ VALUES
 ('var-emerald-necklace-18k-wg', 'prod-royal-emerald-necklace', 'AUR-NCK-002-WG-18', 'White Gold', '18K', '18 inch', 'Colombian Emerald', 38500.00, 2, 32.50, 21, FALSE),
 ('var-tennis-bracelet-18k-wg', 'prod-diamond-tennis-bracelet', 'AUR-BRC-004-WG-7', 'White Gold', '18K', '7.0 inch', 'Natural Diamond', 16500.00, 5, 14.20, 5, TRUE)
 ON CONFLICT (id) DO NOTHING;
+
+-- Insert Admin User (Pre-configured login)
+-- Email: admin@aurelic-jewels.vercel.app, Password: adminpassword123
+INSERT INTO users (id, email, password_hash, name, role, is_email_verified)
+VALUES (
+  '11111111-1111-1111-1111-111111111111',
+  'admin@aurelic-jewels.vercel.app',
+  '$2a$10$z8jAq1tLG2HGh5rueKMqr.QilIwMZTewD/jR9gc2bWI.PYNtjC0Be',
+  'Admin',
+  'admin',
+  TRUE
+)
+ON CONFLICT (email) DO NOTHING;

@@ -437,7 +437,7 @@ export interface ConversationMessage {
   conversationId: string;
   senderId: string;
   senderName: string;
-  senderRole: 'customer' | 'admin' | 'workshop_staff' | 'master_jeweller' | 'gemologist';
+  senderRole: 'customer' | 'admin';
   content: string;
   attachments?: ConversationAttachment[];
   attachmentUrl?: string;
@@ -502,20 +502,4 @@ export interface Conversation {
   createdAt: string;
   updatedAt: string;
   resolvedAt?: string;
-}
-
-export interface WorkshopStaff {
-  id: string;
-  name: string;
-  email: string;
-  role: 'SUPER_ADMIN' | 'ADMIN' | 'WORKSHOP_STAFF' | 'MASTER_JEWELLER' | 'SENIOR_GEMOLOGIST';
-  title?: string;
-  location?: string;
-  avatarUrl?: string;
-  avatar?: string;
-  specialty?: string;
-  certifications?: string[];
-  activeTicketsCount?: number;
-  activeConversationsCount?: number;
-  isOnline?: boolean;
 }

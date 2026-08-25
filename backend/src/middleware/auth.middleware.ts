@@ -5,7 +5,7 @@ import { config } from '../config';
 export interface AuthenticatedUser {
   id: string;
   email: string;
-  role: 'customer' | 'staff' | 'admin' | 'superadmin';
+  role: 'customer' | 'admin';
   name?: string;
 }
 
@@ -13,12 +13,10 @@ export interface AuthenticatedRequest extends Request {
   user?: AuthenticatedUser;
 }
 
-export function normalizeRole(roleStr?: string): 'customer' | 'staff' | 'admin' | 'superadmin' {
+export function normalizeRole(roleStr?: string): 'customer' | 'admin' {
   if (!roleStr) return 'customer';
   const lower = roleStr.toLowerCase();
-  if (lower === 'superadmin' || lower === 'super_admin') return 'superadmin';
-  if (lower === 'admin' || lower === 'administrator') return 'admin';
-  if (lower === 'staff' || lower === 'curator' || lower === 'artisan') return 'staff';
+  if (lower === 'admin' || lower === 'superadmin' || lower === 'administrator') return 'admin';
   return 'customer';
 }
 
@@ -83,40 +81,10 @@ export function optionalAuth(req: AuthenticatedRequest, _res: Response, next: Ne
  */
 export function requireAdmin(req: AuthenticatedRequest, res: Response, next: NextFunction) {
   requireAuth(req, res, () => {
-    if (!req.user || (req.user.role !== 'admin' && req.user.role !== 'superadmin')) {
+    if (!req.user || req.user.role !== 'admin') {
       return res.status(403).json({
         success: false,
         error: 'Access denied: Administrative privileges required.',
-      });
-    }
-    next();
-  });
-}
-
-/**
- * Super Admin role guard
- */
-export function requireSuperAdmin(req: AuthenticatedRequest, res: Response, next: NextFunction) {
-  requireAuth(req, res, () => {
-    if (!req.user || req.user.role !== 'superadmin') {
-      return res.status(403).json({
-        success: false,
-        error: 'Access denied: Super Administrator privileges required.',
-      });
-    }
-    next();
-  });
-}
-
-/**
- * Staff or Admin role guard
- */
-export function requireStaff(req: AuthenticatedRequest, res: Response, next: NextFunction) {
-  requireAuth(req, res, () => {
-    if (!req.user || (req.user.role !== 'staff' && req.user.role !== 'admin' && req.user.role !== 'superadmin')) {
-      return res.status(403).json({
-        success: false,
-        error: 'Access denied: Workshop staff credentials required.',
       });
     }
     next();

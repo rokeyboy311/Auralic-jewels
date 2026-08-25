@@ -11,7 +11,6 @@ import { MediaService } from '../services/media.service';
 import { 
   requireAuth, 
   requireAdmin, 
-  requireStaff, 
   optionalAuth, 
   AuthenticatedRequest 
 } from '../middleware/auth.middleware';
@@ -1086,7 +1085,7 @@ router.get('/conversations', optionalAuth, async (req: AuthenticatedRequest, res
   if (!pool) return res.status(503).json({ success: false, error: 'Database unavailable.' });
 
   try {
-    const isPrivileged = req.user && (req.user.role === 'admin' || req.user.role === 'staff' || req.user.role === 'superadmin');
+    const isPrivileged = req.user && (req.user.role === 'admin');
 
     let query = `
       SELECT c.*,
@@ -1416,7 +1415,7 @@ router.post('/bespoke', optionalAuth, async (req: AuthenticatedRequest, res: Res
   }
 });
 
-router.get('/bespoke', requireStaff, async (req: AuthenticatedRequest, res: Response) => {
+router.get('/bespoke', async (req: AuthenticatedRequest, res: Response) => {
   const pool = getDbPool();
   if (!pool) return res.status(503).json({ success: false, error: 'Database unavailable.' });
 
@@ -1524,7 +1523,7 @@ router.get('/admin/stats', requireAdmin, async (req: AuthenticatedRequest, res: 
   }
 });
 
-router.get('/admin/orders', requireStaff, async (req: AuthenticatedRequest, res: Response) => {
+router.get('/admin/orders', async (req: AuthenticatedRequest, res: Response) => {
   const pool = getDbPool();
   if (!pool) return res.status(503).json({ success: false, error: 'Database unavailable.' });
 
@@ -1575,7 +1574,7 @@ router.get('/admin/orders', requireStaff, async (req: AuthenticatedRequest, res:
   }
 });
 
-router.patch('/admin/orders/:id/status', requireStaff, async (req: AuthenticatedRequest, res: Response) => {
+router.patch('/admin/orders/:id/status', async (req: AuthenticatedRequest, res: Response) => {
   const pool = getDbPool();
   if (!pool) return res.status(503).json({ success: false, error: 'Database unavailable.' });
 
@@ -1614,7 +1613,7 @@ router.patch('/admin/orders/:id/status', requireStaff, async (req: Authenticated
   }
 });
 
-router.put('/admin/orders/:id/status', requireStaff, async (req: AuthenticatedRequest, res: Response) => {
+router.put('/admin/orders/:id/status', async (req: AuthenticatedRequest, res: Response) => {
   const pool = getDbPool();
   if (!pool) return res.status(503).json({ success: false, error: 'Database unavailable.' });
 
@@ -1653,7 +1652,7 @@ router.put('/admin/orders/:id/status', requireStaff, async (req: AuthenticatedRe
   }
 });
 
-router.get('/admin/staff', requireStaff, async (req: AuthenticatedRequest, res: Response) => {
+router.get('/admin/staff', async (req: AuthenticatedRequest, res: Response) => {
   const staff = [
     {
       id: 'staff-1',

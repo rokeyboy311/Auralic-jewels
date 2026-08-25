@@ -13,7 +13,7 @@ CREATE TABLE IF NOT EXISTS users (
     password_hash VARCHAR(255),
     name VARCHAR(255) NOT NULL,
     phone VARCHAR(50),
-    role VARCHAR(50) DEFAULT 'customer' CHECK (role IN ('customer', 'workshop_staff', 'admin', 'superadmin', 'gemologist', 'master_jeweller')),
+    role VARCHAR(50) DEFAULT 'customer' CHECK (role IN ('customer', 'admin')),
     is_email_verified BOOLEAN DEFAULT FALSE,
     google_id VARCHAR(255) UNIQUE,
     avatar_url TEXT,

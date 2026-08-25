@@ -128,8 +128,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   const role = (user?.role || '').toLowerCase();
-  const isAdmin = role === 'admin' || role === 'superadmin';
-  const isStaff = isAdmin || role === 'staff' || role === 'curator' || role === 'gemologist';
+  const isAdmin = role === 'admin';
+  const isStaff = isAdmin; // isStaff is synonymous with isAdmin now
 
   return (
     <AuthContext.Provider

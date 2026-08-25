@@ -47,7 +47,7 @@ import {
   getConversation,
   sendConversationMessage,
   updateConversation,
-  getStaffDirectory,
+  updateConversation,
 } from '@/lib/api';
 import { useAuth } from '@/context/AuthContext';
 import { useCurrency } from '@/context/CurrencyContext';
@@ -64,9 +64,8 @@ export default function AdminDashboardPage() {
   const [products, setProducts] = useState<Product[]>([]);
   const [bespokeInquiries, setBespokeInquiries] = useState<BespokeInquiry[]>([]);
   const [conversations, setConversations] = useState<Conversation[]>([]);
-  const [staffList, setStaffList] = useState<WorkshopStaff[]>([]);
   const [selectedConversation, setSelectedConversation] = useState<Conversation | null>(null);
-  const [activeTab, setActiveTab] = useState<'orders' | 'products' | 'bespoke' | 'chat' | 'staff'>('orders');
+  const [activeTab, setActiveTab] = useState<'orders' | 'products' | 'bespoke' | 'chat'>('orders');
   const [isLoading, setIsLoading] = useState(true);
 
   // Chat management state
@@ -101,13 +100,12 @@ export default function AdminDashboardPage() {
 
   const loadAll = async () => {
     try {
-      const [statsRes, ordersRes, prodsRes, bespokeRes, convsRes, staffRes] = await Promise.all([
+      const [statsRes, ordersRes, prodsRes, bespokeRes, convsRes] = await Promise.all([
         getAdminStats(),
         getAdminOrders(),
         getProducts({ limit: 50 }),
         getBespokeInquiries(),
         getConversations(),
-        getStaffDirectory(),
       ]);
       if (statsRes.success && statsRes.data) setStats(statsRes.data);
       if (ordersRes.success && ordersRes.data) setOrders(ordersRes.data);
@@ -119,7 +117,6 @@ export default function AdminDashboardPage() {
           setSelectedConversation(convsRes.data[0]);
         }
       }
-      if (staffRes.success && staffRes.data) setStaffList(staffRes.data);
     } finally {
       setIsLoading(false);
     }
@@ -189,25 +186,7 @@ export default function AdminDashboardPage() {
     }
   };
 
-  const handleAssignStaff = async (staffId: string, staffName: string) => {
-    if (!selectedConversation) return;
-    try {
-      const res = await updateConversation(selectedConversation.id, {
-        assignedStaffId: staffId,
-        assignedStaffName: staffName,
-      });
-      if (res.success && res.data) {
-        setSelectedConversation(res.data);
-        setConversations((prev) =>
-          prev.map((c) => (c.id === res.data!.id ? res.data! : c))
-        );
-        success('Staff Assigned', `Inquiry assigned to ${staffName}`);
-      }
-    } catch {
-      error('Assignment Failed', 'Could not assign staff member');
-    }
-  };
-
+  
   useEffect(() => {
     let isMounted = true;
     (async () => {
@@ -397,8 +376,8 @@ export default function AdminDashboardPage() {
           <form onSubmit={handleAdminAuthSubmit} className="space-y-4">
             <div>
               <label htmlFor="admin-login-email-input" className="block text-[11px] uppercase tracking-wider text-[#4a4237] font-medium mb-1.5 flex items-center justify-between">
-                <span>Staff Email Address</span>
-                <span className="text-[10px] text-[#73685a] lowercase">admin@aurelic.com</span>
+                <span>Admin Email Address</span>
+                <span className="text-[10px] text-[#73685a] lowercase">admin@aurelic-jewels.vercel.app</span>
               </label>
               <div className="relative">
                 <Mail className="w-4 h-4 text-[#73685a] absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
@@ -413,7 +392,7 @@ export default function AdminDashboardPage() {
                     setAdminEmail(e.target.value);
                     setAuthErrorMessage('');
                   }}
-                  placeholder="admin@aurelic.com"
+                  placeholder="admin@aurelic-jewels.vercel.app"
                   className="w-full bg-[#faf8f5] border border-[#c5b49e]/60 pl-10 pr-3.5 py-3 text-xs text-[#141210] focus:outline-none focus:border-[#9b7e46] focus:bg-white transition-colors"
                 />
               </div>
@@ -633,17 +612,7 @@ export default function AdminDashboardPage() {
         >
           Bespoke Commissions ({bespokeInquiries.length})
         </button>
-        <button
-          onClick={() => setActiveTab('staff')}
-          className={`pb-3 border-b-2 transition-colors whitespace-nowrap cursor-pointer flex items-center gap-1.5 ${
-            activeTab === 'staff'
-              ? 'border-[#141210] text-[#141210] font-semibold'
-              : 'border-transparent text-[#73685a] hover:text-[#141210]'
-          }`}
-        >
-          <UserCheck className="w-3.5 h-3.5 text-[#9b7e46]" />
-          <span>Workshop Staff ({staffList.length})</span>
-        </button>
+        
       </div>
 
       {/* TAB 1: ORDERS */}
@@ -1059,38 +1028,6 @@ export default function AdminDashboardPage() {
                       </div>
                     </div>
 
-                    {/* Staff Assignment Bar */}
-                    <div className="flex flex-wrap items-center justify-between gap-2 pt-2 border-t border-[#ebdccd]/60 text-xs">
-                      <div className="flex items-center gap-1.5 text-[#73685a]">
-                        <UserCheck className="w-3.5 h-3.5 text-[#9b7e46]" />
-                        <span>Assigned Jeweller:</span>
-                        <strong className="text-[#141210]">
-                          {selectedConversation.assignedStaffName || 'Workshop General Queue'}
-                        </strong>
-                      </div>
-
-                      <div className="flex items-center gap-1">
-                        <span className="text-[11px] text-[#73685a]">Reassign:</span>
-                        <select
-                          onChange={(e) => {
-                            const staff = staffList.find((s) => s.id === e.target.value);
-                            if (staff) handleAssignStaff(staff.id, staff.name);
-                          }}
-                          defaultValue=""
-                          className="text-xs p-1 bg-white border border-[#ebdccd] text-[#141210]"
-                        >
-                          <option value="" disabled>
-                            Select Specialist...
-                          </option>
-                          {staffList.map((s) => (
-                            <option key={s.id} value={s.id}>
-                              {s.name} ({s.specialty})
-                            </option>
-                          ))}
-                        </select>
-                      </div>
-                    </div>
-
                     {/* Attached Product Context */}
                     {selectedConversation.productContext && (
                       <div className="flex items-center justify-between p-2.5 bg-white border border-[#ebdccd] text-xs">
@@ -1269,72 +1206,6 @@ export default function AdminDashboardPage() {
                 </div>
               )}
             </div>
-          </div>
-        </div>
-      )}
-
-      {/* TAB 5: WORKSHOP STAFF DIRECTORY */}
-      {activeTab === 'staff' && (
-        <div className="bg-white border border-[#ebdccd] overflow-hidden">
-          <div className="p-4 border-b border-[#ebdccd] flex justify-between items-center bg-[#faf8f5]">
-            <div>
-              <h3 className="font-serif text-lg text-[#141210]">Aurelic Jewels Workshop Specialists & Gemologists</h3>
-              <p className="text-xs text-[#73685a]">
-                Directory of senior goldsmiths and gemological directors active across our salons.
-              </p>
-            </div>
-            <span className="text-xs text-[#73685a] font-mono">{staffList.length} Active Specialists</span>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 p-6 bg-[#faf8f5]/30">
-            {staffList.map((st) => (
-              <div key={st.id} className="bg-white border border-[#ebdccd] p-4 space-y-3 shadow-xs">
-                <div className="flex items-center gap-3">
-                  <div className="w-12 h-12 relative rounded-full overflow-hidden bg-[#f5ede3] border border-[#ebdccd] shrink-0">
-                    <Image
-                      src={st.avatarUrl || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=400&q=80'}
-                      alt={st.name}
-                      fill
-                      className="object-cover"
-                      referrerPolicy="no-referrer"
-                    />
-                  </div>
-                  <div>
-                    <h4 className="font-serif text-sm font-semibold text-[#141210]">{st.name}</h4>
-                    {st.title && <p className="text-[11px] text-[#9b7e46] font-medium">{st.title}</p>}
-                    {st.location && <p className="text-[10px] text-[#73685a]">{st.location}</p>}
-                  </div>
-                </div>
-
-                <div className="text-xs space-y-1 pt-2 border-t border-[#ebdccd]/60 text-[#594f43]">
-                  <div className="flex justify-between">
-                    <span className="text-[#8c7f70]">Specialty:</span>
-                    <strong className="text-[#141210]">{st.specialty || 'Haute Joaillerie Specialist'}</strong>
-                  </div>
-                  {st.certifications && st.certifications.length > 0 && (
-                    <div className="flex justify-between">
-                      <span className="text-[#8c7f70]">Certifications:</span>
-                      <span>{st.certifications.join(', ')}</span>
-                    </div>
-                  )}
-                  <div className="flex justify-between">
-                    <span className="text-[#8c7f70]">Active Cases:</span>
-                    <span className="font-mono font-semibold text-[#9b7e46]">{st.activeConversationsCount || st.activeTicketsCount || 0} active</span>
-                  </div>
-                </div>
-
-                <div className="flex items-center gap-2 pt-1 text-[11px]">
-                  <span
-                    className={`w-2 h-2 rounded-full ${
-                      st.isOnline ? 'bg-emerald-500' : 'bg-stone-300'
-                    }`}
-                  />
-                  <span className="text-[#73685a]">
-                    {st.isOnline ? 'On Duty in Workshop' : 'Away from Bench'}
-                  </span>
-                </div>
-              </div>
-            ))}
           </div>
         </div>
       )}
