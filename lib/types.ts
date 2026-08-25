@@ -128,7 +128,7 @@ export interface Product {
   estimatedDispatchHours: number;
   stock: number;
   lowStockThreshold: number;
-  countryOfOrigin: string; // e.g., "France (Paris Place Vendôme Atelier)"
+  countryOfOrigin: string; // e.g., "France (Paris Place Vendôme Workshop)"
   status: 'active' | 'archived' | 'out_of_stock';
   
   // Flags & Trust
@@ -137,7 +137,7 @@ export interface Product {
   isBestSeller: boolean;
   rating: number;
   reviewCount: number;
-  warrantyPeriodYears: number; // e.g., 5 for 5-Year Atelier Warranty
+  warrantyPeriodYears: number; // e.g., 5 for 5-Year Workshop Warranty
   careInstructions: string;
   shippingInformation: string;
   returnEligibility: string;
@@ -314,7 +314,7 @@ export interface Order {
   paymentIntentId?: string;
   stripeChargeId?: string;
   
-  // Atelier Production
+  // Workshop Production
   productionLeadTimeDays?: number;
   estimatedDeliveryDate?: string;
   notes?: string;
@@ -401,7 +401,7 @@ export interface BespokeInquiry {
   designDescription: string;
   referenceImageUrl?: string;
   timelineRequirement: string;
-  status: 'inquiry_received' | 'consultation_scheduled' | 'cad_in_progress' | 'quotation_issued' | 'approved' | 'in_atelier';
+  status: 'inquiry_received' | 'consultation_scheduled' | 'cad_in_progress' | 'quotation_issued' | 'approved' | 'in_workshop';
   createdAt: string;
 }
 
@@ -437,7 +437,7 @@ export interface ConversationMessage {
   conversationId: string;
   senderId: string;
   senderName: string;
-  senderRole: 'customer' | 'admin' | 'atelier_staff' | 'master_jeweller' | 'gemologist';
+  senderRole: 'customer' | 'admin' | 'workshop_staff' | 'master_jeweller' | 'gemologist';
   content: string;
   attachments?: ConversationAttachment[];
   attachmentUrl?: string;
@@ -504,11 +504,11 @@ export interface Conversation {
   resolvedAt?: string;
 }
 
-export interface AtelierStaff {
+export interface WorkshopStaff {
   id: string;
   name: string;
   email: string;
-  role: 'SUPER_ADMIN' | 'ADMIN' | 'ATELIER_STAFF' | 'MASTER_JEWELLER' | 'SENIOR_GEMOLOGIST';
+  role: 'SUPER_ADMIN' | 'ADMIN' | 'WORKSHOP_STAFF' | 'MASTER_JEWELLER' | 'SENIOR_GEMOLOGIST';
   title?: string;
   location?: string;
   avatarUrl?: string;

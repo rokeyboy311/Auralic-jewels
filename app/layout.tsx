@@ -16,7 +16,7 @@ export const metadata: Metadata = {
   twitter: {
     card: 'summary_large_image',
     title: 'AURELIC — Haute Joaillerie Paris',
-    description: 'International Fine Jewellery & Bespoke Diamond Atelier.',
+    description: 'International Fine Jewellery & Bespoke Diamond Workshop.',
   },
 };
 

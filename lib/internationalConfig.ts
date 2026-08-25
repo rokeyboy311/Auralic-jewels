@@ -163,7 +163,7 @@ export const ARMORED_SHIPPING_METHODS: ShippingMethodOption[] = [
     id: 'ship-malca-amit-secure',
     name: 'Malca-Amit Ultra-Secure Priority Dispatch',
     carrier: 'Malca-Amit Security',
-    description: 'Dedicated armored escort from Paris Place Vendôme atelier directly to your private residence or private bank vault.',
+    description: 'Dedicated armored escort from Paris Place Vendôme workshop directly to your private residence or private bank vault.',
     costUSD: 150,
     estimatedDays: '1 - 3 Business Days Priority',
     isFreeAboveThreshold: false,

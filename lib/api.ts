@@ -10,7 +10,7 @@ import {
   BespokeInquiry,
   Conversation,
   ConversationMessage,
-  AtelierStaff
+  WorkshopStaff
 } from './types';
 
 // Centralized API Base URL
@@ -393,7 +393,7 @@ export async function deleteProduct(productId: string) {
 
 export const deleteAdminProduct = deleteProduct;
 
-// Conversations & Atelier Chat API
+// Conversations & Workshop Chat API
 export async function getConversations(params: { status?: string; priority?: string; search?: string } = {}) {
   const query = new URLSearchParams();
   if (params.status) query.set('status', params.status);
@@ -462,5 +462,5 @@ export async function updateConversation(
 }
 
 export async function getStaffDirectory() {
-  return await fetchApi<AtelierStaff[]>('/admin/staff');
+  return await fetchApi<WorkshopStaff[]>('/admin/staff');
 }

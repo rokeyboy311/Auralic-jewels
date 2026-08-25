@@ -66,7 +66,7 @@ export default function AdminProductsTab({ products, onDeleteProduct }: AdminPro
                 <td className="py-3.5 px-4">
                   <div className="font-medium">{p.stoneType} ({p.stoneWeightCarats || 0}ct)</div>
                   <div className="text-[10px] text-[#73685a]">
-                    {p.certification?.certificateNumber || 'Atelier Hallmark'}
+                    {p.certification?.certificateNumber || 'Workshop Hallmark'}
                   </div>
                 </td>
                 <td className="py-3.5 px-4 font-mono text-[11px]">

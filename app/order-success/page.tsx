@@ -58,7 +58,7 @@ function OrderSuccessContent() {
           <div>
             <span className="text-[10px] text-[#73685a] uppercase tracking-wider">Acquisition Status</span>
             <p className="text-xs font-semibold text-[#9b7e46] uppercase tracking-wider">
-              {order?.status || 'Confirmed & Entrusted to Atelier'}
+              {order?.status || 'Confirmed & Entrusted to Workshop'}
             </p>
           </div>
         </div>

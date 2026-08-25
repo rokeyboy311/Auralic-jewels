@@ -141,7 +141,7 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
     if (options.subject || options.initialMessage || options.productId) {
       await startNewConversation({
-        subject: options.subject || 'Atelier Concierge Inquiry',
+        subject: options.subject || 'Workshop Concierge Inquiry',
         initialMessage: options.initialMessage || 'Greetings from a valued customer.',
         type: options.type,
         priority: options.priority,

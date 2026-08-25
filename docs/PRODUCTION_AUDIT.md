@@ -2,7 +2,7 @@
 
 **Date of Audit**: August 20, 2026  
 **Auditor**: Lead Software Architect, Senior Full-Stack & Security Engineer  
-**System Scope**: Next.js 15+ Frontend (Vercel), Express REST API Backend (Render), PostgreSQL (Neon), Authentication, Stripe Payments, Atelier Concierge Chat Desk, International Currency & Logistics, SEO, Security, and Future 3D GLB Integration.
+**System Scope**: Next.js 15+ Frontend (Vercel), Express REST API Backend (Render), PostgreSQL (Neon), Authentication, Stripe Payments, Workshop Concierge Chat Desk, International Currency & Logistics, SEO, Security, and Future 3D GLB Integration.
 
 ---
 
@@ -13,9 +13,9 @@
 | **Architecture & Separation** | Partial Express API with Next.js in-memory route duplicates | **HIGH** | Single authoritative Express REST API with full Next.js client integration |
 | **Database & Persistence** | DDL schema exists; several runtime flows fallback to in-memory store | **CRITICAL** | 100% PostgreSQL-backed with ACID transactions, row locking, and migration scripts |
 | **Authentication & Tokens** | Google OAuth simulated on client; password tokens lack server verify | **CRITICAL** | Real Google OAuth server token verification, bcrypt hashing, and HttpOnly JWT sessions |
-| **Role-Based Access Control** | Client checks `user.role === 'admin'`; backend missing granular RBAC | **CRITICAL** | Strict server-side RBAC (SUPER_ADMIN, ADMIN, ATELIER_STAFF, CUSTOMER) + resource ownership |
+| **Role-Based Access Control** | Client checks `user.role === 'admin'`; backend missing granular RBAC | **CRITICAL** | Strict server-side RBAC (SUPER_ADMIN, ADMIN, WORKSHOP_STAFF, CUSTOMER) + resource ownership |
 | **Payments & Order Integrity** | Client creates simulated PaymentIntent; amounts not server-recalculated | **CRITICAL** | Server-side price recalculation, Stripe Payment Element, webhook signatures & idempotency |
-| **Atelier Concierge Chat Desk** | UI exists; messages and tickets stored in memory without ownership checks | **HIGH** | PostgreSQL-backed conversations, participant verification, staff assignment, attachments |
+| **Workshop Concierge Chat Desk** | UI exists; messages and tickets stored in memory without ownership checks | **HIGH** | PostgreSQL-backed conversations, participant verification, staff assignment, attachments |
 | **International Commerce** | Multi-currency matrix exists; historical exchange rates not locked in orders | **HIGH** | Historical rate snapshots on orders, multi-tier tax & duties engine, armored courier logistics |
 | **Brand Identity** | Inconsistencies between Aurelic Jewels, Aurelic Jewels, and domainname.com | **MEDIUM** | Single canonical brand configuration (`Aurelic Jewels / Aurelic Jewels`) |
 | **Future 3D Compatibility** | Schema columns exist; no WebGL bloat before required | **LOW** (Compliant) | Clean schema and TypeScript interfaces ready for Three.js/GLB model URLs |
@@ -43,7 +43,7 @@
 1. **Google OAuth Authentication (`context/AuthContext.tsx`, `app/api/auth/google`)**:
    - *Current Behavior*: Client sends simulated payload or email to backend without server-side verification of Google ID token.
    - *Why Problem*: Anyone can impersonate any email address by issuing arbitrary POST requests.
-2. **Atelier Concierge Chat Desk (`components/AtelierConciergeChat.tsx`, `/admin`)**:
+2. **Workshop Concierge Chat Desk (`components/WorkshopConciergeChat.tsx`, `/admin`)**:
    - *Current Behavior*: UI is feature-rich, but messages are stored in memory or non-relational store without foreign-key constraints and participant ownership enforcement.
 3. **Bespoke Commissions Brief Generator (`/custom-jewellery`)**:
    - *Current Behavior*: Submits form data, sends email if configured, but lacks persistent database record linking to customer ID and ticket sequence.
@@ -63,8 +63,8 @@
 ---
 
 ## D. MISSING FEATURES
-1. **Granular Staff Permissions (SUPER_ADMIN vs ADMIN vs ATELIER_STAFF)**:
-   - Atelier staff should only have access to customer chat conversations, bespoke consultation briefs, and relevant order details, not financial coupon settings or destructive user operations.
+1. **Granular Staff Permissions (SUPER_ADMIN vs ADMIN vs WORKSHOP_STAFF)**:
+   - Workshop staff should only have access to customer chat conversations, bespoke consultation briefs, and relevant order details, not financial coupon settings or destructive user operations.
 2. **Verified Buyer Review Enforcement**:
    - Server must check if the authenticated user has a completed order containing the reviewed product SKU.
 3. **Audit Log Table & Logger Middleware**:
@@ -97,7 +97,7 @@
 - **Classification**: **HIGH**
 - **Current Behavior**: Any user providing a conversation ID can view or post messages to that ticket.
 - **Why Problem**: Customers can view other customers' private bespoke jewelry designs, addresses, and chat threads.
-- **Required Correction**: Server must verify `conversation.user_id === authenticatedUser.id` OR `authenticatedUser.role IN ('admin', 'superadmin', 'atelier_staff')`.
+- **Required Correction**: Server must verify `conversation.user_id === authenticatedUser.id` OR `authenticatedUser.role IN ('admin', 'superadmin', 'workshop_staff')`.
 - **Verification**: Query conversation ID belonging to User A while authenticated as User B; verify HTTP 403 Forbidden.
 
 ---

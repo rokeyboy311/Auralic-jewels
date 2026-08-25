@@ -163,7 +163,7 @@ export default function HomePage() {
             <Sparkles className="w-5 h-5 text-[#C5A059] shrink-0 mt-1" />
             <div>
               <h4 className="serif text-base text-[#1A1A1A] uppercase tracking-wider font-medium">
-                Bespoke Atelier
+                Bespoke Workshop
               </h4>
               <p className="text-xs text-[#1A1A1A]/60 mt-1 leading-relaxed font-light">
                 Collaborate directly with our master gemologists in Paris for custom bridal commissions.
@@ -291,7 +291,7 @@ export default function HomePage() {
 
           <div className="lg:col-span-6 space-y-6">
             <span className="text-[10px] uppercase tracking-[0.4em] text-[#C5A059] font-semibold">
-              The Parisian Atelier
+              The Parisian Workshop
             </span>
             <h2 className="serif text-3xl sm:text-4xl md:text-5xl font-light tracking-wide uppercase leading-tight">
               Where Fire Meets <br />
@@ -437,12 +437,12 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* 8. BESPOKE ATELIER & CUSTOM DESIGN BANNER */}
+      {/* 8. BESPOKE WORKSHOP & CUSTOM DESIGN BANNER */}
       <section className="max-w-7xl mx-auto px-4 sm:px-12 pb-12">
         <div className="bg-[#1A1A1A] text-white p-8 sm:p-12 md:p-16 border border-white/10 relative overflow-hidden flex flex-col md:flex-row items-center justify-between gap-8">
           <div className="space-y-3 max-w-xl">
             <span className="text-[10px] uppercase tracking-[0.4em] text-[#C5A059] font-semibold">
-              Bespoke Atelier & Custom Commissions
+              Bespoke Workshop & Custom Commissions
             </span>
             <h3 className="serif text-3xl sm:text-4xl text-white font-light uppercase tracking-wide">
               Modify Any Design or Create An Heirloom

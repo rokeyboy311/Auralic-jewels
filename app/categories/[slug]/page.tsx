@@ -111,7 +111,7 @@ export default function CategoryDetailPage({ params }: { params: Promise<{ slug:
 
         {products.length === 0 ? (
           <div className="text-center py-20 bg-white border border-[#c5b49e]/40 p-8 space-y-3">
-            <p className="font-serif text-xl text-[#141210]">Currently Preparing New Pieces in the Atelier</p>
+            <p className="font-serif text-xl text-[#141210]">Currently Preparing New Pieces in the Workshop</p>
             <p className="text-xs text-[#73685a]">
               Please check back shortly or request a bespoke commission from our Master Gemologists.
             </p>

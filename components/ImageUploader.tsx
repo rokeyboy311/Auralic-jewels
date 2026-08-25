@@ -60,7 +60,7 @@ export const ImageUploader: React.FC<ImageUploaderProps> = ({
         if (res.success && res.data?.url) {
           uploadedUrls.push(res.data.url);
         } else {
-          setError(res.error || 'Failed to upload image to atelier storage.');
+          setError(res.error || 'Failed to upload image to workshop storage.');
         }
       }
 
@@ -127,7 +127,7 @@ export const ImageUploader: React.FC<ImageUploaderProps> = ({
               <Upload className="w-6 h-6 text-[#9b7e46]/80 hover:text-[#9b7e46] transition-colors" />
             )}
             <span className="text-xs font-serif text-[#141210]">
-              {uploading ? 'Transmitting to Atelier Vault...' : 'Select Photography to Upload'}
+              {uploading ? 'Transmitting to Workshop Vault...' : 'Select Photography to Upload'}
             </span>
             <span className="text-[10px] text-[#73685a] font-sans">{helperText}</span>
             <input

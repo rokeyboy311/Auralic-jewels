@@ -29,7 +29,7 @@ ON CONFLICT (id) DO NOTHING;
 INSERT INTO shipping_methods (id, name, carrier, description, cost_usd, estimated_days, is_free_above_threshold, insurance_included)
 VALUES
 ('ship-insured-priority', 'Aurelic Armored Air Courier (Insured)', 'FedEx Priority Valuables / Ferrari Group', 'Direct courier delivery with sealed security container, signature verification & full transit insurance.', 75.00, '2–4 Business Days', TRUE, TRUE),
-('ship-white-glove', 'White-Glove Private Concierge Handover', 'Aurelic Jewels Private Client Delivery', 'Dedicated luxury advisor handover at your private residence, hotel suite, or boutique VIP atelier suite.', 250.00, '1–2 Business Days (Scheduled)', FALSE, TRUE)
+('ship-white-glove', 'White-Glove Private Concierge Handover', 'Aurelic Jewels Private Client Delivery', 'Dedicated luxury advisor handover at your private residence, hotel suite, or boutique VIP workshop suite.', 250.00, '1–2 Business Days (Scheduled)', FALSE, TRUE)
 ON CONFLICT (id) DO NOTHING;
 
 -- Insert Coupons
@@ -58,7 +58,7 @@ INSERT INTO products (
   'col-solitaire-masterpieces', 
   'Women', 
   'A monumental 2.50ct Round Brilliant VVS1 Diamond cradled in signature 18K yellow gold 6-prong crown.', 
-  'Sculpted in the heart of our Paris atelier, the Celestial Solitaire is the quintessential expression of timeless devotion. Hand-set with a GIA-certified 2.50-carat round brilliant-cut diamond of exceptional F colour and VVS1 clarity.', 
+  'Sculpted in the heart of our Paris workshop, the Celestial Solitaire is the quintessential expression of timeless devotion. Hand-set with a GIA-certified 2.50-carat round brilliant-cut diamond of exceptional F colour and VVS1 clarity.', 
   12800.00, 14200.00, 
   'Gold', '18K', '18K', 'Yellow Gold', 4.80, 
   'Diamond', 2.50, 8, 'active', TRUE, TRUE, TRUE, TRUE, TRUE, 5.0, 14

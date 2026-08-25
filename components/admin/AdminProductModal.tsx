@@ -40,7 +40,7 @@ export default function AdminProductModal({ onClose, onSaveProduct }: AdminProdu
       collection: 'Solitaire Masterpieces',
       gender: 'Women',
       shortDescription: prodDesc || 'Handcrafted fine jewellery in solid gold and certified gemstones.',
-      description: prodDesc || 'Exquisite masterpiece forged in our Paris Place Vendôme atelier with high-clarity gemstones.',
+      description: prodDesc || 'Exquisite masterpiece forged in our Paris Place Vendôme workshop with high-clarity gemstones.',
       priceUSD: Number(prodPriceUSD),
       currency: 'USD',
       metalType: prodMetal,
@@ -48,7 +48,7 @@ export default function AdminProductModal({ onClose, onSaveProduct }: AdminProdu
       goldKarat: `${prodPurity} Solid Gold`,
       grossWeightGrams: Number(prodGrossWeight),
       netGoldWeightGrams: Math.round((Number(prodGrossWeight) * 0.9) * 10) / 10,
-      hallmarkAssayOffice: 'Paris Assay Office Eagle Head Hallmark & Aurelic Jewels Atelier Stamp',
+      hallmarkAssayOffice: 'Paris Assay Office Eagle Head Hallmark & Aurelic Jewels Workshop Stamp',
       stoneType: prodStone,
       stoneWeightCarats: Number(prodStoneCarats),
       totalCaratWeight: Number(prodStoneCarats),
@@ -67,7 +67,7 @@ export default function AdminProductModal({ onClose, onSaveProduct }: AdminProdu
       isMadeToOrder: false,
       productionLeadTimeDays: 2,
       estimatedDispatchHours: 24,
-      countryOfOrigin: 'France (Paris Place Vendôme Atelier)',
+      countryOfOrigin: 'France (Paris Place Vendôme Workshop)',
       status: 'active',
       images: (
         prodImages.length > 0
@@ -229,7 +229,7 @@ export default function AdminProductModal({ onClose, onSaveProduct }: AdminProdu
 
         <div>
           <label className="block text-[11px] uppercase tracking-wider text-[#4a4237] mb-1">
-            Atelier Description
+            Workshop Description
           </label>
           <textarea
             rows={2}

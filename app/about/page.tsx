@@ -28,7 +28,7 @@ export default function AboutPage() {
         <div className="relative aspect-4/3 w-full bg-[#f5efe6] overflow-hidden border border-[#c5b49e]/40">
           <Image
             src="https://images.unsplash.com/photo-1534447677768-be436bb09401?auto=format&fit=crop&w=1200&q=80"
-            alt="Aurelic Jewels Atelier Craftsmanship"
+            alt="Aurelic Jewels Workshop Craftsmanship"
             fill
             className="object-cover"
             referrerPolicy="no-referrer"
@@ -74,7 +74,7 @@ export default function AboutPage() {
           <Award className="w-6 h-6 text-[#9b7e46]" />
           <h3 className="font-serif text-lg text-[#141210]">French State Hallmarking</h3>
           <p className="text-xs text-[#73685a] leading-relaxed">
-            Every piece crafted in our Parisian atelier is struck with the prestigious French guarantee hallmark and individual serial registry.
+            Every piece crafted in our Parisian workshop is struck with the prestigious French guarantee hallmark and individual serial registry.
           </p>
         </div>
 

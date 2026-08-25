@@ -78,7 +78,7 @@ export default function AccountPage() {
             href="/"
             className="block text-xs text-[#73685a] hover:text-[#141210] pt-2"
           >
-            Return to Atelier Home
+            Return to Workshop Home
           </Link>
         </div>
       </div>
@@ -105,7 +105,7 @@ export default function AccountPage() {
               href="/admin"
               className="px-4 py-2 border border-[#9b7e46] text-[#9b7e46] text-xs uppercase tracking-wider hover:bg-[#9b7e46] hover:text-white transition-colors"
             >
-              Atelier Control Center
+              Workshop Control Center
             </Link>
           )}
           <button
@@ -165,7 +165,7 @@ export default function AccountPage() {
           >
             <span className="flex items-center gap-2">
               <MessageSquare className="w-4 h-4 text-[#d4af37]" />
-              <span>Atelier Inquiries & Chat</span>
+              <span>Workshop Inquiries & Chat</span>
             </span>
             {unreadCount > 0 ? (
               <span className="px-1.5 py-0.5 bg-rose-600 text-white rounded-full text-[9px] font-bold">
@@ -405,20 +405,20 @@ export default function AccountPage() {
             </div>
           )}
 
-          {/* TAB 3: ATELIER CHATS & INQUIRIES */}
+          {/* TAB 3: WORKSHOP CHATS & INQUIRIES */}
           {activeTab === 'messages' && (
             <div className="space-y-6">
               <div className="flex justify-between items-center">
                 <div>
                   <h2 className="font-serif text-2xl text-[#141210] uppercase">
-                    Atelier Inquiries & Direct Messages
+                    Workshop Inquiries & Direct Messages
                   </h2>
                   <p className="text-xs text-[#73685a]">
                     Communicate directly with Master Jewellers and Gemologists regarding customizations, sizing, and private orders.
                   </p>
                 </div>
                 <button
-                  onClick={() => openChat({ subject: 'Direct Master Jeweller Consultation', initialMessage: 'Greetings, I would like to consult with an Atelier specialist.' })}
+                  onClick={() => openChat({ subject: 'Direct Master Jeweller Consultation', initialMessage: 'Greetings, I would like to consult with an Workshop specialist.' })}
                   className="px-4 py-2.5 bg-[#141210] hover:bg-[#9b7e46] text-white text-xs uppercase tracking-wider transition-colors flex items-center gap-1.5"
                 >
                   <Plus className="w-3.5 h-3.5 text-[#d4af37]" />
@@ -429,7 +429,7 @@ export default function AccountPage() {
               {conversations.length === 0 ? (
                 <div className="bg-white p-12 text-center border border-[#ebdccd] space-y-3">
                   <MessageSquare className="w-10 h-10 text-[#c5b49e] mx-auto" />
-                  <p className="font-serif text-lg text-[#141210]">No Active Atelier Conversations</p>
+                  <p className="font-serif text-lg text-[#141210]">No Active Workshop Conversations</p>
                   <p className="text-xs text-[#73685a] max-w-md mx-auto">
                     You have no active message threads. You can inquire directly about custom engravings, 950 platinum alloys, or custom diamond weights anytime.
                   </p>
@@ -437,7 +437,7 @@ export default function AccountPage() {
                     onClick={() => openChat()}
                     className="inline-block mt-2 px-6 py-2.5 bg-[#141210] text-white text-xs uppercase tracking-widest hover:bg-[#9b7e46] transition-colors"
                   >
-                    Open Atelier Concierge
+                    Open Workshop Concierge
                   </button>
                 </div>
               ) : (
@@ -540,7 +540,7 @@ export default function AccountPage() {
                 <div>
                   <span className="text-[#73685a] uppercase tracking-wider block">Aurelic Jewels Membership</span>
                   <p className="text-[#9b7e46] uppercase tracking-wider font-semibold">
-                    {user.role === 'admin' ? 'Atelier Administrator' : 'Haute Joaillerie Customer'}
+                    {user.role === 'admin' ? 'Workshop Administrator' : 'Haute Joaillerie Customer'}
                   </p>
                 </div>
               </div>

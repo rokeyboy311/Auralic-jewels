@@ -24,7 +24,7 @@ This document covers the steps executed to transition Aurelic Jewels from a mock
 5. **Security & Validation**:
    * Added Next.js `middleware.ts` to strictly protect `/admin` routes based on JWT presence and Role-Based Access Control (RBAC).
 6. **Unified Portal**:
-   * Maintained strictly two entry points: `/` (public/customer) and `/admin` (atelier staff), sharing the same authentication infrastructure.
+   * Maintained strictly two entry points: `/` (public/customer) and `/admin` (workshop staff), sharing the same authentication infrastructure.
 
 ## Next Steps for Administrators
 

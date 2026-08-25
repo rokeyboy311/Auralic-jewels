@@ -134,7 +134,7 @@ export default function SearchModal({ isOpen, onClose }: SearchModalProps) {
                     onClick={handleClose}
                     className="inline-block mt-4 text-xs tracking-widest uppercase text-[#C5A059] border-b border-[#C5A059] pb-0.5"
                   >
-                    Bespoke Atelier Inquiry →
+                    Bespoke Workshop Inquiry →
                   </Link>
                 </div>
               ) : (

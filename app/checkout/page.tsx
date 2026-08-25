@@ -150,7 +150,7 @@ function CheckoutContent() {
         success('Order Confirmed', `Consignment #${orderData.orderNumber} has been secured.`);
         router.push(`/order-success?orderNumber=${orderData.orderNumber}`);
       } else {
-        error('Acquisition Error', res.error || 'Could not place your order with the atelier.');
+        error('Acquisition Error', res.error || 'Could not place your order with the workshop.');
       }
     } catch (err: any) {
       error('Checkout Error', err.message);
@@ -507,7 +507,7 @@ function CheckoutContent() {
 
             {paymentMethod === 'consignment' && (
               <div className="p-4 bg-white border border-[#c5b49e]/60 text-xs text-[#4a4237] space-y-2">
-                <p className="font-semibold text-[#141210]">Direct Atelier Consignment:</p>
+                <p className="font-semibold text-[#141210]">Direct Workshop Consignment:</p>
                 <p>An official Aurelic Jewels itemized VAT invoice will be dispatched directly to your confidential email.</p>
                 <p className="text-[11px] text-[#73685a]">
                   Payment settlement will be handled by our private client advisor prior to courier dispatch.

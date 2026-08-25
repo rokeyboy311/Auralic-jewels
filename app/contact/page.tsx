@@ -34,11 +34,11 @@ export default function ContactPage() {
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-start">
-        {/* Atelier Details */}
+        {/* Workshop Details */}
         <div className="lg:col-span-5 space-y-8 bg-[#faf8f5] border border-[#c5b49e]/40 p-6 sm:p-8">
           <div className="space-y-2">
             <h2 className="font-serif text-2xl text-[#141210] uppercase">
-              Global Flagship Ateliers
+              Global Flagship Workshops
             </h2>
             <p className="text-xs text-[#73685a] leading-relaxed">
               Private bespoke consultations and master goldsmith viewings by advance appointment.
@@ -97,7 +97,7 @@ export default function ContactPage() {
               <div className="w-14 h-14 bg-[#ede5d8] text-[#9b7e46] rounded-full flex items-center justify-center mx-auto">
                 <Check className="w-7 h-7" />
               </div>
-              <h3 className="font-serif text-xl text-[#141210]">Inquiry Entrusted to Atelier</h3>
+              <h3 className="font-serif text-xl text-[#141210]">Inquiry Entrusted to Workshop</h3>
               <p className="text-xs text-[#73685a] max-w-sm mx-auto">
                 Thank you for contacting Aurelic Jewels. Our senior gemological team will review your message and reply promptly.
               </p>
@@ -154,7 +154,7 @@ export default function ContactPage() {
                   <option>Private Gemstone Inquiry</option>
                   <option>Bespoke Commission & Design Modification</option>
                   <option>Consignment & Order Tracking</option>
-                  <option>Atelier Consultation Request</option>
+                  <option>Workshop Consultation Request</option>
                   <option>Press & Editorial Inquiries</option>
                 </select>
               </div>

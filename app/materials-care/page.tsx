@@ -13,7 +13,7 @@ export default function MaterialsCarePage() {
           Fine Jewellery Materials & Care Guide
         </h1>
         <p className="text-xs sm:text-sm text-[#73685a] max-w-lg mx-auto font-light leading-relaxed">
-          Preserve the mirror polish of your solid gold and the fire of your certified diamonds across generations with our atelier maintenance recommendations.
+          Preserve the mirror polish of your solid gold and the fire of your certified diamonds across generations with our workshop maintenance recommendations.
         </p>
       </div>
 
@@ -40,9 +40,9 @@ export default function MaterialsCarePage() {
         </div>
 
         <div className="bg-[#faf8f5] border border-[#c5b49e]/40 p-6 sm:p-8 space-y-3">
-          <h2 className="font-serif text-xl text-[#141210] uppercase">4. Complimentary Annual Atelier Spa</h2>
+          <h2 className="font-serif text-xl text-[#141210] uppercase">4. Complimentary Annual Workshop Spa</h2>
           <p className="text-xs text-[#4a4237] leading-relaxed">
-            Every Aurelic piece includes lifetime complimentary annual prong tightening, ultrasonic inspection, and steam polishing at our Place Vendôme atelier or via our insured courier service.
+            Every Aurelic piece includes lifetime complimentary annual prong tightening, ultrasonic inspection, and steam polishing at our Place Vendôme workshop or via our insured courier service.
           </p>
         </div>
       </div>

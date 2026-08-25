@@ -41,7 +41,7 @@ export default function ReturnsRefundsPage() {
             3. Inspection & Refund Settlement
           </h2>
           <p className="leading-relaxed">
-            Once received at our Place Vendôme atelier, our gemological quality team conducts microscopic hallmark and stone verification within 48 business hours. Refunds are credited directly to your original payment method within 3–5 banking business days.
+            Once received at our Place Vendôme workshop, our gemological quality team conducts microscopic hallmark and stone verification within 48 business hours. Refunds are credited directly to your original payment method within 3–5 banking business days.
           </p>
         </div>
 

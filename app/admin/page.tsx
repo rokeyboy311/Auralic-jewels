@@ -34,7 +34,7 @@ import {
   Mail,
   CheckCircle,
 } from 'lucide-react';
-import { Product, Order, BespokeInquiry, Conversation, ConversationMessage, AtelierStaff, ConversationStatus, ConversationPriority } from '@/lib/types';
+import { Product, Order, BespokeInquiry, Conversation, ConversationMessage, WorkshopStaff, ConversationStatus, ConversationPriority } from '@/lib/types';
 import {
   getAdminStats,
   getAdminOrders,
@@ -64,7 +64,7 @@ export default function AdminDashboardPage() {
   const [products, setProducts] = useState<Product[]>([]);
   const [bespokeInquiries, setBespokeInquiries] = useState<BespokeInquiry[]>([]);
   const [conversations, setConversations] = useState<Conversation[]>([]);
-  const [staffList, setStaffList] = useState<AtelierStaff[]>([]);
+  const [staffList, setStaffList] = useState<WorkshopStaff[]>([]);
   const [selectedConversation, setSelectedConversation] = useState<Conversation | null>(null);
   const [activeTab, setActiveTab] = useState<'orders' | 'products' | 'bespoke' | 'chat' | 'staff'>('orders');
   const [isLoading, setIsLoading] = useState(true);
@@ -142,7 +142,7 @@ export default function AdminDashboardPage() {
     setIsSendingReply(true);
     try {
       const res = await sendConversationMessage(selectedConversation.id, {
-        senderName: user?.name || 'Aurelic Jewels Atelier Director',
+        senderName: user?.name || 'Aurelic Jewels Workshop Director',
         senderRole: 'master_jeweller',
         content: adminReplyText.trim(),
         isInternalNote,
@@ -231,7 +231,7 @@ export default function AdminDashboardPage() {
         error('Update Failed', res.error || 'Could not update order status.');
       }
     } catch {
-      error('Update Error', 'Could not communicate with the atelier server.');
+      error('Update Error', 'Could not communicate with the workshop server.');
     }
   };
 
@@ -249,7 +249,7 @@ export default function AdminDashboardPage() {
         collection: 'Solitaire Masterpieces',
         gender: 'Women' as const,
         shortDescription: prodDesc || 'Handcrafted fine jewellery in solid gold and certified gemstones.',
-        description: prodDesc || 'Exquisite masterpiece forged in our Paris Place Vendôme atelier with high-clarity gemstones.',
+        description: prodDesc || 'Exquisite masterpiece forged in our Paris Place Vendôme workshop with high-clarity gemstones.',
         priceUSD: Number(prodPriceUSD),
         currency: 'USD',
         metalType: prodMetal as any,
@@ -257,7 +257,7 @@ export default function AdminDashboardPage() {
         goldKarat: `${prodPurity} Solid Gold`,
         grossWeightGrams: Number(prodGrossWeight),
         netGoldWeightGrams: Math.round((Number(prodGrossWeight) * 0.9) * 10) / 10,
-        hallmarkAssayOffice: 'Paris Assay Office Eagle Head Hallmark & Aurelic Jewels Atelier Stamp',
+        hallmarkAssayOffice: 'Paris Assay Office Eagle Head Hallmark & Aurelic Jewels Workshop Stamp',
         stoneType: prodStone as any,
         stoneWeightCarats: Number(prodStoneCarats),
         totalCaratWeight: Number(prodStoneCarats),
@@ -276,7 +276,7 @@ export default function AdminDashboardPage() {
         isMadeToOrder: false,
         productionLeadTimeDays: 2,
         estimatedDispatchHours: 24,
-        countryOfOrigin: 'France (Paris Place Vendôme Atelier)',
+        countryOfOrigin: 'France (Paris Place Vendôme Workshop)',
         status: 'active' as const,
         images: (
           prodImages.length > 0
@@ -338,8 +338,8 @@ export default function AdminDashboardPage() {
     try {
       const ok = await login(adminEmail, adminPassword);
       if (ok) {
-        setAuthSuccessMessage('Authentication Successful. Entering Atelier Control Center...');
-        success('Access Granted', 'Welcome back, Atelier Director.');
+        setAuthSuccessMessage('Authentication Successful. Entering Workshop Control Center...');
+        success('Access Granted', 'Welcome back, Workshop Director.');
         setTimeout(async () => {
           await loadAll();
           setIsAuthenticating(false);
@@ -369,7 +369,7 @@ export default function AdminDashboardPage() {
                 Aurelic Jewels Paris
               </span>
               <h1 className="font-serif text-2xl sm:text-3xl text-[#141210] mt-1 font-light">
-                Atelier Admin Portal
+                Workshop Admin Portal
               </h1>
             </div>
             <p className="text-xs text-[#73685a] leading-relaxed max-w-xs mx-auto">
@@ -494,7 +494,7 @@ export default function AdminDashboardPage() {
         <div>
           <div className="flex items-center gap-2">
             <span className="text-[10px] tracking-[0.35em] text-[#9b7e46] uppercase font-semibold">
-              Aurelic Jewels Atelier Control Center
+              Aurelic Jewels Workshop Control Center
             </span>
             <span className="px-2 py-0.5 bg-emerald-100 text-emerald-800 text-[9px] uppercase tracking-wider font-semibold rounded-xs">
               Live Session
@@ -504,7 +504,7 @@ export default function AdminDashboardPage() {
             Executive Operations
           </h1>
           <p className="text-xs text-[#73685a] mt-0.5">
-            Logged in as <strong className="text-[#141210]">{user?.name || 'Aurelic Jewels Atelier Director'}</strong> ({user?.email}) • Paris Place Vendôme Node
+            Logged in as <strong className="text-[#141210]">{user?.name || 'Aurelic Jewels Workshop Director'}</strong> ({user?.email}) • Paris Place Vendôme Node
           </p>
         </div>
 
@@ -533,7 +533,7 @@ export default function AdminDashboardPage() {
           <button
             onClick={async () => {
               await logout();
-              success('Signed Out', 'You have been logged out of the Atelier control center.');
+              success('Signed Out', 'You have been logged out of the Workshop control center.');
             }}
             className="px-3.5 py-2 bg-rose-50 hover:bg-rose-100 text-rose-900 border border-rose-200 text-xs uppercase tracking-wider font-medium flex items-center gap-1.5 transition-colors cursor-pointer"
             title="Sign out of Admin Portal"
@@ -572,7 +572,7 @@ export default function AdminDashboardPage() {
             <Sparkles className="w-4 h-4 text-[#d4af37]" />
           </div>
           <p className="font-serif text-2xl sm:text-3xl text-[#141210]">{bespokeInquiries.length}</p>
-          <p className="text-[10px] text-[#73685a]">Custom Atelier Requests</p>
+          <p className="text-[10px] text-[#73685a]">Custom Workshop Requests</p>
         </div>
 
         <div className="bg-white p-5 border border-[#ebdccd] space-y-2">
@@ -616,7 +616,7 @@ export default function AdminDashboardPage() {
           }`}
         >
           <MessageSquare className="w-3.5 h-3.5 text-[#9b7e46]" />
-          <span>Atelier Concierge Desk ({conversations.length})</span>
+          <span>Workshop Concierge Desk ({conversations.length})</span>
           {conversations.reduce((sum, c) => sum + (c.unreadByAdminCount || 0), 0) > 0 && (
             <span className="px-1.5 py-0.2 bg-rose-600 text-white rounded-full text-[9px] font-bold">
               {conversations.reduce((sum, c) => sum + (c.unreadByAdminCount || 0), 0)}
@@ -642,7 +642,7 @@ export default function AdminDashboardPage() {
           }`}
         >
           <UserCheck className="w-3.5 h-3.5 text-[#9b7e46]" />
-          <span>Atelier Staff ({staffList.length})</span>
+          <span>Workshop Staff ({staffList.length})</span>
         </button>
       </div>
 
@@ -786,7 +786,7 @@ export default function AdminDashboardPage() {
                     <td className="py-3.5 px-4">
                       <div className="font-medium">{p.stoneType} ({p.stoneWeightCarats || 0}ct)</div>
                       <div className="text-[10px] text-[#73685a]">
-                        {p.certification?.certificateNumber || 'Atelier Hallmark'}
+                        {p.certification?.certificateNumber || 'Workshop Hallmark'}
                       </div>
                     </td>
                     <td className="py-3.5 px-4 font-mono text-[11px]">
@@ -890,7 +890,7 @@ export default function AdminDashboardPage() {
         </div>
       )}
 
-      {/* TAB 4: ATELIER CONCIERGE & CHAT DESK */}
+      {/* TAB 4: WORKSHOP CONCIERGE & CHAT DESK */}
       {activeTab === 'chat' && (
         <div className="bg-white border border-[#ebdccd] overflow-hidden shadow-xs">
           <div className="p-4 border-b border-[#ebdccd] flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 bg-[#faf8f5]">
@@ -1009,7 +1009,7 @@ export default function AdminDashboardPage() {
                         )}
 
                         <div className="flex items-center justify-between pt-1 border-t border-[#ebdccd]/50 text-[10px] text-[#73685a]">
-                          <span>Assigned: {conv.assignedStaffName?.split(' ')[0] || 'Atelier'}</span>
+                          <span>Assigned: {conv.assignedStaffName?.split(' ')[0] || 'Workshop'}</span>
                           {conv.unreadByAdminCount > 0 && (
                             <span className="px-1.5 py-0.2 bg-rose-600 text-white rounded-full font-bold">
                               {conv.unreadByAdminCount} unread
@@ -1065,7 +1065,7 @@ export default function AdminDashboardPage() {
                         <UserCheck className="w-3.5 h-3.5 text-[#9b7e46]" />
                         <span>Assigned Jeweller:</span>
                         <strong className="text-[#141210]">
-                          {selectedConversation.assignedStaffName || 'Atelier General Queue'}
+                          {selectedConversation.assignedStaffName || 'Workshop General Queue'}
                         </strong>
                       </div>
 
@@ -1147,7 +1147,7 @@ export default function AdminDashboardPage() {
                               <div className="flex items-center justify-between font-mono text-[10px] text-amber-900 font-bold uppercase">
                                 <span className="flex items-center gap-1">
                                   <Lock className="w-3 h-3 text-amber-800" />
-                                  Internal Atelier Ledger Note • {msg.senderName}
+                                  Internal Workshop Ledger Note • {msg.senderName}
                                 </span>
                                 <span>{new Date(msg.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
                               </div>
@@ -1213,7 +1213,7 @@ export default function AdminDashboardPage() {
                           className="accent-[#9b7e46]"
                         />
                         <span className={`text-[11px] font-medium ${isInternalNote ? 'text-amber-900 font-bold' : 'text-[#73685a]'}`}>
-                          Internal Note (Visible only to Atelier Staff & Admins)
+                          Internal Note (Visible only to Workshop Staff & Admins)
                         </span>
                       </label>
 
@@ -1273,12 +1273,12 @@ export default function AdminDashboardPage() {
         </div>
       )}
 
-      {/* TAB 5: ATELIER STAFF DIRECTORY */}
+      {/* TAB 5: WORKSHOP STAFF DIRECTORY */}
       {activeTab === 'staff' && (
         <div className="bg-white border border-[#ebdccd] overflow-hidden">
           <div className="p-4 border-b border-[#ebdccd] flex justify-between items-center bg-[#faf8f5]">
             <div>
-              <h3 className="font-serif text-lg text-[#141210]">Aurelic Jewels Atelier Specialists & Gemologists</h3>
+              <h3 className="font-serif text-lg text-[#141210]">Aurelic Jewels Workshop Specialists & Gemologists</h3>
               <p className="text-xs text-[#73685a]">
                 Directory of senior goldsmiths and gemological directors active across our salons.
               </p>
@@ -1330,7 +1330,7 @@ export default function AdminDashboardPage() {
                     }`}
                   />
                   <span className="text-[#73685a]">
-                    {st.isOnline ? 'On Duty in Atelier' : 'Away from Bench'}
+                    {st.isOnline ? 'On Duty in Workshop' : 'Away from Bench'}
                   </span>
                 </div>
               </div>
@@ -1354,7 +1354,7 @@ export default function AdminDashboardPage() {
                 onChange={(e) => setNewStatus(e.target.value)}
                 className="w-full bg-white border border-[#c5b49e]/60 px-3 py-2 text-xs text-[#141210]"
               >
-                <option value="processing">Processing in Atelier</option>
+                <option value="processing">Processing in Workshop</option>
                 <option value="in_production">Bespoke Workshop Forging</option>
                 <option value="quality_check">Gemological & Hallmark Assay</option>
                 <option value="shipped">Dispatched with Armored Courier</option>

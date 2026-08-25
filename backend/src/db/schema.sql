@@ -13,7 +13,7 @@ CREATE TABLE IF NOT EXISTS users (
     password_hash VARCHAR(255),
     name VARCHAR(255) NOT NULL,
     phone VARCHAR(50),
-    role VARCHAR(50) DEFAULT 'customer' CHECK (role IN ('customer', 'atelier_staff', 'admin', 'superadmin', 'gemologist', 'master_jeweller')),
+    role VARCHAR(50) DEFAULT 'customer' CHECK (role IN ('customer', 'workshop_staff', 'admin', 'superadmin', 'gemologist', 'master_jeweller')),
     is_email_verified BOOLEAN DEFAULT FALSE,
     google_id VARCHAR(255) UNIQUE,
     avatar_url TEXT,
@@ -237,7 +237,7 @@ CREATE TABLE IF NOT EXISTS reviews (
     created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );
 
--- 14. ATELIER CONCIERGE CHAT CONVERSATIONS
+-- 14. WORKSHOP CONCIERGE CHAT CONVERSATIONS
 CREATE TABLE IF NOT EXISTS conversations (
     id VARCHAR(100) PRIMARY KEY,
     ticket_number VARCHAR(100) UNIQUE NOT NULL,
@@ -297,7 +297,7 @@ CREATE TABLE IF NOT EXISTS bespoke_inquiries (
     design_description TEXT NOT NULL,
     reference_image_url TEXT,
     timeline_requirement VARCHAR(100),
-    status VARCHAR(50) DEFAULT 'inquiry_received' CHECK (status IN ('inquiry_received', 'consultation_scheduled', 'cad_in_progress', 'quotation_issued', 'approved', 'in_atelier')),
+    status VARCHAR(50) DEFAULT 'inquiry_received' CHECK (status IN ('inquiry_received', 'consultation_scheduled', 'cad_in_progress', 'quotation_issued', 'approved', 'in_workshop')),
     created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );
 

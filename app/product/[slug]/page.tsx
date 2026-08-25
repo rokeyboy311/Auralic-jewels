@@ -393,7 +393,7 @@ export default function ProductDetailPage({ params }: { params: Promise<{ slug: 
                 className="py-3 px-3 bg-[#141210] hover:bg-[#9b7e46] text-[#faf8f5] text-[11px] uppercase tracking-[0.12em] font-medium flex items-center justify-center gap-2 transition-colors"
               >
                 <MessageSquare className="w-3.5 h-3.5 text-[#dfd0b5]" />
-                <span>Chat with Atelier Jeweller</span>
+                <span>Chat with Workshop Jeweller</span>
               </button>
             </div>
 
@@ -474,7 +474,7 @@ export default function ProductDetailPage({ params }: { params: Promise<{ slug: 
             )}
             <div className="space-y-1">
               <span className="text-[#9b7e46] uppercase tracking-wider block">Assay Hallmark</span>
-              <p className="font-serif text-sm text-[#141210]">{product.hallmarkAssayOffice || 'Paris Assay Eagle Head & Atelier Stamp'}</p>
+              <p className="font-serif text-sm text-[#141210]">{product.hallmarkAssayOffice || 'Paris Assay Eagle Head & Workshop Stamp'}</p>
             </div>
             <div className="space-y-1">
               <span className="text-[#9b7e46] uppercase tracking-wider block">Gemological Certification</span>
@@ -490,7 +490,7 @@ export default function ProductDetailPage({ params }: { params: Promise<{ slug: 
           <div className="space-y-4 text-xs sm:text-sm text-[#4a4237] leading-relaxed max-w-4xl bg-white p-6 border border-[#c5b49e]/30">
             <p>{product.description}</p>
             <p>
-              Hand-forged by generational artisans in our Place Vendôme atelier. Every claw and pavé bead is sculpted by hand with microscopic precision to elevate the gemstone above the metal, yielding unmatched brilliance and fire.
+              Hand-forged by generational artisans in our Place Vendôme workshop. Every claw and pavé bead is sculpted by hand with microscopic precision to elevate the gemstone above the metal, yielding unmatched brilliance and fire.
             </p>
           </div>
         )}

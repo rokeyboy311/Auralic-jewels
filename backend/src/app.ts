@@ -82,7 +82,7 @@ export function createApp() {
       service: 'Aurelic Jewels REST API',
       status: 'online',
       mediaStorage: 'Neon PostgreSQL Image Vault',
-      payments: 'Direct Atelier Consignment',
+      payments: 'Direct Workshop Consignment',
       environment: config.env,
       timestamp: new Date().toISOString(),
     });

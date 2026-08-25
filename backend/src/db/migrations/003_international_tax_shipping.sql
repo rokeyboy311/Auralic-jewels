@@ -68,7 +68,7 @@ CREATE TABLE IF NOT EXISTS password_resets (
   created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );
 
--- Atelier Concierge Conversations
+-- Workshop Concierge Conversations
 CREATE TABLE IF NOT EXISTS conversations (
   id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
   user_id UUID REFERENCES users(id) ON DELETE SET NULL,

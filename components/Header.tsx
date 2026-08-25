@@ -176,7 +176,7 @@ export default function Header({ onOpenSearch, onOpenAuth, onOpenAppointment }: 
               href="/admin"
               className="hidden md:inline-flex px-2.5 py-1 text-[9px] uppercase tracking-widest bg-[#1A1A1A] text-[#C5A059] border border-[#C5A059]/40 hover:bg-[#C5A059] hover:text-white transition-colors"
             >
-              Atelier Admin
+              Workshop Admin
             </Link>
           )}
 

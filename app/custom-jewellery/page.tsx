@@ -70,7 +70,7 @@ export default function CustomJewelleryPage() {
   const [uploadedFile, setUploadedFile] = useState<string | null>(null);
 
   // Consultation State
-  const [atelierCity, setAtelierCity] = useState(brandConfig.boutiques[0].city);
+  const [workshopCity, setWorkshopCity] = useState(brandConfig.boutiques[0].city);
   const [consultationFormat, setConsultationFormat] = useState('Virtual 1-on-1 Master Gemologist Video');
   const [consultationDate, setConsultationDate] = useState('');
 
@@ -119,7 +119,7 @@ export default function CustomJewelleryPage() {
           );
         } else {
           success(
-            'Atelier Consultation Confirmed',
+            'Workshop Consultation Confirmed',
             `Reference ${res.data.referenceNumber}: Senior Master Jeweller will contact you within 4 hours.`
           );
         }
@@ -137,7 +137,7 @@ export default function CustomJewelleryPage() {
       <div className="text-center space-y-4 max-w-3xl mx-auto">
         <div className="inline-flex items-center gap-2 text-[10px] tracking-[0.35em] text-[#9b7e46] uppercase font-medium">
           <Sparkles className="w-3.5 h-3.5" />
-          <span>Place Vendôme Haute Joaillerie Atelier</span>
+          <span>Place Vendôme Haute Joaillerie Workshop</span>
         </div>
         <h1 className="font-serif text-4xl sm:text-5xl text-[#141210] uppercase font-light tracking-wide">
           Bespoke Jewellery & Design Modifications
@@ -199,7 +199,7 @@ export default function CustomJewelleryPage() {
           </div>
           <h3 className="font-serif text-lg font-medium">Master Jeweller Consultation</h3>
           <p className={`text-xs mt-1 leading-relaxed ${activeTab === 'consultation' ? 'text-white/70' : 'text-[#73685a]'}`}>
-            Book a private video or in-atelier session with our Chief Gemologist in Paris, New York, London, or Dubai.
+            Book a private video or in-workshop session with our Chief Gemologist in Paris, New York, London, or Dubai.
           </p>
         </button>
       </div>
@@ -218,7 +218,7 @@ export default function CustomJewelleryPage() {
               </span>
               <h2 className="font-serif text-3xl text-[#141210]">Your Custom Vision Has Been Entrusted</h2>
               <p className="text-xs sm:text-sm text-[#73685a] leading-relaxed pt-2">
-                Thank you, <strong className="text-[#141210]">{customerName}</strong>. Our Master Goldsmiths and Chief Gemologist at Place Vendôme Atelier are reviewing your specifications. You will receive 3D gouache sketches and metallurgic quotation within 4–8 business hours.
+                Thank you, <strong className="text-[#141210]">{customerName}</strong>. Our Master Goldsmiths and Chief Gemologist at Place Vendôme Workshop are reviewing your specifications. You will receive 3D gouache sketches and metallurgic quotation within 4–8 business hours.
               </p>
             </div>
 
@@ -647,10 +647,10 @@ export default function CustomJewelleryPage() {
                       className="w-full bg-white border border-[#c5b49e]/60 px-3 py-2.5 text-xs text-[#141210] focus:outline-none focus:border-[#9b7e46]"
                     >
                       <option>Virtual 1-on-1 Master Gemologist Video Consultation</option>
-                      <option>In-Atelier Appointment at Place Vendôme, Paris</option>
-                      <option>In-Atelier Appointment at Madison Avenue, New York</option>
-                      <option>In-Atelier Appointment at New Bond Street, London</option>
-                      <option>In-Atelier Appointment at DIFC Atelier, Dubai</option>
+                      <option>In-Workshop Appointment at Place Vendôme, Paris</option>
+                      <option>In-Workshop Appointment at Madison Avenue, New York</option>
+                      <option>In-Workshop Appointment at New Bond Street, London</option>
+                      <option>In-Workshop Appointment at DIFC Workshop, Dubai</option>
                     </select>
                   </div>
 

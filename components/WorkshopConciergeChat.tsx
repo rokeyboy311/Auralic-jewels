@@ -22,7 +22,7 @@ import { useAuth } from '@/context/AuthContext';
 import { ConversationType } from '@/lib/types';
 import { uploadImage } from '@/lib/api';
 
-export default function AtelierConciergeChat() {
+export default function WorkshopConciergeChat() {
   const {
     isOpen,
     openChat,
@@ -137,7 +137,7 @@ export default function AtelierConciergeChat() {
       {!isOpen && (
         <button
           onClick={() => openChat()}
-          aria-label="Open Atelier Concierge Chat"
+          aria-label="Open Workshop Concierge Chat"
           className="fixed bottom-6 right-6 z-40 group flex items-center gap-3 bg-[#141210] text-[#faf8f5] px-4 py-3 border border-[#9b7e46]/60 shadow-2xl hover:bg-[#9b7e46] transition-all duration-300 transform hover:-translate-y-0.5 cursor-pointer"
         >
           <div className="relative flex items-center justify-center">
@@ -150,7 +150,7 @@ export default function AtelierConciergeChat() {
           </div>
           <div className="text-left hidden sm:block">
             <span className="text-[10px] uppercase tracking-[0.2em] font-medium block text-[#dfd0b5] group-hover:text-white">
-              Atelier Concierge
+              Workshop Concierge
             </span>
             <span className="text-[9px] text-[#a39887] group-hover:text-white/80 block">
               Master Jeweller Online
@@ -235,7 +235,7 @@ export default function AtelierConciergeChat() {
           {isComposingNew ? (
             <div className="flex-1 overflow-y-auto p-5 bg-white space-y-4">
               <div className="flex items-center justify-between border-b border-[#ebdccd] pb-3">
-                <h3 className="font-serif text-lg text-[#141210]">Direct Atelier Request</h3>
+                <h3 className="font-serif text-lg text-[#141210]">Direct Workshop Request</h3>
                 <button
                   onClick={() => setIsComposingNew(false)}
                   className="text-xs text-[#9b7e46] hover:underline"
@@ -302,7 +302,7 @@ export default function AtelierConciergeChat() {
                     disabled={isSending}
                     className="w-full py-3 bg-[#141210] text-[#faf8f5] text-xs uppercase tracking-[0.2em] font-medium hover:bg-[#9b7e46] transition-colors disabled:opacity-50"
                   >
-                    {isSending ? 'Connecting with Atelier...' : 'Submit Request to Master Jeweller'}
+                    {isSending ? 'Connecting with Workshop...' : 'Submit Request to Master Jeweller'}
                   </button>
                 </div>
               </form>
@@ -311,7 +311,7 @@ export default function AtelierConciergeChat() {
             /* View 2: Conversations List (if no active conversation chosen) */
             <div className="flex-1 overflow-y-auto p-4 bg-white space-y-3">
               <div className="flex items-center justify-between pb-2 border-b border-[#ebdccd]">
-                <h3 className="font-serif text-base text-[#141210]">Your Atelier Communications</h3>
+                <h3 className="font-serif text-base text-[#141210]">Your Workshop Communications</h3>
                 <button
                   onClick={() => setIsComposingNew(true)}
                   className="text-xs text-[#9b7e46] hover:underline font-medium flex items-center gap-1"
@@ -375,7 +375,7 @@ export default function AtelierConciergeChat() {
 
                     <div className="flex items-center justify-between pt-1 border-t border-[#ebdccd]/40 text-[10px]">
                       <span className="text-[#8c7f70]">
-                        {c.assignedStaffName || 'Atelier Director'}
+                        {c.assignedStaffName || 'Workshop Director'}
                       </span>
                       {c.unreadByUserCount > 0 && (
                         <span className="px-1.5 py-0.5 bg-rose-600 text-white rounded-full text-[9px] font-bold">
@@ -448,7 +448,7 @@ export default function AtelierConciergeChat() {
               <div className="flex-1 overflow-y-auto p-4 space-y-4 bg-[#faf8f5]/50">
                 <div className="text-center py-2">
                   <span className="text-[10px] uppercase tracking-[0.2em] text-[#8c7f70] bg-[#f2ece4] px-3 py-1 border border-[#ebdccd]">
-                    Direct Encrypted Atelier Channel
+                    Direct Encrypted Workshop Channel
                   </span>
                 </div>
 
@@ -470,7 +470,7 @@ export default function AtelierConciergeChat() {
                               ? 'Master Jeweller'
                               : msg.senderRole === 'gemologist'
                               ? 'Senior Gemologist'
-                              : 'Atelier Director'}
+                              : 'Workshop Director'}
                           </span>
                         )}
                         <span className="text-[9px] text-[#a39887]">
@@ -574,12 +574,12 @@ export default function AtelierConciergeChat() {
 
               {/* Message Composer */}
               <form onSubmit={handleSend} className="p-3 bg-white border-t border-[#ebdccd] flex items-center gap-2">
-                <label htmlFor="atelier-chat-file-input" className="sr-only">
+                <label htmlFor="workshop-chat-file-input" className="sr-only">
                   Attach Photo or Design Sketch
                 </label>
                 <input
                   ref={chatFileInputRef}
-                  id="atelier-chat-file-input"
+                  id="workshop-chat-file-input"
                   name="chatAttachment"
                   type="file"
                   accept="image/jpeg,image/png,image/webp,image/gif"
@@ -595,11 +595,11 @@ export default function AtelierConciergeChat() {
                 >
                   <ImageIcon className="w-4 h-4" />
                 </button>
-                <label htmlFor="atelier-chat-message-input" className="sr-only">
+                <label htmlFor="workshop-chat-message-input" className="sr-only">
                   Inquire with the Master Jeweller
                 </label>
                 <input
-                  id="atelier-chat-message-input"
+                  id="workshop-chat-message-input"
                   name="messageContent"
                   type="text"
                   placeholder="Inquire with the Master Jeweller..."

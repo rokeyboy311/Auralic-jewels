@@ -40,7 +40,7 @@ export default function AdminOrderUpdateModal({
             className="w-full bg-white border border-[#c5b49e]/60 px-3 py-2 text-xs text-[#141210]"
           >
             <option value="confirmed">Confirmed</option>
-            <option value="processing">Atelier In-Production</option>
+            <option value="processing">Workshop In-Production</option>
             <option value="ready_to_ship">Inspected & Sealed</option>
             <option value="shipped">Handed to Armored Carrier</option>
             <option value="in_transit">In Transit (Air Armored)</option>

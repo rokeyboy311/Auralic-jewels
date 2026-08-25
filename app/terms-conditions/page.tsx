@@ -19,7 +19,7 @@ export default function TermsConditionsPage() {
             1. Scope of Terms
           </h2>
           <p>
-            These General Terms and Conditions govern all orders, acquisitions, design modifications, and bespoke commissions placed through the Aurelic Jewels website or via our Private Atelier Concierge.
+            These General Terms and Conditions govern all orders, acquisitions, design modifications, and bespoke commissions placed through the Aurelic Jewels website or via our Private Workshop Concierge.
           </p>
         </section>
 

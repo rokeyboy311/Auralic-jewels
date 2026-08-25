@@ -81,7 +81,7 @@ export default function FAQPage() {
       <div className="text-center p-8 bg-[#faf8f5] border border-[#c5b49e]/40 space-y-3">
         <h3 className="font-serif text-xl text-[#141210]">Require Tailored Concierge Guidance?</h3>
         <p className="text-xs text-[#73685a] max-w-md mx-auto">
-          Our senior gemologists and atelier directors are available for private consultations.
+          Our senior gemologists and workshop directors are available for private consultations.
         </p>
         <Link
           href="/contact"

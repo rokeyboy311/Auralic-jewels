@@ -121,7 +121,7 @@ export default function AuthModal({ isOpen, onClose, initialMode = 'signin' }: A
                 ? 'Enter your registered email to receive authentication recovery instructions.'
                 : activeTab === 'signin'
                 ? 'Access bespoke commissions, order vault dossiers, and private concierge privileges.'
-                : 'Create your private atelier membership profile.'}
+                : 'Create your private workshop membership profile.'}
             </p>
           </div>
 
@@ -429,7 +429,7 @@ export default function AuthModal({ isOpen, onClose, initialMode = 'signin' }: A
           {/* Security Footer */}
           <div className="mt-5 pt-3 border-t border-[#ebdccd] flex items-center justify-center gap-1.5 text-[10px] text-[#8c7e6e]">
             <ShieldCheck className="w-3.5 h-3.5 text-[#9b7e46]" />
-            <span>256-Bit SSL Encrypted • Confidential Atelier Data Protection</span>
+            <span>256-Bit SSL Encrypted • Confidential Workshop Data Protection</span>
           </div>
         </motion.div>
       </div>

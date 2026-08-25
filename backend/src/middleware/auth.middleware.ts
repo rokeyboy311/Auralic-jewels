@@ -116,7 +116,7 @@ export function requireStaff(req: AuthenticatedRequest, res: Response, next: Nex
     if (!req.user || (req.user.role !== 'staff' && req.user.role !== 'admin' && req.user.role !== 'superadmin')) {
       return res.status(403).json({
         success: false,
-        error: 'Access denied: Atelier staff credentials required.',
+        error: 'Access denied: Workshop staff credentials required.',
       });
     }
     next();

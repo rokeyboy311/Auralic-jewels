@@ -4,13 +4,13 @@ import React, { useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { Search, Sparkles, UserCheck, ExternalLink, Paperclip, Send, MessageSquare } from 'lucide-react';
-import { Conversation, AtelierStaff, ConversationStatus } from '@/lib/types';
+import { Conversation, WorkshopStaff, ConversationStatus } from '@/lib/types';
 import { useCurrency } from '@/context/CurrencyContext';
 
 interface AdminChatTabProps {
   conversations: Conversation[];
   selectedConversation: Conversation | null;
-  staffList: AtelierStaff[];
+  staffList: WorkshopStaff[];
   onSelectChat: (id: string) => void;
   onSendAdminReply: (content: string, isInternal: boolean) => Promise<void>;
   onUpdateChatStatus: (status: ConversationStatus) => void;
@@ -154,7 +154,7 @@ export default function AdminChatTab({
                   )}
 
                   <div className="flex items-center justify-between pt-1 border-t border-[#ebdccd]/50 text-[10px] text-[#73685a]">
-                    <span>Assigned: {conv.assignedStaffName?.split(' ')[0] || 'Atelier'}</span>
+                    <span>Assigned: {conv.assignedStaffName?.split(' ')[0] || 'Workshop'}</span>
                     {conv.unreadByAdminCount > 0 && (
                       <span className="px-1.5 py-0.2 bg-rose-600 text-white rounded-full font-bold">
                         {conv.unreadByAdminCount} unread
@@ -330,7 +330,7 @@ export default function AdminChatTab({
                       className="accent-[#9b7e46]"
                     />
                     <span className={`text-[11px] font-medium ${isInternalNote ? 'text-amber-900 font-bold' : 'text-[#73685a]'}`}>
-                      Internal Note (Visible only to Atelier Staff & Admins)
+                      Internal Note (Visible only to Workshop Staff & Admins)
                     </span>
                   </label>
 
@@ -351,7 +351,7 @@ export default function AdminChatTab({
                     required
                     placeholder={
                       isInternalNote
-                        ? 'Record private atelier technical notes, CAD file updates, or gold melt calculations...'
+                        ? 'Record private workshop technical notes, CAD file updates, or gold melt calculations...'
                         : 'Compose response to customer regarding jewelry modification or specifications...'
                     }
                     value={adminReplyText}

@@ -152,10 +152,10 @@ export default function Footer() {
             </ul>
           </div>
 
-          {/* Col 2: Collections & Atelier */}
+          {/* Col 2: Collections & Workshop */}
           <div className="space-y-3">
             <p className="serif text-sm uppercase tracking-widest text-[#C5A059]">
-              The Atelier
+              The Workshop
             </p>
             <ul className="space-y-2 text-white/70">
               <li>
@@ -248,7 +248,7 @@ export default function Footer() {
               </li>
               <li>
                 <Link href="/admin" className="hover:text-[#C5A059] transition-colors">
-                  Atelier Staff Portal
+                  Workshop Staff Portal
                 </Link>
               </li>
             </ul>
@@ -257,7 +257,7 @@ export default function Footer() {
           {/* Col 5: Global Boutiques */}
           <div className="col-span-2 sm:col-span-1 space-y-3">
             <p className="serif text-sm uppercase tracking-widest text-[#C5A059]">
-              Ateliers & Flagships
+              Workshops & Flagships
             </p>
             <div className="space-y-2 text-white/70">
               <p>

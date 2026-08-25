@@ -12,7 +12,7 @@ import CartDrawer from '@/components/CartDrawer';
 import SearchModal from '@/components/SearchModal';
 import AuthModal from '@/components/AuthModal';
 import ConciergeAppointmentModal from '@/components/ConciergeAppointmentModal';
-import AtelierConciergeChat from '@/components/AtelierConciergeChat';
+import WorkshopConciergeChat from '@/components/WorkshopConciergeChat';
 import Footer from '@/components/Footer';
 
 export default function LayoutClientWrapper({ children }: { children: React.ReactNode }) {
@@ -44,7 +44,7 @@ export default function LayoutClientWrapper({ children }: { children: React.Reac
                     isOpen={isAppointmentOpen}
                     onClose={() => setIsAppointmentOpen(false)}
                   />
-                  <AtelierConciergeChat />
+                  <WorkshopConciergeChat />
                 </div>
               </ChatProvider>
             </WishlistProvider>

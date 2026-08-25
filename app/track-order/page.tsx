@@ -50,7 +50,7 @@ function TrackOrderContent() {
   }, [initialNumber, initialEmail, handleSearch]);
 
   const steps = [
-    { key: 'pending', label: 'Acquisition Received', desc: 'Recorded & Entrusted to Atelier' },
+    { key: 'pending', label: 'Acquisition Received', desc: 'Recorded & Entrusted to Workshop' },
     { key: 'confirmed', label: 'Order Confirmed', desc: 'Payment verified & diamond allocated' },
     { key: 'processing', label: 'Hallmarking & Gemology', desc: 'Microscopic inspection & GIA sealing' },
     { key: 'shipped', label: 'Armored Vault Transit', desc: 'Ferrari Group / FedEx Valuables courier dispatch' },
@@ -77,7 +77,7 @@ function TrackOrderContent() {
           Track Your Fine Jewellery Consignment
         </h1>
         <p className="text-xs sm:text-sm text-[#1A1A1A]/70 max-w-lg mx-auto font-light">
-          Enter your acquisition reference number (e.g. <code>AUR-2026-00892</code>) and email address to view live atelier inspection and armored courier transit status.
+          Enter your acquisition reference number (e.g. <code>AUR-2026-00892</code>) and email address to view live workshop inspection and armored courier transit status.
         </p>
       </div>
 

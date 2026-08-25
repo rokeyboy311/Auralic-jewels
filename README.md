@@ -1,7 +1,7 @@
 # Aurelic Jewels — INTERNATIONAL LUXURY FINE JEWELLERY E-COMMERCE
 
 > **Aurelic Jewels & High Gemology**  
-> Certified Conflict-Free Natural Diamonds • 18K/22K Solid Gold • Colombian Emeralds & Ceylon Sapphires • Worldwide Armored Valuables Courier • Live Atelier Concierge Chat & Bespoke Commissions
+> Certified Conflict-Free Natural Diamonds • 18K/22K Solid Gold • Colombian Emeralds & Ceylon Sapphires • Worldwide Armored Valuables Courier • Live Workshop Concierge Chat & Bespoke Commissions
 
 ---
 
@@ -20,7 +20,7 @@
    - [Resend Transactional Email Engine](#resend-transactional-email-engine)
    - [Cloudinary Media Storage](#cloudinary-media-storage)
 9. [Public Website Features & Routes](#9-public-website-features--routes)
-10. [Atelier Concierge Chat & Admin Portal](#10-atelier-concierge-chat--admin-portal)
+10. [Workshop Concierge Chat & Admin Portal](#10-workshop-concierge-chat--admin-portal)
 11. [Future 3D Showroom & GLTF Compatibility](#11-future-3d-showroom--gltf-compatibility)
 12. [Security, Performance & Best Practices](#12-security-performance--best-practices)
 13. [Troubleshooting & FAQ](#13-troubleshooting--faq)
@@ -83,7 +83,7 @@ Aurelic Jewels is engineered with a strict **two-tier full-stack architecture** 
 │   ├── order-success/            # Order confirmation & dispatch invoice
 │   ├── track-order/              # Real-time Ferrari Group armored logistics tracker
 │   ├── wishlist/                 # Curated private wishlist & instant bag transfer
-│   ├── account/                  # Customer dashboard & Atelier inquiry threads
+│   ├── account/                  # Customer dashboard & Workshop inquiry threads
 │   ├── admin/                    # Executive control center & Concierge Chat desk
 │   ├── about/ & our-story/       # Aurelic Jewels heritage & Place Vendôme history
 │   ├── jewellery-guide/          # GIA 4Cs Diamond & Untreated Gemology Guide
@@ -100,7 +100,7 @@ Aurelic Jewels is engineered with a strict **two-tier full-stack architecture** 
 │   ├── Header.tsx                # 3-Zone navigation, currency switcher & quick actions
 │   ├── Footer.tsx                # Aurelic Jewels directory, newsletter & compliance badges
 │   ├── ProductCard.tsx           # Luxury piece presentation with quick wishlist
-│   ├── AtelierConciergeChat.tsx  # Live sliding chat with Master Jeweller
+│   ├── WorkshopConciergeChat.tsx  # Live sliding chat with Master Jeweller
 │   ├── CartDrawer.tsx            # Slide-out bag with dynamic subtotal calculations
 │   ├── SearchModal.tsx           # Instant search modal with SKU indexing
 │   ├── AuthModal.tsx             # Customer sign-in & Google OAuth popup
@@ -112,7 +112,7 @@ Aurelic Jewels is engineered with a strict **two-tier full-stack architecture** 
 │   ├── CartContext.tsx           # Shopping bag persistence and tax calculations
 │   ├── WishlistContext.tsx       # Saved pieces persistence
 │   ├── CurrencyContext.tsx       # Live currency exchange rate engine (USD, EUR, GBP, INR, AED, AUD, CAD)
-│   ├── ChatContext.tsx           # Real-time Atelier Concierge chat engine
+│   ├── ChatContext.tsx           # Real-time Workshop Concierge chat engine
 │   └── ToastContext.tsx          # Non-intrusive luxury toast notifications
 │
 ├── lib/                          # Data, API clients & utilities
@@ -273,7 +273,7 @@ The database schema provisions:
 - `categories` & `collections` (indexed by slugs)
 - `products` & `product_variants` (with gold weights, purity, stone carats, hallmarking)
 - `orders` & `order_items` (with armored transit airway bills)
-- `conversations` & `conversation_messages` (for Atelier Concierge chat threads)
+- `conversations` & `conversation_messages` (for Workshop Concierge chat threads)
 - `bespoke_inquiries` (for private client design briefs)
 - `coupons` & `reviews`
 - `showroom_models` (prepared for future 3D GLTF compatibility)
@@ -400,14 +400,14 @@ The Express backend can be deployed to **Render** using a Web Service:
 | `/shop` | Product Discovery with multi-filter (Metal, Gemstone, Purity, Price, Size), sorting, and search. |
 | `/collections` | Curated collections gallery (Solitaire Masterpieces, The Royal Emerald, Heritage Gold, Celestial Radiance). |
 | `/categories/[slug]` | Dedicated category archives (Rings, Necklaces, Earrings, Bracelets, Bangles, Pendants, Chains, Men's). |
-| `/product/[slug]` | Masterpiece Dossier with metal selector, ring sizer, 4 technical tabs, reviews, and Atelier inquiry drawer. |
+| `/product/[slug]` | Masterpiece Dossier with metal selector, ring sizer, 4 technical tabs, reviews, and Workshop inquiry drawer. |
 | `/custom-jewellery` | Bespoke Haute Joaillerie Brief Builder for private custom commissions. |
 | `/cart` | Dynamic shopping bag with live international VAT/duty estimates and discount engine. |
 | `/checkout` | Armored delivery checkout with server-side recalculation, Ferrari Group courier, and payment selector. |
 | `/order-success` | Authenticated order completion with GIA warranty breakdown and airbill tracking link. |
 | `/track-order` | Consignment tracking portal with carrier airbill timeline. |
 | `/wishlist` | Saved customer pieces with instant move-to-bag capabilities. |
-| `/account` | Customer portal managing addresses, previous consignments, and live Atelier message threads. |
+| `/account` | Customer portal managing addresses, previous consignments, and live Workshop message threads. |
 | `/jewellery-guide` | GIA Diamond 4Cs & untreated gemstone educational portal. |
 | `/size-guide` | International ring, collar, and wrist sizing comparison chart. |
 | `/materials-care` | Preservation guidelines for 18K/22K gold, platinum, and precious gemstones. |
@@ -419,11 +419,11 @@ The Express backend can be deployed to **Render** using a Web Service:
 
 ---
 
-## 10. Atelier Concierge Chat & Admin Portal
+## 10. Workshop Concierge Chat & Admin Portal
 
 ### Public Floating Concierge
 - **Accessibility**: Available across all pages via the gold floating button at the bottom-right.
-- **Product Context**: Clicking "Chat with Atelier Jeweller" on any product automatically attaches the piece name, SKU, price, and selected metal alloy to the conversation.
+- **Product Context**: Clicking "Chat with Workshop Jeweller" on any product automatically attaches the piece name, SKU, price, and selected metal alloy to the conversation.
 - **Customer Thread Storage**: Inquiries are saved under the customer's account and synchronized with the Aurelic Jewels ledger.
 
 ### Aurelic Jewels Administration Portal (`/admin`)
@@ -434,7 +434,7 @@ The Express backend can be deployed to **Render** using a Web Service:
   - Assign inquiries to specific specialists (e.g. Master Goldsmith Henri Vane, Senior Gemologist Dr. Vivienne Moreau).
   - Record private internal technical notes (visible only to staff).
   - Dispatch official replies to customers.
-- **Consignment Dispatch**: Real-time status update (`Pending`, `Confirmed`, `In Atelier Vault`, `Armored Courier In Transit`, `Delivered`).
+- **Consignment Dispatch**: Real-time status update (`Pending`, `Confirmed`, `In Workshop Vault`, `Armored Courier In Transit`, `Delivered`).
 - **Inventory Management**: Create new GIA-certified pieces, manage stock levels, and update prices.
 
 ---

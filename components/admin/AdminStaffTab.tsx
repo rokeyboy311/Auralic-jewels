@@ -2,10 +2,10 @@
 
 import React from 'react';
 import { CheckCircle2 } from 'lucide-react';
-import { AtelierStaff } from '@/lib/types';
+import { WorkshopStaff } from '@/lib/types';
 
 interface AdminStaffTabProps {
-  staffList: AtelierStaff[];
+  staffList: WorkshopStaff[];
 }
 
 export default function AdminStaffTab({ staffList }: AdminStaffTabProps) {
@@ -13,7 +13,7 @@ export default function AdminStaffTab({ staffList }: AdminStaffTabProps) {
     <div className="bg-white border border-[#ebdccd] overflow-hidden">
       <div className="p-4 border-b border-[#ebdccd] flex justify-between items-center bg-[#faf8f5]">
         <div>
-          <h3 className="font-serif text-lg text-[#141210]">Atelier Staff & Master Jewellers Directory</h3>
+          <h3 className="font-serif text-lg text-[#141210]">Workshop Staff & Master Jewellers Directory</h3>
           <p className="text-xs text-[#73685a]">
             Internal staff accounts managed strictly within the admin architecture.
           </p>

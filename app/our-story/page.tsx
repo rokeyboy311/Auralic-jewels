@@ -16,7 +16,7 @@ export default function OurStoryPage() {
           <span>The Chronicle of Haute Joaillerie</span>
         </div>
         <h1 className="font-serif text-4xl sm:text-5xl text-[#141210] uppercase font-light tracking-wide">
-          Our Story & Parisian Atelier
+          Our Story & Parisian Workshop
         </h1>
         <p className="text-xs sm:text-sm text-[#73685a] leading-relaxed font-light">
           A century of uncompromising dedication to the rarest natural gemstones, master goldsmithing traditions, and bespoke family heirlooms.

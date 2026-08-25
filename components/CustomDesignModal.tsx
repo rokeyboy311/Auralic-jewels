@@ -128,7 +128,7 @@ export default function CustomDesignModal({
           );
         } else {
           success(
-            'Atelier Consultation Scheduled',
+            'Workshop Consultation Scheduled',
             `Reference ${res.data.referenceNumber}: A Senior Master Jeweller will contact you within 4 hours.`
           );
         }
@@ -166,7 +166,7 @@ export default function CustomDesignModal({
           <div className="text-center mb-6">
             <div className="inline-flex items-center gap-1.5 text-[10px] tracking-[0.35em] text-[#9b7e46] uppercase font-medium">
               <Sparkles className="w-3.5 h-3.5" />
-              <span>Aurelic Jewels Bespoke Atelier</span>
+              <span>Aurelic Jewels Bespoke Workshop</span>
             </div>
             <h2 className="font-serif text-2xl sm:text-3xl text-[#141210] mt-1 font-light uppercase">
               Custom Jewellery & Design Modifications
@@ -229,7 +229,7 @@ export default function CustomDesignModal({
                 </span>
                 <h3 className="font-serif text-2xl text-[#141210]">Your Custom Vision Has Been Entrusted</h3>
                 <p className="text-xs text-[#73685a] max-w-md mx-auto leading-relaxed pt-2">
-                  Our Chief Gemologist and Master Goldsmith at Place Vendôme Atelier are preparing your technical specifications, 3D CAD visualization, and custom metallurgical quotation.
+                  Our Chief Gemologist and Master Goldsmith at Place Vendôme Workshop are preparing your technical specifications, 3D CAD visualization, and custom metallurgical quotation.
                 </p>
               </div>
 
@@ -546,10 +546,10 @@ export default function CustomDesignModal({
                       className="w-full bg-white border border-[#c5b49e]/60 px-3 py-2 text-xs text-[#141210] focus:outline-none focus:border-[#9b7e46]"
                     >
                       <option>Virtual 1-on-1 Master Gemologist Video Consultation</option>
-                      <option>In-Atelier Appointment at Place Vendôme, Paris</option>
-                      <option>In-Atelier Appointment at Madison Avenue, New York</option>
-                      <option>In-Atelier Appointment at New Bond Street, London</option>
-                      <option>In-Atelier Appointment at DIFC Atelier, Dubai</option>
+                      <option>In-Workshop Appointment at Place Vendôme, Paris</option>
+                      <option>In-Workshop Appointment at Madison Avenue, New York</option>
+                      <option>In-Workshop Appointment at New Bond Street, London</option>
+                      <option>In-Workshop Appointment at DIFC Workshop, Dubai</option>
                     </select>
                   </div>
 
@@ -643,7 +643,7 @@ export default function CustomDesignModal({
               </button>
 
               <p className="text-[10px] text-[#73685a] text-center">
-                All custom creations are handcrafted at our Place Vendôme atelier with GIA conflict-free certification.
+                All custom creations are handcrafted at our Place Vendôme workshop with GIA conflict-free certification.
               </p>
             </form>
           )}

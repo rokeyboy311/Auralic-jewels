@@ -33,7 +33,7 @@ router.get('/health', (req: Request, res: Response) => {
     uptime: process.uptime(),
     databaseConnected: !!pool,
     mediaStorage: 'Neon PostgreSQL Image Vault',
-    payments: 'Direct Atelier Consignment & Bank Wire',
+    payments: 'Direct Workshop Consignment & Bank Wire',
     timestamp: new Date().toISOString(),
   });
 });
@@ -571,7 +571,7 @@ router.post('/admin/products', optionalAuth, async (req: AuthenticatedRequest, r
         payload.name || 'High Jewellery Masterpiece',
         slug,
         sku,
-        payload.description || 'Fine jewellery handcrafted in our atelier.',
+        payload.description || 'Fine jewellery handcrafted in our workshop.',
         payload.story || null,
         Number(payload.priceUSD || payload.price_usd || 5000),
         payload.comparePriceUSD ? Number(payload.comparePriceUSD) : null,
@@ -833,7 +833,7 @@ router.post('/payments/create-intent', async (req: Request, res: Response) => {
 });
 
 /**
- * Place Final Order Consignment (Direct Atelier Orders)
+ * Place Final Order Consignment (Direct Workshop Orders)
  */
 
 router.post('/orders', optionalAuth, async (req: AuthenticatedRequest, res: Response) => {
@@ -1078,7 +1078,7 @@ router.post('/orders/track', async (req: Request, res: Response) => {
 });
 
 // ==========================================================
-// 9. ATELIER CONCIERGE CHAT & TICKETING
+// 9. WORKSHOP CONCIERGE CHAT & TICKETING
 // ==========================================================
 
 router.get('/conversations', optionalAuth, async (req: AuthenticatedRequest, res: Response) => {
@@ -1131,7 +1131,7 @@ router.get('/conversations', optionalAuth, async (req: AuthenticatedRequest, res
       status: row.status || 'open',
       priority: row.priority || 'standard',
       assignedStaffId: row.assigned_staff_id,
-      assignedStaffName: row.assigned_staff_name || 'Place Vendôme Atelier',
+      assignedStaffName: row.assigned_staff_name || 'Place Vendôme Workshop',
       messages: row.messages || [],
       createdAt: row.created_at,
       updatedAt: row.updated_at,
@@ -1209,7 +1209,7 @@ router.post('/conversations', optionalAuth, async (req: AuthenticatedRequest, re
     const insertRes = await pool.query(
       `INSERT INTO conversations (
         user_id, user_name, user_email, user_phone, subject, type, status, priority, assigned_staff_name
-      ) VALUES ($1, $2, $3, $4, $5, $6, 'open', $7, 'Place Vendôme Atelier')
+      ) VALUES ($1, $2, $3, $4, $5, $6, 'open', $7, 'Place Vendôme Workshop')
       RETURNING *`,
       [req.user?.id || null, effectiveName, effectiveEmail, userPhone || null, subject || 'Haute Joaillerie Inquiry', type, priority]
     );
@@ -1675,7 +1675,7 @@ router.get('/admin/staff', requireStaff, async (req: AuthenticatedRequest, res: 
       id: 'staff-3',
       name: 'Benoît Laurent',
       email: 'benoit@aurelic.paris',
-      role: 'atelier_director',
+      role: 'workshop_director',
       specialty: 'Executive Commissions & Armored Logistics',
       activeTicketsCount: 4,
     },
