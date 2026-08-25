@@ -46,7 +46,7 @@ export default function AuthCard({
     e.preventDefault();
     setErrorMessage('');
     setIsSubmitting(true);
-    let ok = false;
+    let ok: any = false;
     if (activeTab === 'signup') {
       ok = await register(name, email, phone, password);
     } else {

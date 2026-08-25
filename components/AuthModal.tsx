@@ -48,7 +48,7 @@ export default function AuthModal({ isOpen, onClose, initialMode = 'signin' }: A
     e.preventDefault();
     setAuthError(null);
     setIsSubmitting(true);
-    let ok = false;
+    let ok: any = false;
     if (activeTab === 'signup') {
       ok = await register(name, email, phone, password);
     } else {
@@ -56,17 +56,25 @@ export default function AuthModal({ isOpen, onClose, initialMode = 'signin' }: A
     }
     setIsSubmitting(false);
     if (ok) {
-      onClose();
+      if (typeof ok === 'object' && ok.role === 'admin') {
+        window.location.href = '/admin';
+      } else {
+        onClose();
+      }
     }
   };
 
   const handleGoogleSignIn = async () => {
     setAuthError(null);
     setIsSubmitting(true);
-    const ok = await loginWithGoogle();
+    const ok: any = await loginWithGoogle();
     setIsSubmitting(false);
     if (ok) {
-      onClose();
+      if (typeof ok === 'object' && ok.role === 'admin') {
+        window.location.href = '/admin';
+      } else {
+        onClose();
+      }
     }
   };
 

@@ -44,15 +44,19 @@ function LoginForm() {
     e.preventDefault();
     setErrorMessage('');
     setIsSubmitting(true);
-    let ok = false;
+    let result: any = false;
     if (activeTab === 'signup') {
-      ok = await register(name, email, phone, password);
+      result = await register(name, email, phone, password);
     } else {
-      ok = await login(email, password);
+      result = await login(email, password);
     }
     setIsSubmitting(false);
-    if (ok) {
-      router.push(redirectPath);
+    if (result) {
+      if (typeof result === 'object' && result.role === 'admin') {
+        router.push('/admin');
+      } else {
+        router.push(redirectPath);
+      }
     } else {
       setErrorMessage('Authentication unsuccessful. Please verify your credentials.');
     }
@@ -61,10 +65,14 @@ function LoginForm() {
   const handleGoogleSignIn = async () => {
     setErrorMessage('');
     setIsSubmitting(true);
-    const ok = await loginWithGoogle();
+    const result = await loginWithGoogle();
     setIsSubmitting(false);
-    if (ok) {
-      router.push(redirectPath);
+    if (result) {
+      if (typeof result === 'object' && result.role === 'admin') {
+        router.push('/admin');
+      } else {
+        router.push(redirectPath);
+      }
     } else {
       setErrorMessage('Google authentication could not be completed.');
     }
