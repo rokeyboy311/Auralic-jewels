@@ -34,7 +34,7 @@ import {
   Mail,
   CheckCircle,
 } from 'lucide-react';
-import { Product, Order, BespokeInquiry, Conversation, ConversationMessage, WorkshopStaff, ConversationStatus, ConversationPriority } from '@/lib/types';
+import { Product, Order, BespokeInquiry, Conversation, ConversationMessage, ConversationStatus, ConversationPriority } from '@/lib/types';
 import {
   getAdminStats,
   getAdminOrders,
@@ -46,7 +46,6 @@ import {
   getConversations,
   getConversation,
   sendConversationMessage,
-  updateConversation,
   updateConversation,
 } from '@/lib/api';
 import { useAuth } from '@/context/AuthContext';
