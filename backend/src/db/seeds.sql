@@ -159,12 +159,12 @@ VALUES
 ON CONFLICT (id) DO NOTHING;
 
 -- Insert Admin User (Pre-configured login)
--- Email: admin@aurelic-jewels.vercel.app, Password: adminpassword123
+-- Email: dabhikishan199@gmail.com, Password: Rokey@199
 INSERT INTO users (id, email, password_hash, name, role, is_email_verified)
 VALUES (
   '11111111-1111-1111-1111-111111111111',
-  'admin@aurelic-jewels.vercel.app',
-  '$2a$10$z8jAq1tLG2HGh5rueKMqr.QilIwMZTewD/jR9gc2bWI.PYNtjC0Be',
+  'dabhikishan199@gmail.com',
+  '$2a$10$pDkAbdk2fJkO7wgu9ot6W.XH5cxx/CIY0eDDYeKFxF2g4tPn3zTKW',
   'Admin',
   'admin',
   TRUE

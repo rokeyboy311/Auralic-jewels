@@ -377,7 +377,7 @@ export default function AdminDashboardPage() {
             <div>
               <label htmlFor="admin-login-email-input" className="block text-[11px] uppercase tracking-wider text-[#4a4237] font-medium mb-1.5 flex items-center justify-between">
                 <span>Admin Email Address</span>
-                <span className="text-[10px] text-[#73685a] lowercase">admin@aurelic-jewels.vercel.app</span>
+                <span className="text-[10px] text-[#73685a] lowercase">dabhikishan199@gmail.com</span>
               </label>
               <div className="relative">
                 <Mail className="w-4 h-4 text-[#73685a] absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
@@ -392,7 +392,7 @@ export default function AdminDashboardPage() {
                     setAdminEmail(e.target.value);
                     setAuthErrorMessage('');
                   }}
-                  placeholder="admin@aurelic-jewels.vercel.app"
+                  placeholder="dabhikishan199@gmail.com"
                   className="w-full bg-[#faf8f5] border border-[#c5b49e]/60 pl-10 pr-3.5 py-3 text-xs text-[#141210] focus:outline-none focus:border-[#9b7e46] focus:bg-white transition-colors"
                 />
               </div>
