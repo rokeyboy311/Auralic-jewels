@@ -551,9 +551,12 @@ router.post('/admin/products', optionalAuth, async (req: AuthenticatedRequest, r
 
     // Insert Product Record
     let catId = payload.category_id || payload.category;
-    if (catId && !catId.startsWith('cat-')) {
+    if (catId === 'Bespoke Masterpieces' || catId === 'Custom Jewellery') {
+      catId = 'cat-custom';
+    } else if (catId && !catId.startsWith('cat-')) {
       catId = 'cat-' + catId.toLowerCase();
     }
+    
     let colId = payload.collection_id || payload.collection;
     if (colId && !colId.startsWith('col-')) {
       colId = 'col-' + colId.toLowerCase().replace(/\s+/g, '-');
@@ -605,9 +608,9 @@ router.post('/admin/products', optionalAuth, async (req: AuthenticatedRequest, r
         const imgUrl = typeof img === 'string' ? img : img.url;
         if (imgUrl) {
           await pool.query(
-            `INSERT INTO product_images (id, product_id, url, alt, type, sort_order)
-             VALUES ($1, $2, $3, $4, $5, $6)`,
-            [`img-${Date.now()}-${i}`, prodId, imgUrl, payload.name || 'Jewellery', i === 0 ? 'main' : 'gallery', i + 1]
+            `INSERT INTO product_images (product_id, url, alt, type, sort_order)
+             VALUES ($1, $2, $3, $4, $5)`,
+            [prodId, imgUrl, payload.name || 'Jewellery', i === 0 ? 'main' : 'gallery', i + 1]
           );
         }
       }
