@@ -31,7 +31,7 @@ export default function AdminLoginPage() {
         setAuthSuccessMessage('Authentication Successful. Entering Workshop Control Center...');
         success('Access Granted', 'Welcome back, Workshop Director.');
         setTimeout(() => {
-          router.push('/admin');
+          window.location.href = '/admin';
         }, 600);
       } else {
         setIsAuthenticating(false);
