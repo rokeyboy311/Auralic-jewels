@@ -1660,7 +1660,4 @@ router.put('/admin/orders/:id/status', async (req: AuthenticatedRequest, res: Re
     return res.status(500).json({ success: false, error: error.message });
   }
 });
-
-});
-
 export default router;
