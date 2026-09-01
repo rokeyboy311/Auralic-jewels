@@ -26,13 +26,19 @@ export default function AdminLoginPage() {
     setIsAuthenticating(true);
 
     try {
-      const ok = await login(adminEmail, adminPassword);
-      if (ok) {
+      const userResult = await login(adminEmail, adminPassword);
+      if (userResult && typeof userResult === 'object' && userResult.role === 'admin') {
         setAuthSuccessMessage('Authentication Successful. Entering Workshop Control Center...');
         success('Access Granted', 'Welcome back, Workshop Director.');
         setTimeout(() => {
           window.location.href = '/admin';
         }, 600);
+      } else if (userResult) {
+        // Logged in but not an admin
+        setIsAuthenticating(false);
+        setAuthErrorMessage('Access Denied: Your account does not have administrative privileges.');
+        error('Access Denied', 'Insufficient security clearance.');
+        // Optionally logout if they are not supposed to be logged in at all
       } else {
         setIsAuthenticating(false);
         setAuthErrorMessage('Invalid administrator credentials. Please verify email and password.');
@@ -86,7 +92,6 @@ export default function AdminLoginPage() {
           <div>
             <label htmlFor="admin-login-email-input" className="block text-[11px] uppercase tracking-wider text-[#4a4237] font-medium mb-1.5 flex items-center justify-between">
               <span>Admin Email Address</span>
-              <span className="text-[10px] text-[#73685a] lowercase">dabhikishan199@gmail.com</span>
             </label>
             <div className="relative">
               <Mail className="w-4 h-4 text-[#73685a] absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
@@ -101,7 +106,7 @@ export default function AdminLoginPage() {
                   setAdminEmail(e.target.value);
                   setAuthErrorMessage('');
                 }}
-                placeholder="dabhikishan199@gmail.com"
+                placeholder="admin@aurelic.paris"
                 className="w-full bg-[#faf8f5] border border-[#c5b49e]/60 pl-10 pr-3.5 py-3 text-xs text-[#141210] focus:outline-none focus:border-[#9b7e46] focus:bg-white transition-colors"
               />
             </div>

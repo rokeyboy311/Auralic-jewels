@@ -70,7 +70,7 @@ export default function CustomJewelleryPage() {
   const [uploadedFile, setUploadedFile] = useState<string | null>(null);
 
   // Consultation State
-  const [workshopCity, setWorkshopCity] = useState(brandConfig.boutiques[0].city);
+  const [workshopCity, setWorkshopCity] = useState(brandConfig.ateliers[0].city);
   const [consultationFormat, setConsultationFormat] = useState('Virtual 1-on-1 Master Gemologist Video');
   const [consultationDate, setConsultationDate] = useState('');
 

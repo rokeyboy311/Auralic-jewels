@@ -539,7 +539,7 @@ router.get('/products/:slugOrId', async (req: Request, res: Response) => {
 /**
  * Save / Create Product (Admin)
  */
-router.post('/admin/products', optionalAuth, async (req: AuthenticatedRequest, res: Response) => {
+router.post('/admin/products', requireAdmin, async (req: AuthenticatedRequest, res: Response) => {
   const pool = getDbPool();
   if (!pool) return res.status(503).json({ success: false, error: 'Database unavailable.' });
 
@@ -625,7 +625,7 @@ router.post('/admin/products', optionalAuth, async (req: AuthenticatedRequest, r
 /**
  * Delete Product (Admin)
  */
-router.delete('/admin/products/:id', optionalAuth, async (req: AuthenticatedRequest, res: Response) => {
+router.delete('/admin/products/:id', requireAdmin, async (req: AuthenticatedRequest, res: Response) => {
   const pool = getDbPool();
   if (!pool) return res.status(503).json({ success: false, error: 'Database unavailable.' });
 
@@ -694,6 +694,51 @@ router.get('/categories', async (req: Request, res: Response) => {
   }
 });
 
+/**
+ * Save / Create Category (Admin)
+ */
+router.post('/admin/categories', requireAdmin, async (req: AuthenticatedRequest, res: Response) => {
+  const pool = getDbPool();
+  if (!pool) return res.status(503).json({ success: false, error: 'Database unavailable.' });
+
+  try {
+    const payload = req.body;
+    const catId = payload.id || `cat-${Date.now()}`;
+    const slug = payload.slug || (payload.name || 'category').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
+
+    await pool.query(
+      `INSERT INTO categories (id, name, slug, description, image_url)
+       VALUES ($1, $2, $3, $4, $5)
+       ON CONFLICT (id) DO UPDATE SET
+         name = EXCLUDED.name,
+         slug = EXCLUDED.slug,
+         description = EXCLUDED.description,
+         image_url = EXCLUDED.image_url`,
+      [catId, payload.name, slug, payload.description || null, payload.imageUrl || payload.image_url || null]
+    );
+
+    return res.status(201).json({ success: true, data: { id: catId, name: payload.name, slug } });
+  } catch (error: any) {
+    return res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+/**
+ * Delete Category (Admin)
+ */
+router.delete('/admin/categories/:id', requireAdmin, async (req: AuthenticatedRequest, res: Response) => {
+  const pool = getDbPool();
+  if (!pool) return res.status(503).json({ success: false, error: 'Database unavailable.' });
+
+  try {
+    const { id } = req.params;
+    await pool.query('DELETE FROM categories WHERE id = $1', [id]);
+    return res.json({ success: true, message: 'Category removed successfully.' });
+  } catch (error: any) {
+    return res.status(500).json({ success: false, error: error.message });
+  }
+});
+
 router.get('/collections', async (req: Request, res: Response) => {
   const pool = getDbPool();
   if (!pool) return res.status(503).json({ success: false, error: 'Database service unavailable.' });
@@ -741,9 +786,187 @@ router.get('/collections', async (req: Request, res: Response) => {
   }
 });
 
+/**
+ * Save / Create Collection (Admin)
+ */
+router.post('/admin/collections', requireAdmin, async (req: AuthenticatedRequest, res: Response) => {
+  const pool = getDbPool();
+  if (!pool) return res.status(503).json({ success: false, error: 'Database unavailable.' });
+
+  try {
+    const payload = req.body;
+    const colId = payload.id || `col-${Date.now()}`;
+    const slug = payload.slug || (payload.name || 'collection').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
+
+    await pool.query(
+      `INSERT INTO collections (id, name, slug, subtitle, description, banner_image, is_featured)
+       VALUES ($1, $2, $3, $4, $5, $6, $7)
+       ON CONFLICT (id) DO UPDATE SET
+         name = EXCLUDED.name,
+         slug = EXCLUDED.slug,
+         subtitle = EXCLUDED.subtitle,
+         description = EXCLUDED.description,
+         banner_image = EXCLUDED.banner_image,
+         is_featured = EXCLUDED.is_featured`,
+      [
+        colId, 
+        payload.name, 
+        slug, 
+        payload.subtitle || null, 
+        payload.description || null, 
+        payload.bannerImage || payload.banner_image || null,
+        payload.isFeatured || false
+      ]
+    );
+
+    return res.status(201).json({ success: true, data: { id: colId, name: payload.name, slug } });
+  } catch (error: any) {
+    return res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+/**
+ * Delete Collection (Admin)
+ */
+router.delete('/admin/collections/:id', requireAdmin, async (req: AuthenticatedRequest, res: Response) => {
+  const pool = getDbPool();
+  if (!pool) return res.status(503).json({ success: false, error: 'Database unavailable.' });
+
+  try {
+    const { id } = req.params;
+    await pool.query('DELETE FROM collections WHERE id = $1', [id]);
+    return res.json({ success: true, message: 'Collection removed successfully.' });
+  } catch (error: any) {
+    return res.status(500).json({ success: false, error: error.message });
+  }
+});
+
 // ==========================================================
-// 6. COUPONS & PRIVILEGES
+// 6. INVENTORY
 // ==========================================================
+
+/**
+ * Get all inventory for admin
+ */
+router.get('/admin/inventory', requireAdmin, async (req: AuthenticatedRequest, res: Response) => {
+  const pool = getDbPool();
+  if (!pool) return res.status(503).json({ success: false, error: 'Database unavailable.' });
+
+  try {
+    const result = await pool.query(`
+      SELECT 
+        p.id, p.name, p.sku, p.stock, p.price_usd, p.status, p.category_id,
+        (SELECT url FROM product_images WHERE product_id = p.id AND type = 'main' LIMIT 1) as image_url
+      FROM products p
+      ORDER BY p.name ASC
+    `);
+    return res.json({ success: true, data: result.rows });
+  } catch (error: any) {
+    return res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+/**
+ * Bulk update inventory stock (Admin)
+ */
+router.post('/admin/inventory/update', requireAdmin, async (req: AuthenticatedRequest, res: Response) => {
+  const pool = getDbPool();
+  if (!pool) return res.status(503).json({ success: false, error: 'Database unavailable.' });
+
+  try {
+    const { updates } = req.body; // array of { id, stock }
+    if (!Array.isArray(updates)) return res.status(400).json({ success: false, error: 'Invalid payload format' });
+
+    // In a real app we'd use a transaction
+    await pool.query('BEGIN');
+    for (const item of updates) {
+      if (item.id && typeof item.stock === 'number') {
+        await pool.query('UPDATE products SET stock = $1, updated_at = NOW() WHERE id = $2', [item.stock, item.id]);
+      }
+    }
+    await pool.query('COMMIT');
+
+    return res.json({ success: true, message: 'Inventory updated successfully.' });
+  } catch (error: any) {
+    await pool.query('ROLLBACK');
+    return res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+// ==========================================================
+// 7. COUPONS & PRIVILEGES
+// ==========================================================
+
+/**
+ * Get all coupons (Admin)
+ */
+router.get('/admin/coupons', requireAdmin, async (req: AuthenticatedRequest, res: Response) => {
+  const pool = getDbPool();
+  if (!pool) return res.status(503).json({ success: false, error: 'Database unavailable.' });
+
+  try {
+    const result = await pool.query('SELECT * FROM coupons ORDER BY created_at DESC');
+    return res.json({ success: true, data: result.rows });
+  } catch (error: any) {
+    return res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+/**
+ * Save / Create Coupon (Admin)
+ */
+router.post('/admin/coupons', requireAdmin, async (req: AuthenticatedRequest, res: Response) => {
+  const pool = getDbPool();
+  if (!pool) return res.status(503).json({ success: false, error: 'Database unavailable.' });
+
+  try {
+    const { code, discount_type, discount_value, min_order_usd, expiry_date, is_active, description } = req.body;
+    if (!code || !discount_type || !discount_value) {
+      return res.status(400).json({ success: false, error: 'Missing required coupon fields.' });
+    }
+
+    await pool.query(
+      `INSERT INTO coupons (code, discount_type, discount_value, min_order_usd, expiry_date, is_active, description)
+       VALUES ($1, $2, $3, $4, $5, $6, $7)
+       ON CONFLICT (code) DO UPDATE SET
+         discount_type = EXCLUDED.discount_type,
+         discount_value = EXCLUDED.discount_value,
+         min_order_usd = EXCLUDED.min_order_usd,
+         expiry_date = EXCLUDED.expiry_date,
+         is_active = EXCLUDED.is_active,
+         description = EXCLUDED.description`,
+      [
+        code.toUpperCase().trim(),
+        discount_type,
+        parseFloat(discount_value),
+        min_order_usd ? parseFloat(min_order_usd) : 0,
+        expiry_date || null,
+        is_active ?? true,
+        description || null
+      ]
+    );
+
+    return res.json({ success: true, message: 'Coupon saved successfully.' });
+  } catch (error: any) {
+    return res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+/**
+ * Delete Coupon (Admin)
+ */
+router.delete('/admin/coupons/:code', requireAdmin, async (req: AuthenticatedRequest, res: Response) => {
+  const pool = getDbPool();
+  if (!pool) return res.status(503).json({ success: false, error: 'Database unavailable.' });
+
+  try {
+    const { code } = req.params;
+    await pool.query('DELETE FROM coupons WHERE code = $1', [code.toUpperCase().trim()]);
+    return res.json({ success: true, message: 'Coupon deleted successfully.' });
+  } catch (error: any) {
+    return res.status(500).json({ success: false, error: error.message });
+  }
+});
 
 router.post('/coupons/validate', async (req: Request, res: Response) => {
   const { code, orderSubtotalUSD } = req.body;
@@ -1081,7 +1304,47 @@ router.post('/orders/track', async (req: Request, res: Response) => {
       createdAt: row.created_at,
     };
 
-    return res.json({ success: true, data: tracked });
+    return res.json({ success: true, data: { status: tracked.status } });
+  } catch (error: any) {
+    return res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+// ==========================================================
+// 8.5. REVIEWS & TESTIMONIALS
+// ==========================================================
+
+/**
+ * Get all reviews (Admin)
+ */
+router.get('/admin/reviews', requireAdmin, async (req: AuthenticatedRequest, res: Response) => {
+  const pool = getDbPool();
+  if (!pool) return res.status(503).json({ success: false, error: 'Database unavailable.' });
+
+  try {
+    const result = await pool.query(`
+      SELECT r.*, p.name as product_name, p.image_url as product_image
+      FROM reviews r
+      LEFT JOIN products p ON r.product_id = p.id
+      ORDER BY r.created_at DESC
+    `);
+    return res.json({ success: true, data: result.rows });
+  } catch (error: any) {
+    return res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+/**
+ * Delete / Moderate Review (Admin)
+ */
+router.delete('/admin/reviews/:id', requireAdmin, async (req: AuthenticatedRequest, res: Response) => {
+  const pool = getDbPool();
+  if (!pool) return res.status(503).json({ success: false, error: 'Database unavailable.' });
+
+  try {
+    const { id } = req.params;
+    await pool.query('DELETE FROM reviews WHERE id = $1', [id]);
+    return res.json({ success: true, message: 'Review deleted successfully.' });
   } catch (error: any) {
     return res.status(500).json({ success: false, error: error.message });
   }
@@ -1091,7 +1354,7 @@ router.post('/orders/track', async (req: Request, res: Response) => {
 // 9. WORKSHOP CONCIERGE CHAT & TICKETING
 // ==========================================================
 
-router.get('/conversations', optionalAuth, async (req: AuthenticatedRequest, res: Response) => {
+router.get('/conversations', requireAuth, async (req: AuthenticatedRequest, res: Response) => {
   const pool = getDbPool();
   if (!pool) return res.status(503).json({ success: false, error: 'Database unavailable.' });
 
@@ -1118,12 +1381,8 @@ router.get('/conversations', optionalAuth, async (req: AuthenticatedRequest, res
 
     const params: any[] = [];
     if (!isPrivileged) {
-      if (req.user?.id) {
-        query += ` WHERE c.user_id = $1`;
-        params.push(req.user.id);
-      } else {
-        query += ` WHERE c.status = 'open' LIMIT 10`;
-      }
+      query += ` WHERE c.user_id = $1`;
+      params.push(req.user?.id);
     }
 
     query += ` ORDER BY c.updated_at DESC`;
@@ -1288,6 +1547,49 @@ router.post('/conversations/:id/messages', optionalAuth, async (req: Authenticat
   }
 });
 
+router.patch('/conversations/:id', requireAuth, async (req: AuthenticatedRequest, res: Response) => {
+  const pool = getDbPool();
+  if (!pool) return res.status(503).json({ success: false, error: 'Database unavailable.' });
+
+  try {
+    // Only admins can patch status and priority (in a real system we'd verify this)
+    if (req.user?.role !== 'admin') {
+      return res.status(403).json({ success: false, error: 'Admin access required.' });
+    }
+
+    const { id } = req.params;
+    const { status, priority } = req.body;
+    
+    let updates = [];
+    let values = [];
+    let paramIndex = 1;
+
+    if (status) {
+      updates.push(`status = $${paramIndex++}`);
+      values.push(status);
+    }
+    
+    if (priority) {
+      updates.push(`priority = $${paramIndex++}`);
+      values.push(priority);
+    }
+    
+    updates.push(`updated_at = NOW()`);
+
+    if (updates.length > 1) { // more than just updated_at
+      values.push(id);
+      await pool.query(
+        `UPDATE conversations SET ${updates.join(', ')} WHERE id = $${paramIndex}`,
+        values
+      );
+    }
+
+    return res.json({ success: true, message: 'Conversation updated successfully' });
+  } catch (error: any) {
+    return res.status(500).json({ success: false, error: error.message });
+  }
+});
+
 // ==========================================================
 // 10. REVIEWS & BESPOKE COMMISSIONS
 // ==========================================================
@@ -1424,7 +1726,7 @@ router.post('/bespoke', optionalAuth, async (req: AuthenticatedRequest, res: Res
   }
 });
 
-router.get('/bespoke', async (req: AuthenticatedRequest, res: Response) => {
+router.get('/bespoke', requireAdmin, async (req: AuthenticatedRequest, res: Response) => {
   const pool = getDbPool();
   if (!pool) return res.status(503).json({ success: false, error: 'Database unavailable.' });
 
@@ -1532,7 +1834,7 @@ router.get('/admin/stats', requireAdmin, async (req: AuthenticatedRequest, res: 
   }
 });
 
-router.get('/admin/orders', async (req: AuthenticatedRequest, res: Response) => {
+router.get('/admin/orders', requireAdmin, async (req: AuthenticatedRequest, res: Response) => {
   const pool = getDbPool();
   if (!pool) return res.status(503).json({ success: false, error: 'Database unavailable.' });
 
@@ -1583,7 +1885,7 @@ router.get('/admin/orders', async (req: AuthenticatedRequest, res: Response) => 
   }
 });
 
-router.patch('/admin/orders/:id/status', async (req: AuthenticatedRequest, res: Response) => {
+router.patch('/admin/orders/:id/status', requireAdmin, async (req: AuthenticatedRequest, res: Response) => {
   const pool = getDbPool();
   if (!pool) return res.status(503).json({ success: false, error: 'Database unavailable.' });
 
@@ -1622,7 +1924,7 @@ router.patch('/admin/orders/:id/status', async (req: AuthenticatedRequest, res: 
   }
 });
 
-router.put('/admin/orders/:id/status', async (req: AuthenticatedRequest, res: Response) => {
+router.put('/admin/orders/:id/status', requireAdmin, async (req: AuthenticatedRequest, res: Response) => {
   const pool = getDbPool();
   if (!pool) return res.status(503).json({ success: false, error: 'Database unavailable.' });
 
@@ -1661,3 +1963,172 @@ router.put('/admin/orders/:id/status', async (req: AuthenticatedRequest, res: Re
   }
 });
 export default router;
+
+// ==========================================================
+// 10. MEDIA MANAGEMENT
+// ==========================================================
+
+/**
+ * Get all media files (Admin)
+ */
+router.get('/admin/media', requireAdmin, async (req: AuthenticatedRequest, res: Response) => {
+  const pool = getDbPool();
+  if (!pool) return res.status(503).json({ success: false, error: 'Database unavailable.' });
+
+  try {
+    const result = await pool.query('SELECT id, filename, mime_type, file_size, folder, created_at, data_base64 FROM media_uploads ORDER BY created_at DESC');
+    return res.json({ success: true, data: result.rows });
+  } catch (error: any) {
+    return res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+/**
+ * Delete Media (Admin)
+ */
+router.delete('/admin/media/:id', requireAdmin, async (req: AuthenticatedRequest, res: Response) => {
+  const pool = getDbPool();
+  if (!pool) return res.status(503).json({ success: false, error: 'Database unavailable.' });
+
+  try {
+    const { id } = req.params;
+    await pool.query('DELETE FROM media_uploads WHERE id = $1', [id]);
+    return res.json({ success: true, message: 'Media deleted successfully.' });
+  } catch (error: any) {
+    return res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+// ==========================================================
+// 11. CUSTOMERS
+// ==========================================================
+
+/**
+ * Get all customers (Admin)
+ */
+router.get('/admin/customers', requireAdmin, async (req: AuthenticatedRequest, res: Response) => {
+  const pool = getDbPool();
+  if (!pool) return res.status(503).json({ success: false, error: 'Database unavailable.' });
+
+  try {
+    const result = await pool.query(`
+      SELECT 
+        u.id, u.name, u.email, u.phone, u.created_at, u.avatar_url,
+        COUNT(o.id) as total_orders,
+        COALESCE(SUM(o.total_usd), 0) as total_spent
+      FROM users u
+      LEFT JOIN orders o ON u.id = o.user_id AND o.payment_status = 'paid'
+      WHERE u.role = 'customer'
+      GROUP BY u.id
+      ORDER BY u.created_at DESC
+    `);
+    return res.json({ success: true, data: result.rows });
+  } catch (error: any) {
+    return res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+/**
+ * Get customer by ID (Admin)
+ */
+router.get('/admin/customers/:id', requireAdmin, async (req: AuthenticatedRequest, res: Response) => {
+  const pool = getDbPool();
+  if (!pool) return res.status(503).json({ success: false, error: 'Database unavailable.' });
+
+  try {
+    const { id } = req.params;
+    
+    // Get user details
+    const userResult = await pool.query(
+      `SELECT id, name, email, phone, role, created_at, avatar_url, google_id FROM users WHERE id = $1 AND role = 'customer'`,
+      [id]
+    );
+    
+    if (userResult.rows.length === 0) {
+      return res.status(404).json({ success: false, error: 'Customer not found.' });
+    }
+    
+    // Get user orders
+    const ordersResult = await pool.query(
+      `SELECT * FROM orders WHERE user_id = $1 ORDER BY created_at DESC`,
+      [id]
+    );
+
+    // Get bespoke inquiries
+    const inquiriesResult = await pool.query(
+      `SELECT * FROM bespoke_inquiries WHERE user_id = $1 ORDER BY created_at DESC`,
+      [id]
+    );
+    
+    return res.json({ 
+      success: true, 
+      data: {
+        ...userResult.rows[0],
+        orders: ordersResult.rows,
+        inquiries: inquiriesResult.rows
+      } 
+    });
+  } catch (error: any) {
+    return res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+// ==========================================================
+// 12. ATELIER (BESPOKE INQUIRIES)
+// ==========================================================
+
+/**
+ * Get all bespoke inquiries (Admin)
+ */
+router.get('/admin/bespoke', requireAdmin, async (req: AuthenticatedRequest, res: Response) => {
+  const pool = getDbPool();
+  if (!pool) return res.status(503).json({ success: false, error: 'Database unavailable.' });
+
+  try {
+    const result = await pool.query('SELECT * FROM bespoke_inquiries ORDER BY created_at DESC');
+    return res.json({ success: true, data: result.rows });
+  } catch (error: any) {
+    return res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+/**
+ * Get bespoke inquiry by ID (Admin)
+ */
+router.get('/admin/bespoke/:id', requireAdmin, async (req: AuthenticatedRequest, res: Response) => {
+  const pool = getDbPool();
+  if (!pool) return res.status(503).json({ success: false, error: 'Database unavailable.' });
+
+  try {
+    const { id } = req.params;
+    const result = await pool.query('SELECT * FROM bespoke_inquiries WHERE id = $1', [id]);
+    
+    if (result.rows.length === 0) {
+      return res.status(404).json({ success: false, error: 'Inquiry not found.' });
+    }
+    
+    return res.json({ success: true, data: result.rows[0] });
+  } catch (error: any) {
+    return res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+/**
+ * Update bespoke inquiry status (Admin)
+ */
+router.post('/admin/bespoke/:id/status', requireAdmin, async (req: AuthenticatedRequest, res: Response) => {
+  const pool = getDbPool();
+  if (!pool) return res.status(503).json({ success: false, error: 'Database unavailable.' });
+
+  try {
+    const { id } = req.params;
+    const { status } = req.body;
+    await pool.query('UPDATE bespoke_inquiries SET status = $1 WHERE id = $2', [status, id]);
+    return res.json({ success: true, message: 'Status updated successfully.' });
+  } catch (error: any) {
+    return res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+export default router;
+

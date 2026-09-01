@@ -73,7 +73,7 @@ export default function CustomDesignModal({
   const [uploadedFileName, setUploadedFileName] = useState('');
 
   // Consultation State
-  const [city, setCity] = useState(brandConfig.boutiques[0].city);
+  const [city, setCity] = useState(brandConfig.ateliers[0].city);
   const [consultationType, setConsultationType] = useState('Virtual 1-on-1 Master Gemologist Consultation');
   const [preferredDate, setPreferredDate] = useState('');
 

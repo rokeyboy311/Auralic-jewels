@@ -254,7 +254,7 @@ export default function Footer() {
             </ul>
           </div>
 
-          {/* Col 5: Global Boutiques */}
+          {/* Col 5: Global Ateliers */}
           <div className="col-span-2 sm:col-span-1 space-y-3">
             <p className="serif text-sm uppercase tracking-widest text-[#C5A059]">
               Workshops & Flagships

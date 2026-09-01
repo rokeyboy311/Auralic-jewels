@@ -17,7 +17,7 @@ export interface BrandConfig {
     facebook: string;
     youtube: string;
   };
-  boutiques: Array<{
+  ateliers: Array<{
     city: string;
     address: string;
     phone: string;
@@ -56,7 +56,7 @@ export const brandConfig: BrandConfig = {
     facebook: 'https://facebook.com/aurelicjewels',
     youtube: 'https://youtube.com/aurelicjewellery',
   },
-  boutiques: [
+  ateliers: [
     {
       city: 'Paris',
       address: '12 Place Vendôme, 75001 Paris, France',
