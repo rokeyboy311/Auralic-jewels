@@ -9,11 +9,22 @@ export function middleware(request: NextRequest) {
     const token = request.cookies.get('aurelic_auth_token')?.value;
 
     // Allow login path
-    if (pathname === '/admin/login' || pathname === '/login') {
+    if (pathname === '/admin/login') {
       return NextResponse.next();
     }
 
-    // In Next.js middleware, if no auth token is present, redirect to customer login
+    // In Next.js middleware, if no auth token is present, redirect to admin login
+    if (!token) {
+      const loginUrl = new URL('/admin/login', request.url);
+      loginUrl.searchParams.set('redirect', pathname);
+      return NextResponse.redirect(loginUrl);
+    }
+  }
+
+  // Protect Account Route
+  if (pathname.startsWith('/account')) {
+    const token = request.cookies.get('aurelic_auth_token')?.value;
+
     if (!token) {
       const loginUrl = new URL('/login', request.url);
       loginUrl.searchParams.set('redirect', pathname);
