@@ -2,39 +2,16 @@ import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 
 export function middleware(request: NextRequest) {
-  const { pathname } = request.nextUrl;
-
-  // Protect Admin Route with quick role check if cookie exists
-  if (pathname.startsWith('/admin')) {
-    const token = request.cookies.get('aurelic_auth_token')?.value;
-
-    // Allow login path
-    if (pathname === '/admin/login') {
-      return NextResponse.next();
-    }
-
-    // In Next.js middleware, if no auth token is present, redirect to admin login
-    if (!token) {
-      const loginUrl = new URL('/admin/login', request.url);
-      loginUrl.searchParams.set('redirect', pathname);
-      return NextResponse.redirect(loginUrl);
-    }
-  }
-
-  // Protect Account Route
-  if (pathname.startsWith('/account')) {
-    const token = request.cookies.get('aurelic_auth_token')?.value;
-
-    if (!token) {
-      const loginUrl = new URL('/login', request.url);
-      loginUrl.searchParams.set('redirect', pathname);
-      return NextResponse.redirect(loginUrl);
-    }
-  }
+  // We cannot perform HttpOnly cookie checks here when the backend is on a 
+  // separate domain (e.g., render.com) and the frontend is on Vercel. 
+  // The browser will not send the cross-domain cookie to the Vercel edge middleware.
+  // Route protection is handled strictly on the client-side via the AuthContext
+  // and page-level redirects (app/admin/page.tsx, app/account/page.tsx).
 
   return NextResponse.next();
 }
 
 export const config = {
-  matcher: ['/admin/:path*', '/account/:path*'],
+  // Empty matcher since we removed the logic
+  matcher: [],
 };
