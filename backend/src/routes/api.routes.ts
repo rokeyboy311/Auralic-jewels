@@ -550,12 +550,21 @@ router.post('/admin/products', optionalAuth, async (req: AuthenticatedRequest, r
     const sku = payload.sku || `AUR-JW-${Date.now().toString().slice(-4)}`;
 
     // Insert Product Record
+    let catId = payload.category_id || payload.category;
+    if (catId && !catId.startsWith('cat-')) {
+      catId = 'cat-' + catId.toLowerCase();
+    }
+    let colId = payload.collection_id || payload.collection;
+    if (colId && !colId.startsWith('col-')) {
+      colId = 'col-' + colId.toLowerCase().replace(/\s+/g, '-');
+    }
+
     await pool.query(
       `INSERT INTO products (
-        id, name, slug, sku, description, story, price_usd, compare_price_usd,
-        category_id, collection_id, metal_type, purity, stone_type, total_carat_weight,
-        weight_grams, gender, status, is_featured, is_new_arrival, lead_time_days
-      ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20)
+        id, name, slug, sku, short_description, description, price_usd, compare_price_usd,
+        category_id, collection_id, metal_type, purity, stone_type, stone_weight_carats,
+        weight_grams, gender, status, is_featured, is_new_arrival
+      ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19)
       ON CONFLICT (id) DO UPDATE SET
         name = EXCLUDED.name,
         price_usd = EXCLUDED.price_usd,
@@ -570,12 +579,12 @@ router.post('/admin/products', optionalAuth, async (req: AuthenticatedRequest, r
         payload.name || 'High Jewellery Masterpiece',
         slug,
         sku,
+        payload.shortDescription || payload.story || null,
         payload.description || 'Fine jewellery handcrafted in our workshop.',
-        payload.story || null,
         Number(payload.priceUSD || payload.price_usd || 5000),
         payload.comparePriceUSD ? Number(payload.comparePriceUSD) : null,
-        payload.category || payload.category_id || 'Rings',
-        payload.collection || payload.collection_id || 'Solitaire Masterpieces',
+        catId || null,
+        colId || null,
         payload.metalType || payload.metal_type || 'Yellow Gold',
         payload.purity || '18K',
         payload.stoneType || payload.stone_type || 'Natural Diamond',
@@ -585,7 +594,6 @@ router.post('/admin/products', optionalAuth, async (req: AuthenticatedRequest, r
         payload.status || 'active',
         payload.isFeatured || false,
         payload.isNewArrival || false,
-        payload.productionLeadTimeDays || 14,
       ]
     );
 
