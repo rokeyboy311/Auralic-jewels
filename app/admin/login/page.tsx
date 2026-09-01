@@ -158,12 +158,12 @@ export default function AdminLoginPage() {
           </button>
         </form>
 
-        {/* Return link to boutique storefront */}
+        {/* Return link to atelier storefront */}
         <div className="pt-2 text-center border-t border-[#ebdccd]">
           <p className="text-[11px] text-[#73685a]">
             Customer?{' '}
             <Link href="/" className="text-[#9b7e46] hover:underline font-medium inline-flex items-center gap-1">
-              <span>Return to Aurelic Jewels Boutique</span>
+              <span>Return to Aurelic Jewels Atelier</span>
               <ArrowRight className="w-3 h-3" />
             </Link>
           </p>

@@ -512,7 +512,7 @@ export default function ProductDetailPage({ params }: { params: Promise<{ slug: 
           <div className="space-y-4 text-xs sm:text-sm text-[#4a4237] leading-relaxed max-w-4xl bg-white p-6 border border-[#c5b49e]/30">
             <p>{product.careInstructions || 'Clean gently with lukewarm water and a soft micro-bristle brush. Store individually in your Aurelic velvet pouch.'}</p>
             <p>
-              Aurelic Jewels provides complimentary lifetime ultrasonic cleaning and annual prong inspection at any of our global boutiques.
+              Aurelic Jewels provides complimentary lifetime ultrasonic cleaning and annual prong inspection at any of our global ateliers.
             </p>
           </div>
         )}

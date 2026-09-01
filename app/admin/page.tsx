@@ -1294,7 +1294,7 @@ export default function AdminDashboardPage() {
                 type="submit"
                 className="flex-1 py-3 bg-[#141210] hover:bg-[#9b7e46] text-white text-xs uppercase tracking-wider font-semibold transition-colors"
               >
-                Publish Piece to Boutique
+                Publish Piece to Atelier
               </button>
               <button
                 type="button"
