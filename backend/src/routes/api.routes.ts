@@ -767,10 +767,12 @@ router.post('/admin/products', requireAdmin, async (req: AuthenticatedRequest, r
         const img = payload.images[i];
         const imgUrl = typeof img === 'string' ? img : img.url;
         if (imgUrl) {
+          const imgId = typeof img === 'object' && img.id ? img.id : `img-${prodId}-${i + 1}-${Date.now()}`;
           await pool.query(
-            `INSERT INTO product_images (product_id, url, alt, type, sort_order)
-             VALUES ($1, $2, $3, $4, $5)`,
-            [prodId, imgUrl, payload.name || 'Jewellery', i === 0 ? 'main' : 'gallery', i + 1]
+            `INSERT INTO product_images (id, product_id, url, alt, type, sort_order)
+             VALUES ($1, $2, $3, $4, $5, $6)
+             ON CONFLICT (id) DO UPDATE SET url = EXCLUDED.url`,
+            [imgId, prodId, imgUrl, payload.name || 'Jewellery', i === 0 ? 'main' : 'gallery', i + 1]
           );
         }
       }

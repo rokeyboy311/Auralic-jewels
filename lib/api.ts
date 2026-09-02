@@ -1,5 +1,6 @@
 import { 
   Product, 
+  ProductImage,
   Category, 
   Collection, 
   Order, 
@@ -90,6 +91,53 @@ export async function fetchApi<T>(
 // Products API
 export const FALLBACK_PRODUCTS: Product[] = [];
 
+export function normalizeProductImages(images: any, productName: string = 'Jewellery'): ProductImage[] {
+  if (!images || !Array.isArray(images) || images.length === 0) {
+    return [
+      {
+        id: 'img-default',
+        url: 'https://images.unsplash.com/photo-1605100804763-247f67b3557e?auto=format&fit=crop&w=1200&q=85',
+        alt: productName,
+        type: 'main',
+        sortOrder: 1,
+      },
+    ];
+  }
+
+  const validImages: ProductImage[] = [];
+  images.forEach((img: any, idx: number) => {
+    let url = '';
+    if (typeof img === 'string') {
+      url = img.trim();
+    } else if (img && typeof img === 'object') {
+      url = (img.url || img.imageUrl || img.src || '').trim();
+    }
+    if (url) {
+      validImages.push({
+        id: typeof img === 'object' && img.id ? img.id : `img-${idx + 1}`,
+        url,
+        alt: typeof img === 'object' && img.alt ? img.alt : productName,
+        type: idx === 0 ? 'main' : 'gallery',
+        sortOrder: idx + 1,
+      });
+    }
+  });
+
+  if (validImages.length === 0) {
+    return [
+      {
+        id: 'img-default',
+        url: 'https://images.unsplash.com/photo-1605100804763-247f67b3557e?auto=format&fit=crop&w=1200&q=85',
+        alt: productName,
+        type: 'main',
+        sortOrder: 1,
+      },
+    ];
+  }
+
+  return validImages;
+}
+
 export async function getProducts(params: ProductQueryParams = {}) {
   const query = new URLSearchParams();
   if (params.category) query.set('category', params.category);
@@ -109,15 +157,13 @@ export async function getProducts(params: ProductQueryParams = {}) {
   const res = await fetchApi<Product[]>(`/products${qs ? `?${qs}` : ''}`);
 
   if (res.success && res.data && res.data.length > 0) {
-    // Ensure all products have the boolean flags correctly populated
+    // Ensure all products have the boolean flags and valid normalized images
     const enriched = res.data.map(p => ({
       ...p,
       isFeatured: p.isFeatured ?? true,
       isNewArrival: p.isNewArrival ?? true,
       isBestSeller: p.isBestSeller ?? (p as any).isBestseller ?? true,
-      images: p.images && p.images.length > 0 ? p.images : [
-        { id: 'img-fb', url: 'https://images.unsplash.com/photo-1605100804763-247f67b3557e?auto=format&fit=crop&w=1200&q=85', alt: p.name, type: 'main' as const, sortOrder: 1 }
-      ]
+      images: normalizeProductImages(p.images || (p as any).image_url, p.name)
     }));
     return { ...res, data: enriched };
   }
@@ -143,7 +189,13 @@ export async function getProducts(params: ProductQueryParams = {}) {
 export async function getProduct(slugOrId: string) {
   const res = await fetchApi<Product>(`/products/${encodeURIComponent(slugOrId)}`);
   if (res.success && res.data) {
-    return res;
+    return {
+      ...res,
+      data: {
+        ...res.data,
+        images: normalizeProductImages(res.data.images || (res.data as any).image_url, res.data.name)
+      }
+    };
   }
   const fallback = FALLBACK_PRODUCTS.find(p => p.slug === slugOrId || p.id === slugOrId);
   if (fallback) {

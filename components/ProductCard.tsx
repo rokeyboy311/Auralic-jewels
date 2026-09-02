@@ -20,8 +20,23 @@ export default function ProductCard({ product }: ProductCardProps) {
   const { isInWishlist, toggleWishlist } = useWishlist();
 
   const isFavorited = isInWishlist(product.id);
-  const primaryImage = product.images[0]?.url || 'https://images.unsplash.com/photo-1605100804763-247f67b3557e?auto=format&fit=crop&w=800&q=80';
-  const secondaryImage = product.images[1]?.url || primaryImage;
+  
+  const getImageUrl = (img: any): string => {
+    if (!img) return '';
+    if (typeof img === 'string') return img;
+    if (typeof img === 'object' && img.url) return img.url;
+    return '';
+  };
+
+  const defaultPlaceholder = 'https://images.unsplash.com/photo-1605100804763-247f67b3557e?auto=format&fit=crop&w=800&q=80';
+  const primaryImage =
+    getImageUrl(product.images?.[0]) ||
+    (product as any).image_url ||
+    (product as any).imageUrl ||
+    (product as any).image ||
+    defaultPlaceholder;
+    
+  const secondaryImage = getImageUrl(product.images?.[1]) || primaryImage;
 
   return (
     <Interactive3DCard depth={8} glareOpacity={0.2} className="h-full">
