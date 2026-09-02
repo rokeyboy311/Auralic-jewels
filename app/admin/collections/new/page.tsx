@@ -4,6 +4,7 @@ import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { Save, ArrowLeft, Image as ImageIcon } from 'lucide-react';
 import Link from 'next/link';
+import ImageUploader from '@/components/ImageUploader';
 
 export default function CollectionFormPage() {
   const router = useRouter();
@@ -103,21 +104,13 @@ export default function CollectionFormPage() {
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-[#111111] mb-1">Banner Image URL</label>
-            <div className="flex items-center gap-4">
-              <input 
-                type="text" 
-                value={formData.banner_image}
-                onChange={e => setFormData({...formData, banner_image: e.target.value})}
-                className="flex-1 px-4 py-2 bg-[#F9FAFB] border border-[#E8E0D5] rounded-md text-sm focus:outline-none focus:border-[#C9A45C] focus:ring-1 focus:ring-[#C9A45C]"
-                placeholder="https://..."
-              />
-            </div>
-            {formData.banner_image && (
-              <div className="mt-4 w-full h-40 rounded-lg border border-[#E8E0D5] overflow-hidden bg-[#F9FAFB]">
-                <img src={formData.banner_image} alt="Preview" className="w-full h-full object-cover" />
-              </div>
-            )}
+            <ImageUploader
+              label="Banner Image"
+              value={formData.banner_image}
+              onChange={(url) => setFormData({...formData, banner_image: url})}
+              helperText="Upload a high-quality collection banner (JPEG, PNG, WEBP)"
+              folder="aurelic_collections"
+            />
           </div>
 
           <div className="flex items-center gap-3">

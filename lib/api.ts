@@ -163,7 +163,7 @@ export const FALLBACK_COLLECTIONS: Collection[] = [];
 
 // Categories & Collections
 export async function getCategories() {
-  const res = await fetchApi<Category[]>('/categories');
+  const res = await fetchApi<Category[]>('/categories', { cache: 'no-store' });
   if (res.success && res.data && res.data.length > 0) {
     // Ensure all category items have imageUrl populated
     const enriched = res.data.map(cat => {
@@ -181,7 +181,7 @@ export async function getCategories() {
 }
 
 export async function getCollections() {
-  const res = await fetchApi<Collection[]>('/collections');
+  const res = await fetchApi<Collection[]>('/collections', { cache: 'no-store' });
   if (res.success && res.data && res.data.length > 0) {
     const enriched = res.data.map(col => {
       const fb = FALLBACK_COLLECTIONS.find(f => f.slug === col.slug || f.id === col.id);

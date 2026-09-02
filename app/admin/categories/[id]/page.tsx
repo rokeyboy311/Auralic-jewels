@@ -4,6 +4,7 @@ import React, { useEffect, useState } from 'react';
 import { useRouter, useParams } from 'next/navigation';
 import { Save, ArrowLeft } from 'lucide-react';
 import Link from 'next/link';
+import ImageUploader from '@/components/ImageUploader';
 
 export default function CategoryEditPage() {
   const router = useRouter();
@@ -120,20 +121,13 @@ export default function CategoryEditPage() {
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-[#111111] mb-1">Image URL</label>
-              <div className="flex items-center gap-4">
-                <input 
-                  type="text" 
-                  value={formData.image_url}
-                  onChange={e => setFormData({...formData, image_url: e.target.value})}
-                  className="flex-1 px-4 py-2 bg-[#F9FAFB] border border-[#E8E0D5] rounded-md text-sm focus:outline-none focus:border-[#C9A45C] focus:ring-1 focus:ring-[#C9A45C]"
-                />
-              </div>
-              {formData.image_url && (
-                <div className="mt-4 w-32 h-32 rounded-lg border border-[#E8E0D5] overflow-hidden bg-[#F9FAFB]">
-                  <img src={formData.image_url} alt="Preview" className="w-full h-full object-cover" />
-                </div>
-              )}
+              <ImageUploader
+                label="Category Image"
+                value={formData.image_url}
+                onChange={(url) => setFormData({...formData, image_url: url})}
+                helperText="Upload a high-quality category image (JPEG, PNG, WEBP)"
+                folder="aurelic_categories"
+              />
             </div>
           </div>
         </div>
