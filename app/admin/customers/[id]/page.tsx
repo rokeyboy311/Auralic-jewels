@@ -2,16 +2,25 @@
 
 import React, { useEffect, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
-import { ArrowLeft, Mail, Phone, Calendar, ShoppingBag, MessageSquare } from 'lucide-react';
+import { ArrowLeft, Mail, Phone, Calendar, ShoppingBag, MessageSquare, Edit2, Save, X, Loader2 } from 'lucide-react';
 import Link from 'next/link';
 import { useCurrency } from '@/context/CurrencyContext';
+import { useToast } from '@/context/ToastContext';
 
 export default function AdminCustomerDetailPage() {
   const { id } = useParams() as { id: string };
   const router = useRouter();
   const [customer, setCustomer] = useState<any>(null);
   const [isLoading, setIsLoading] = useState(true);
+  
+  // Edit State
+  const [isEditing, setIsEditing] = useState(false);
+  const [editName, setEditName] = useState('');
+  const [editPhone, setEditPhone] = useState('');
+  const [isSaving, setIsSaving] = useState(false);
+
   const { formatPrice } = useCurrency();
+  const { success, error } = useToast();
 
   useEffect(() => {
     async function loadCustomer() {
@@ -20,6 +29,8 @@ export default function AdminCustomerDetailPage() {
         const data = await res.json();
         if (data.success) {
           setCustomer(data.data);
+          setEditName(data.data.name || '');
+          setEditPhone(data.data.phone || '');
         } else {
           router.push('/admin/customers');
         }
@@ -44,6 +55,29 @@ export default function AdminCustomerDetailPage() {
 
   const totalSpent = customer.orders?.reduce((acc: number, order: any) => acc + (order.payment_status === 'paid' ? Number(order.total_usd) : 0), 0) || 0;
 
+  const handleSave = async () => {
+    setIsSaving(true);
+    try {
+      const res = await fetch(`/api/admin/customers/${id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name: editName, phone: editPhone }),
+      });
+      const data = await res.json();
+      if (data.success) {
+        setCustomer({ ...customer, name: data.data.name, phone: data.data.phone });
+        setIsEditing(false);
+        success('Customer Updated', 'Profile details saved successfully.');
+      } else {
+        error('Update Failed', data.error || 'Failed to update customer details.');
+      }
+    } catch (err: any) {
+      error('System Error', err.message);
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
   return (
     <div className="p-6 sm:p-8 space-y-6 max-w-5xl mx-auto h-[calc(100vh-80px)] overflow-y-auto">
       
@@ -62,7 +96,26 @@ export default function AdminCustomerDetailPage() {
         
         {/* Left Col - Info */}
         <div className="lg:col-span-1 space-y-6">
-          <div className="bg-white border border-[#E8E0D5] rounded-xl p-6 shadow-sm">
+          <div className="bg-white border border-[#E8E0D5] rounded-xl p-6 shadow-sm relative">
+            {!isEditing ? (
+              <button onClick={() => setIsEditing(true)} className="absolute top-4 right-4 text-[#6F665B] hover:text-[#C9A45C] transition-colors p-1" title="Edit Profile">
+                <Edit2 className="w-4 h-4" />
+              </button>
+            ) : (
+              <div className="absolute top-4 right-4 flex items-center gap-2">
+                <button onClick={() => {
+                  setIsEditing(false);
+                  setEditName(customer.name);
+                  setEditPhone(customer.phone || '');
+                }} className="text-[#6F665B] hover:text-rose-600 transition-colors p-1" title="Cancel">
+                  <X className="w-4 h-4" />
+                </button>
+                <button onClick={handleSave} disabled={isSaving} className="text-[#6F665B] hover:text-emerald-600 transition-colors p-1" title="Save">
+                  {isSaving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
+                </button>
+              </div>
+            )}
+
             <div className="flex flex-col items-center text-center pb-6 border-b border-[#E8E0D5]">
               <div className="w-20 h-20 rounded-full bg-[#F9FAFB] border border-[#E8E0D5] overflow-hidden flex items-center justify-center text-2xl font-medium text-[#111111] mb-4">
                 {customer.avatar_url ? (
@@ -71,7 +124,15 @@ export default function AdminCustomerDetailPage() {
                   customer.name.charAt(0).toUpperCase()
                 )}
               </div>
-              <h2 className="text-xl font-semibold text-[#111111]">{customer.name}</h2>
+              {isEditing ? (
+                <input 
+                  value={editName}
+                  onChange={e => setEditName(e.target.value)}
+                  className="text-center font-semibold text-[#111111] border border-[#E8E0D5] p-1 text-xl max-w-[200px]"
+                />
+              ) : (
+                <h2 className="text-xl font-semibold text-[#111111]">{customer.name}</h2>
+              )}
               <div className="flex items-center justify-center gap-2 mt-2 text-[#6F665B] text-sm">
                 <Calendar className="w-4 h-4" />
                 Joined {new Date(customer.created_at).toLocaleDateString()}
@@ -91,17 +152,24 @@ export default function AdminCustomerDetailPage() {
                 </div>
               </div>
 
-              {customer.phone && (
-                <div className="flex items-center gap-3 text-sm">
-                  <div className="w-8 h-8 rounded-full bg-[#F9FAFB] flex items-center justify-center shrink-0">
-                    <Phone className="w-4 h-4 text-[#6F665B]" />
-                  </div>
-                  <div>
-                    <p className="text-[#6F665B] text-xs font-medium uppercase tracking-wider">Phone</p>
-                    <p className="text-[#111111] font-medium">{customer.phone}</p>
-                  </div>
+              <div className="flex items-center gap-3 text-sm">
+                <div className="w-8 h-8 rounded-full bg-[#F9FAFB] flex items-center justify-center shrink-0">
+                  <Phone className="w-4 h-4 text-[#6F665B]" />
                 </div>
-              )}
+                <div>
+                  <p className="text-[#6F665B] text-xs font-medium uppercase tracking-wider">Phone</p>
+                  {isEditing ? (
+                    <input 
+                      value={editPhone}
+                      onChange={e => setEditPhone(e.target.value)}
+                      className="border border-[#E8E0D5] p-1 text-sm font-medium text-[#111111] w-full max-w-[150px]"
+                      placeholder="Add phone..."
+                    />
+                  ) : (
+                    <p className="text-[#111111] font-medium">{customer.phone || 'N/A'}</p>
+                  )}
+                </div>
+              </div>
             </div>
           </div>
 

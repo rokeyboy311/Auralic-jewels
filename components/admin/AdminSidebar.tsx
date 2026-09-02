@@ -36,14 +36,9 @@ const navGroups = [
   {
     title: 'SETTINGS',
     items: [
-      { label: 'Appearance', icon: LayoutDashboard, href: '/admin/appearance' },
-      { label: 'Users', icon: Users, href: '/admin/users' },
-      { label: 'Roles & Permissions', icon: Shield, href: '/admin/roles' },
       { label: 'Store Settings', icon: Settings, href: '/admin/settings' },
-      { label: 'Payment Methods', icon: CreditCard, href: '/admin/payments' },
-      { label: 'Shipping Methods', icon: Truck, href: '/admin/shipping' },
-      { label: 'Taxes', icon: Percent, href: '/admin/taxes' },
-      { label: 'International', icon: Globe, href: '/admin/international' },
+      { label: 'Shipping Methods', icon: Truck, href: '/admin/settings/shipping' },
+      { label: 'Audit Logs', icon: Shield, href: '/admin/audit-logs' },
     ]
   }
 ];

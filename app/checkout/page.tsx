@@ -41,7 +41,13 @@ function CheckoutContent() {
 
   const [shippingMethods, setShippingMethods] = useState<ShippingMethod[]>([]);
   const [selectedShippingMethodId, setSelectedShippingMethodId] = useState<string>('ship-insured-priority');
-  const [paymentMethod, setPaymentMethod] = useState<'wire' | 'consignment' | 'vault'>('wire');
+  const [paymentMethod, setPaymentMethod] = useState<'payoneer' | 'consignment' | 'vault'>('payoneer');
+
+  // Payoneer card state
+  const [cardNumber, setCardNumber] = useState('');
+  const [cardExpiry, setCardExpiry] = useState('');
+  const [cardCvc, setCardCvc] = useState('');
+  const [cardName, setCardName] = useState('');
 
   // Customer Contact & Address Form
   const [email, setEmail] = useState(user?.email || '');
@@ -115,9 +121,25 @@ function CheckoutContent() {
       return;
     }
 
+    if (paymentMethod === 'payoneer') {
+      if (!cardNumber || !cardExpiry || !cardCvc || !cardName) {
+        error('Missing Payment Details', 'Please complete the Payoneer secure credit card form.');
+        return;
+      }
+    }
+
     setIsProcessing(true);
 
     try {
+      if (paymentMethod === 'payoneer') {
+        // Mock Payoneer Session
+        await fetch('/api/payoneer/session', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ amount: finalTotalUSD, currency: currentCurrency })
+        });
+      }
+
       const orderPayload = {
         userId: user?.id,
         customerEmail: email,
@@ -138,7 +160,7 @@ function CheckoutContent() {
         couponCode: couponCode || undefined,
         shippingMethodId: selectedShippingMethodId,
         currency: currentCurrency,
-        paymentMethod: paymentMethod === 'wire' ? 'bank_wire' : paymentMethod === 'consignment' ? 'direct_consignment' : 'vault_reservation',
+        paymentMethod: paymentMethod === 'payoneer' ? 'payoneer_checkout' : paymentMethod === 'consignment' ? 'direct_consignment' : 'vault_reservation',
         notes: orderNotes,
       };
 
@@ -455,15 +477,15 @@ function CheckoutContent() {
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
               <button
                 type="button"
-                onClick={() => setPaymentMethod('wire')}
+                onClick={() => setPaymentMethod('payoneer')}
                 className={`py-3 px-3 text-center border text-xs uppercase tracking-wider flex flex-col items-center gap-1.5 transition-all cursor-pointer ${
-                  paymentMethod === 'wire'
+                  paymentMethod === 'payoneer'
                     ? 'bg-[#141210] text-[#d4af37] border-[#141210] font-medium'
                     : 'bg-white text-[#4a4237] border-[#c5b49e]/60 hover:border-[#9b7e46]'
                 }`}
               >
-                <Building className="w-4 h-4" />
-                <span>Bank Wire Escrow</span>
+                <CreditCard className="w-4 h-4" />
+                <span>Payoneer Checkout</span>
               </button>
 
               <button
@@ -475,7 +497,7 @@ function CheckoutContent() {
                     : 'bg-white text-[#4a4237] border-[#c5b49e]/60 hover:border-[#9b7e46]'
                 }`}
               >
-                <CreditCard className="w-4 h-4" />
+                <Building className="w-4 h-4" />
                 <span>Direct Invoice</span>
               </button>
 
@@ -493,14 +515,78 @@ function CheckoutContent() {
               </button>
             </div>
 
-            {paymentMethod === 'wire' && (
-              <div className="p-4 bg-white border border-[#c5b49e]/60 text-xs text-[#4a4237] space-y-2">
-                <p className="font-semibold text-[#141210]">Aurelic Jewels Private Client Escrow Account:</p>
-                <p>Bank: BNP Paribas Paris Place Vendôme</p>
-                <p>IBAN: FR76 3000 4001 2345 6789 0123 456</p>
-                <p>BIC/SWIFT: BNPAFRPP</p>
-                <p className="text-[11px] text-[#73685a] pt-1">
-                  Upon placing this acquisition, our Senior Treasury Officer will issue an official pro-forma invoice and lock your pieces for 48 hours.
+            {paymentMethod === 'payoneer' && (
+              <div className="p-5 bg-white border border-[#c5b49e]/60 space-y-4">
+                <div className="flex items-center justify-between mb-2">
+                  <p className="font-semibold text-[#141210] text-sm flex items-center gap-2">
+                    <ShieldCheck className="w-4 h-4 text-emerald-700" /> Secure Card Payment
+                  </p>
+                  <div className="flex gap-1 opacity-60">
+                    <div className="w-8 h-5 bg-[#141210] rounded flex items-center justify-center text-[8px] text-white font-bold">VISA</div>
+                    <div className="w-8 h-5 bg-[#ff5f00] rounded flex items-center justify-center text-[8px] text-white font-bold">MC</div>
+                    <div className="w-8 h-5 bg-[#0070ba] rounded flex items-center justify-center text-[8px] text-white font-bold">AMEX</div>
+                  </div>
+                </div>
+
+                <div className="space-y-3">
+                  <div>
+                    <label className="block text-[10px] uppercase tracking-wider text-[#73685a] mb-1">Card Number</label>
+                    <div className="relative">
+                      <input 
+                        type="text" 
+                        value={cardNumber}
+                        onChange={(e) => setCardNumber(e.target.value.replace(/\D/g, '').replace(/(\d{4})/g, '$1 ').trim())}
+                        maxLength={19}
+                        placeholder="0000 0000 0000 0000" 
+                        className="w-full bg-[#faf8f5] border border-[#c5b49e]/40 px-3 py-2 text-sm text-[#141210] font-mono focus:outline-none focus:border-[#9b7e46] pl-9"
+                      />
+                      <CreditCard className="w-4 h-4 absolute left-3 top-2.5 text-[#c5b49e]" />
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-3">
+                    <div>
+                      <label className="block text-[10px] uppercase tracking-wider text-[#73685a] mb-1">Expiry Date</label>
+                      <input 
+                        type="text"
+                        value={cardExpiry}
+                        onChange={(e) => {
+                          let val = e.target.value.replace(/\D/g, '');
+                          if (val.length >= 2) val = val.substring(0,2) + '/' + val.substring(2,4);
+                          setCardExpiry(val);
+                        }}
+                        maxLength={5}
+                        placeholder="MM/YY" 
+                        className="w-full bg-[#faf8f5] border border-[#c5b49e]/40 px-3 py-2 text-sm text-[#141210] font-mono focus:outline-none focus:border-[#9b7e46]"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-[10px] uppercase tracking-wider text-[#73685a] mb-1">Security Code (CVC)</label>
+                      <input 
+                        type="text" 
+                        value={cardCvc}
+                        onChange={(e) => setCardCvc(e.target.value.replace(/\D/g, ''))}
+                        maxLength={4}
+                        placeholder="123" 
+                        className="w-full bg-[#faf8f5] border border-[#c5b49e]/40 px-3 py-2 text-sm text-[#141210] font-mono focus:outline-none focus:border-[#9b7e46]"
+                      />
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="block text-[10px] uppercase tracking-wider text-[#73685a] mb-1">Name on Card</label>
+                    <input 
+                      type="text" 
+                      value={cardName}
+                      onChange={(e) => setCardName(e.target.value)}
+                      placeholder="CATHERINE STERLING" 
+                      className="w-full bg-[#faf8f5] border border-[#c5b49e]/40 px-3 py-2 text-sm text-[#141210] uppercase focus:outline-none focus:border-[#9b7e46]"
+                    />
+                  </div>
+                </div>
+
+                <p className="text-[10px] text-[#73685a] pt-2 border-t border-[#ebdccd]/50 mt-3 flex items-center gap-1.5">
+                  <Lock className="w-3 h-3" /> Payments are securely processed by Payoneer Checkout.
                 </p>
               </div>
             )}

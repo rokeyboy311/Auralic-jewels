@@ -187,6 +187,155 @@ router.get('/auth/me', optionalAuth, async (req: AuthenticatedRequest, res: Resp
   }
 });
 
+router.put('/auth/me', requireAuth, async (req: AuthenticatedRequest, res: Response) => {
+  const pool = getDbPool();
+  if (!pool) return res.status(503).json({ success: false, error: 'Database unavailable.' });
+  try {
+    const { name, phone } = req.body;
+    const result = await pool.query(
+      `UPDATE users SET name = COALESCE($1, name), phone = COALESCE($2, phone), updated_at = NOW() WHERE id = $3 RETURNING id, name, email, phone, role`,
+      [name, phone, req.user?.id]
+    );
+    return res.json({ success: true, data: result.rows[0], message: 'Profile updated successfully.' });
+  } catch (err: any) {
+    return res.status(500).json({ success: false, error: err.message });
+  }
+});
+
+router.get('/auth/me/addresses', requireAuth, async (req: AuthenticatedRequest, res: Response) => {
+  const pool = getDbPool();
+  if (!pool) return res.status(503).json({ success: false, error: 'Database unavailable.' });
+  try {
+    const result = await pool.query('SELECT * FROM addresses WHERE user_id = $1 ORDER BY is_default DESC, created_at DESC', [req.user?.id]);
+    return res.json({ success: true, data: result.rows });
+  } catch (err: any) {
+    return res.status(500).json({ success: false, error: err.message });
+  }
+});
+
+router.post('/auth/me/addresses', requireAuth, async (req: AuthenticatedRequest, res: Response) => {
+  const pool = getDbPool();
+  if (!pool) return res.status(503).json({ success: false, error: 'Database unavailable.' });
+  try {
+    const { title, fullName, phone, addressLine1, addressLine2, city, state, postalCode, country, isDefault } = req.body;
+    
+    if (isDefault) {
+      await pool.query('UPDATE addresses SET is_default = false WHERE user_id = $1', [req.user?.id]);
+    }
+
+    const result = await pool.query(
+      `INSERT INTO addresses (user_id, title, full_name, phone, address_line1, address_line2, city, state, postal_code, country, is_default)
+       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11) RETURNING *`,
+      [req.user?.id, title, fullName, phone, addressLine1, addressLine2, city, state, postalCode, country, isDefault || false]
+    );
+    return res.status(201).json({ success: true, data: result.rows[0], message: 'Address added successfully.' });
+  } catch (err: any) {
+    return res.status(500).json({ success: false, error: err.message });
+  }
+});
+
+router.put('/auth/me/addresses/:id', requireAuth, async (req: AuthenticatedRequest, res: Response) => {
+  const pool = getDbPool();
+  if (!pool) return res.status(503).json({ success: false, error: 'Database unavailable.' });
+  try {
+    const { id } = req.params;
+    const { title, fullName, phone, addressLine1, addressLine2, city, state, postalCode, country, isDefault } = req.body;
+    
+    if (isDefault) {
+      await pool.query('UPDATE addresses SET is_default = false WHERE user_id = $1', [req.user?.id]);
+    }
+
+    const result = await pool.query(
+      `UPDATE addresses 
+       SET title = $1, full_name = $2, phone = $3, address_line1 = $4, address_line2 = $5, city = $6, state = $7, postal_code = $8, country = $9, is_default = $10, updated_at = NOW()
+       WHERE id = $11 AND user_id = $12 RETURNING *`,
+      [title, fullName, phone, addressLine1, addressLine2, city, state, postalCode, country, isDefault || false, id, req.user?.id]
+    );
+    
+    if (result.rows.length === 0) return res.status(404).json({ success: false, error: 'Address not found.' });
+    return res.json({ success: true, data: result.rows[0], message: 'Address updated successfully.' });
+  } catch (err: any) {
+    return res.status(500).json({ success: false, error: err.message });
+  }
+});
+
+router.delete('/auth/me/addresses/:id', requireAuth, async (req: AuthenticatedRequest, res: Response) => {
+  const pool = getDbPool();
+  if (!pool) return res.status(503).json({ success: false, error: 'Database unavailable.' });
+  try {
+    const { id } = req.params;
+    const result = await pool.query('DELETE FROM addresses WHERE id = $1 AND user_id = $2 RETURNING id', [id, req.user?.id]);
+    if (result.rows.length === 0) return res.status(404).json({ success: false, error: 'Address not found.' });
+    return res.json({ success: true, message: 'Address deleted successfully.' });
+  } catch (err: any) {
+    return res.status(500).json({ success: false, error: err.message });
+  }
+});
+
+// ==========================================================
+// WISHLIST SYNC API
+// ==========================================================
+
+router.get('/wishlist', requireAuth, async (req: AuthenticatedRequest, res: Response) => {
+  const pool = getDbPool();
+  if (!pool) return res.status(503).json({ success: false, error: 'Database unavailable.' });
+  try {
+    const result = await pool.query('SELECT product_id FROM wishlist_items WHERE user_id = $1', [req.user?.id]);
+    const items = result.rows.map(row => row.product_id);
+    return res.json({ success: true, data: items });
+  } catch (err: any) {
+    return res.status(500).json({ success: false, error: err.message });
+  }
+});
+
+router.post('/wishlist', requireAuth, async (req: AuthenticatedRequest, res: Response) => {
+  const pool = getDbPool();
+  if (!pool) return res.status(503).json({ success: false, error: 'Database unavailable.' });
+  try {
+    const { productId } = req.body;
+    await pool.query(
+      `INSERT INTO wishlist_items (user_id, product_id) VALUES ($1, $2) ON CONFLICT (user_id, product_id) DO NOTHING`,
+      [req.user?.id, productId]
+    );
+    return res.json({ success: true, message: 'Item added to wishlist.' });
+  } catch (err: any) {
+    return res.status(500).json({ success: false, error: err.message });
+  }
+});
+
+router.post('/wishlist/sync', requireAuth, async (req: AuthenticatedRequest, res: Response) => {
+  const pool = getDbPool();
+  if (!pool) return res.status(503).json({ success: false, error: 'Database unavailable.' });
+  try {
+    const { productIds } = req.body;
+    if (Array.isArray(productIds) && productIds.length > 0) {
+      for (const pid of productIds) {
+        await pool.query(
+          `INSERT INTO wishlist_items (user_id, product_id) VALUES ($1, $2) ON CONFLICT (user_id, product_id) DO NOTHING`,
+          [req.user?.id, pid]
+        );
+      }
+    }
+    const result = await pool.query('SELECT product_id FROM wishlist_items WHERE user_id = $1', [req.user?.id]);
+    const items = result.rows.map(row => row.product_id);
+    return res.json({ success: true, data: items });
+  } catch (err: any) {
+    return res.status(500).json({ success: false, error: err.message });
+  }
+});
+
+router.delete('/wishlist/:productId', requireAuth, async (req: AuthenticatedRequest, res: Response) => {
+  const pool = getDbPool();
+  if (!pool) return res.status(503).json({ success: false, error: 'Database unavailable.' });
+  try {
+    const { productId } = req.params;
+    await pool.query('DELETE FROM wishlist_items WHERE user_id = $1 AND product_id = $2', [req.user?.id, productId]);
+    return res.json({ success: true, message: 'Item removed from wishlist.' });
+  } catch (err: any) {
+    return res.status(500).json({ success: false, error: err.message });
+  }
+});
+
 router.post('/auth/password/forgot', async (req: Request, res: Response) => {
   return res.json({ success: true, message: 'If an account is associated with this email, security instructions have been dispatched.' });
 });
@@ -570,12 +719,23 @@ router.post('/admin/products', requireAdmin, async (req: AuthenticatedRequest, r
       ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19)
       ON CONFLICT (id) DO UPDATE SET
         name = EXCLUDED.name,
+        slug = EXCLUDED.slug,
+        sku = EXCLUDED.sku,
+        short_description = EXCLUDED.short_description,
+        description = EXCLUDED.description,
         price_usd = EXCLUDED.price_usd,
+        compare_price_usd = EXCLUDED.compare_price_usd,
+        category_id = EXCLUDED.category_id,
+        collection_id = EXCLUDED.collection_id,
         metal_type = EXCLUDED.metal_type,
         purity = EXCLUDED.purity,
         stone_type = EXCLUDED.stone_type,
+        stone_weight_carats = EXCLUDED.stone_weight_carats,
         weight_grams = EXCLUDED.weight_grams,
+        gender = EXCLUDED.gender,
         status = EXCLUDED.status,
+        is_featured = EXCLUDED.is_featured,
+        is_new_arrival = EXCLUDED.is_new_arrival,
         updated_at = NOW()`,
       [
         prodId,
@@ -1043,6 +1203,34 @@ router.get('/shipping', async (req: Request, res: Response) => {
       requiresSignature: row.requires_signature,
     }));
     return res.json({ success: true, data: methods });
+  } catch (error: any) {
+    return res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+// ==========================================================
+// PAYONEER INTEGRATION
+// ==========================================================
+
+router.post('/payoneer/session', optionalAuth, async (req: Request, res: Response) => {
+  try {
+    const { amount, currency = 'USD' } = req.body;
+    
+    // Simulate Payoneer Checkout API request to create a payment session
+    const sessionId = `payoneer_sess_${Date.now()}_${Math.random().toString(36).substring(7)}`;
+    const checkoutUrl = `https://checkout.payoneer.com/mock-redirect?session_id=${sessionId}`;
+    
+    return res.json({ 
+      success: true, 
+      data: {
+        sessionId,
+        checkoutUrl,
+        amount,
+        currency,
+        status: 'pending'
+      },
+      message: 'Payoneer checkout session created.' 
+    });
   } catch (error: any) {
     return res.status(500).json({ success: false, error: error.message });
   }
@@ -2073,6 +2261,32 @@ router.get('/admin/customers/:id', requireAdmin, async (req: AuthenticatedReques
   }
 });
 
+/**
+ * Update customer details (Admin)
+ */
+router.put('/admin/customers/:id', requireAdmin, async (req: AuthenticatedRequest, res: Response) => {
+  const pool = getDbPool();
+  if (!pool) return res.status(503).json({ success: false, error: 'Database unavailable.' });
+
+  try {
+    const { id } = req.params;
+    const { name, phone } = req.body;
+
+    const result = await pool.query(
+      `UPDATE users SET name = COALESCE($1, name), phone = COALESCE($2, phone) WHERE id = $3 AND role = 'customer' RETURNING id, name, email, phone`,
+      [name, phone, id]
+    );
+
+    if (result.rows.length === 0) {
+      return res.status(404).json({ success: false, error: 'Customer not found.' });
+    }
+
+    return res.json({ success: true, data: result.rows[0], message: 'Customer updated successfully.' });
+  } catch (error: any) {
+    return res.status(500).json({ success: false, error: error.message });
+  }
+});
+
 // ==========================================================
 // 12. ATELIER (BESPOKE INQUIRIES)
 // ==========================================================
@@ -2130,5 +2344,132 @@ router.post('/admin/bespoke/:id/status', requireAdmin, async (req: Authenticated
   }
 });
 
-export default router;
+// ==========================================================
+// 11. CATEGORIES & COLLECTIONS
+// ==========================================================
 
+router.get('/categories', async (req: Request, res: Response) => {
+  const pool = getDbPool();
+  if (!pool) return res.status(503).json({ success: false, error: 'Database unavailable.' });
+
+  try {
+    const result = await pool.query('SELECT * FROM categories ORDER BY created_at DESC');
+    return res.json({ success: true, data: result.rows });
+  } catch (error: any) {
+    return res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+router.post('/admin/categories', requireAuth, async (req: AuthenticatedRequest, res: Response) => {
+  const pool = getDbPool();
+  if (!pool) return res.status(503).json({ success: false, error: 'Database unavailable.' });
+
+  if (req.user?.role !== 'admin') {
+    return res.status(403).json({ success: false, error: 'Admin access required.' });
+  }
+
+  try {
+    const { id, name, description, image_url } = req.body;
+    let slug = req.body.slug;
+    if (!slug) {
+        slug = name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
+    }
+
+    if (id) {
+      await pool.query(
+        'UPDATE categories SET name = $1, description = $2, image_url = $3, slug = $4 WHERE id = $5',
+        [name, description, image_url, slug, id]
+      );
+      return res.json({ success: true, message: 'Category updated' });
+    } else {
+      const newId = `cat_${Date.now()}`;
+      await pool.query(
+        'INSERT INTO categories (id, name, slug, description, image_url) VALUES ($1, $2, $3, $4, $5)',
+        [newId, name, slug, description, image_url]
+      );
+      return res.json({ success: true, message: 'Category created' });
+    }
+  } catch (error: any) {
+    return res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+router.delete('/admin/categories/:id', requireAuth, async (req: AuthenticatedRequest, res: Response) => {
+  const pool = getDbPool();
+  if (!pool) return res.status(503).json({ success: false, error: 'Database unavailable.' });
+
+  if (req.user?.role !== 'admin') {
+    return res.status(403).json({ success: false, error: 'Admin access required.' });
+  }
+
+  try {
+    await pool.query('DELETE FROM categories WHERE id = $1', [req.params.id]);
+    return res.json({ success: true, message: 'Category deleted' });
+  } catch (error: any) {
+    return res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+router.get('/collections', async (req: Request, res: Response) => {
+  const pool = getDbPool();
+  if (!pool) return res.status(503).json({ success: false, error: 'Database unavailable.' });
+
+  try {
+    const result = await pool.query('SELECT * FROM collections ORDER BY created_at DESC');
+    return res.json({ success: true, data: result.rows });
+  } catch (error: any) {
+    return res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+router.post('/admin/collections', requireAuth, async (req: AuthenticatedRequest, res: Response) => {
+  const pool = getDbPool();
+  if (!pool) return res.status(503).json({ success: false, error: 'Database unavailable.' });
+
+  if (req.user?.role !== 'admin') {
+    return res.status(403).json({ success: false, error: 'Admin access required.' });
+  }
+
+  try {
+    const { id, name, description, image_url } = req.body;
+    let slug = req.body.slug;
+    if (!slug) {
+        slug = name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
+    }
+
+    if (id) {
+      await pool.query(
+        'UPDATE collections SET name = $1, description = $2, banner_image = $3, slug = $4 WHERE id = $5',
+        [name, description, image_url, slug, id]
+      );
+      return res.json({ success: true, message: 'Collection updated' });
+    } else {
+      const newId = `col_${Date.now()}`;
+      await pool.query(
+        'INSERT INTO collections (id, name, slug, description, banner_image) VALUES ($1, $2, $3, $4, $5)',
+        [newId, name, slug, description, image_url]
+      );
+      return res.json({ success: true, message: 'Collection created' });
+    }
+  } catch (error: any) {
+    return res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+router.delete('/admin/collections/:id', requireAuth, async (req: AuthenticatedRequest, res: Response) => {
+  const pool = getDbPool();
+  if (!pool) return res.status(503).json({ success: false, error: 'Database unavailable.' });
+
+  if (req.user?.role !== 'admin') {
+    return res.status(403).json({ success: false, error: 'Admin access required.' });
+  }
+
+  try {
+    await pool.query('DELETE FROM collections WHERE id = $1', [req.params.id]);
+    return res.json({ success: true, message: 'Collection deleted' });
+  } catch (error: any) {
+    return res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+export default router;

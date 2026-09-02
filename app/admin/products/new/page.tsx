@@ -3,9 +3,19 @@
 import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { ArrowLeft, Save, Image as ImageIcon, Box } from 'lucide-react';
-import { saveAdminProduct } from '@/lib/api';
+import {
+  Upload,
+  ArrowLeft,
+  Save,
+  Image as ImageIcon,
+  Box,
+  LayoutGrid,
+  Sparkles,
+  FileText
+} from 'lucide-react';
 import { useToast } from '@/context/ToastContext';
+import { saveAdminProduct } from '@/lib/api';
+import ImageUploader from '@/components/ImageUploader';
 
 export default function AdminProductNewPage() {
   const router = useRouter();
@@ -28,12 +38,21 @@ export default function AdminProductNewPage() {
   const [stoneCarats, setStoneCarats] = useState<number>(1.0);
   const [grossWeight, setGrossWeight] = useState<number>(5.0);
   
+  // Missing Exposed Fields
+  const [sku, setSku] = useState('');
+  const [gender, setGender] = useState('Women');
+  const [stockThreshold, setStockThreshold] = useState<number>(2);
+
   // Certification
   const [certIssuer, setCertIssuer] = useState('GIA');
   const [certNumber, setCertNumber] = useState('');
+  const [certShape, setCertShape] = useState('Round Brilliant');
+  const [certColor, setCertColor] = useState('D');
+  const [certClarity, setCertClarity] = useState('VVS1');
+  const [certCut, setCertCut] = useState('Ideal');
   
   // Media
-  const [imageUrl, setImageUrl] = useState('');
+  const [imageUrls, setImageUrls] = useState<string[]>([]);
   const [model3dUrl, setModel3dUrl] = useState(''); // New 3D Model Support
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -46,11 +65,11 @@ export default function AdminProductNewPage() {
       const newProductPayload: any = {
         name,
         slug,
-        sku: `AUR-JW-${Date.now().toString().slice(-4)}`,
+        sku: sku || `AUR-JW-${Date.now().toString().slice(-4)}`,
         brand: 'Aurelic Jewels',
         category,
         collection,
-        gender: 'Women',
+        gender: gender,
         shortDescription: description || 'Handcrafted fine jewellery in solid gold and certified gemstones.',
         description: description || 'Exquisite masterpiece forged in our Paris Place Vendôme workshop.',
         priceUSD: Number(priceUSD),
@@ -67,25 +86,20 @@ export default function AdminProductNewPage() {
         certification: {
           issuer: certIssuer,
           certificateNumber: certNumber,
-          shape: 'Round Brilliant',
+          shape: certShape,
           caratWeight: Number(stoneCarats),
-          colorGrade: 'D',
-          clarityGrade: 'VVS1',
-          cutGrade: 'Ideal',
+          colorGrade: certColor,
+          clarityGrade: certClarity,
+          cutGrade: certCut,
         },
         stock: Number(stock),
-        lowStockThreshold: 2,
+        lowStockThreshold: Number(stockThreshold),
         isReadyToShip: true,
         isMadeToOrder: false,
         status: 'active',
-        images: [
-          {
-            url: imageUrl || 'https://images.unsplash.com/photo-1605100804763-247f67b3557e?auto=format&fit=crop&w=1200&q=85',
-            alt: name,
-            type: 'main',
-            sortOrder: 1,
-          }
-        ],
+        images: imageUrls.length > 0 
+          ? imageUrls.map((url, i) => ({ url, alt: name, type: i === 0 ? 'main' : 'gallery', sortOrder: i + 1 }))
+          : [{ url: 'https://images.unsplash.com/photo-1605100804763-247f67b3557e?auto=format&fit=crop&w=1200&q=85', alt: name, type: 'main', sortOrder: 1 }],
         model3dUrl: model3dUrl || undefined,
       };
 
@@ -163,6 +177,25 @@ export default function AdminProductNewPage() {
               <label className="text-[11px] uppercase tracking-wider text-[#73685a] font-medium">Initial Stock</label>
               <input type="number" min="0" value={stock} onChange={(e) => setStock(Number(e.target.value))} className="w-full text-xs p-3 border border-[#ebdccd] bg-[#faf8f5] focus:outline-none focus:border-[#9b7e46]" />
             </div>
+
+            <div className="space-y-1.5">
+              <label className="text-[11px] uppercase tracking-wider text-[#73685a] font-medium">Low Stock Alert Threshold</label>
+              <input type="number" min="0" value={stockThreshold} onChange={(e) => setStockThreshold(Number(e.target.value))} className="w-full text-xs p-3 border border-[#ebdccd] bg-[#faf8f5] focus:outline-none focus:border-[#9b7e46]" />
+            </div>
+
+            <div className="space-y-1.5">
+              <label className="text-[11px] uppercase tracking-wider text-[#73685a] font-medium">Gender</label>
+              <select value={gender} onChange={(e) => setGender(e.target.value)} className="w-full text-xs p-3 border border-[#ebdccd] bg-[#faf8f5] focus:outline-none focus:border-[#9b7e46]">
+                <option value="Women">Women</option>
+                <option value="Men">Men</option>
+                <option value="Unisex">Unisex</option>
+              </select>
+            </div>
+            
+            <div className="space-y-1.5">
+              <label className="text-[11px] uppercase tracking-wider text-[#73685a] font-medium">Product SKU (Optional)</label>
+              <input value={sku} onChange={(e) => setSku(e.target.value)} className="w-full text-xs p-3 border border-[#ebdccd] bg-[#faf8f5] focus:outline-none focus:border-[#9b7e46]" placeholder="Leave blank to auto-generate" />
+            </div>
           </div>
         </section>
 
@@ -173,14 +206,17 @@ export default function AdminProductNewPage() {
           </h2>
           
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div className="space-y-1.5">
-              <label className="text-[11px] uppercase tracking-wider text-[#73685a] font-medium flex items-center gap-1.5">
-                <ImageIcon className="w-3.5 h-3.5" /> Primary Image URL
-              </label>
-              <input value={imageUrl} onChange={(e) => setImageUrl(e.target.value)} className="w-full text-xs p-3 border border-[#ebdccd] bg-[#faf8f5] focus:outline-none focus:border-[#9b7e46]" placeholder="https://..." />
+            <div className="space-y-1.5 md:col-span-2">
+              <ImageUploader 
+                value={imageUrls} 
+                onMultipleChange={setImageUrls} 
+                multiple={true} 
+                maxFiles={5} 
+                label="Product Photographs (Up to 5)"
+              />
             </div>
             
-            <div className="space-y-1.5">
+            <div className="space-y-1.5 md:col-span-2">
               <label className="text-[11px] uppercase tracking-wider text-[#73685a] font-medium flex items-center gap-1.5">
                 <Box className="w-3.5 h-3.5" /> 3D Model URL (.glb / .gltf)
               </label>
@@ -239,7 +275,7 @@ export default function AdminProductNewPage() {
             </div>
 
             <div className="space-y-1.5">
-              <label className="text-[11px] uppercase tracking-wider text-[#73685a] font-medium">Certification</label>
+              <label className="text-[11px] uppercase tracking-wider text-[#73685a] font-medium">Certification details</label>
               <div className="flex gap-2">
                 <select value={certIssuer} onChange={(e) => setCertIssuer(e.target.value)} className="w-24 text-xs p-3 border border-[#ebdccd] bg-[#faf8f5] focus:outline-none focus:border-[#9b7e46]">
                   <option value="GIA">GIA</option>
@@ -248,6 +284,12 @@ export default function AdminProductNewPage() {
                   <option value="None">None</option>
                 </select>
                 <input value={certNumber} onChange={(e) => setCertNumber(e.target.value)} className="w-full text-xs p-3 border border-[#ebdccd] bg-[#faf8f5] focus:outline-none focus:border-[#9b7e46]" placeholder="Certificate No." />
+              </div>
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 mt-2">
+                <input value={certShape} onChange={(e) => setCertShape(e.target.value)} className="w-full text-xs p-3 border border-[#ebdccd] bg-[#faf8f5] focus:outline-none focus:border-[#9b7e46]" placeholder="Shape" />
+                <input value={certColor} onChange={(e) => setCertColor(e.target.value)} className="w-full text-xs p-3 border border-[#ebdccd] bg-[#faf8f5] focus:outline-none focus:border-[#9b7e46]" placeholder="Color" />
+                <input value={certClarity} onChange={(e) => setCertClarity(e.target.value)} className="w-full text-xs p-3 border border-[#ebdccd] bg-[#faf8f5] focus:outline-none focus:border-[#9b7e46]" placeholder="Clarity" />
+                <input value={certCut} onChange={(e) => setCertCut(e.target.value)} className="w-full text-xs p-3 border border-[#ebdccd] bg-[#faf8f5] focus:outline-none focus:border-[#9b7e46]" placeholder="Cut" />
               </div>
             </div>
           </div>

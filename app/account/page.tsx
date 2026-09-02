@@ -24,6 +24,8 @@ import { useCurrency } from '@/context/CurrencyContext';
 import { useChat } from '@/context/ChatContext';
 import { Order, BespokeInquiry } from '@/lib/types';
 import { getMyOrders, getBespokeInquiries } from '@/lib/api';
+import ProfileTab from '@/components/account/ProfileTab';
+import AddressesTab from '@/components/account/AddressesTab';
 
 export default function AccountPage() {
   const router = useRouter();
@@ -522,57 +524,12 @@ export default function AccountPage() {
 
           {/* TAB 4: PROFILE */}
           {activeTab === 'profile' && (
-            <div className="space-y-6 max-w-lg">
-              <h2 className="font-serif text-2xl text-[#141210] uppercase">Customer Identity</h2>
-              <div className="space-y-3 text-xs bg-white p-6 border border-[#ebdccd]">
-                <div>
-                  <span className="text-[#73685a] uppercase tracking-wider block">Full Name</span>
-                  <p className="font-serif text-base text-[#141210]">{user.name}</p>
-                </div>
-                <div>
-                  <span className="text-[#73685a] uppercase tracking-wider block">Registered Email</span>
-                  <p className="font-mono text-sm text-[#141210]">{user.email}</p>
-                </div>
-                <div>
-                  <span className="text-[#73685a] uppercase tracking-wider block">Private Phone</span>
-                  <p className="font-mono text-sm text-[#141210]">{user.phone || '+1 (212) 555-0199'}</p>
-                </div>
-                <div>
-                  <span className="text-[#73685a] uppercase tracking-wider block">Aurelic Jewels Membership</span>
-                  <p className="text-[#9b7e46] uppercase tracking-wider font-semibold">
-                    {user.role === 'admin' ? 'Workshop Administrator' : 'Haute Joaillerie Customer'}
-                  </p>
-                </div>
-              </div>
-            </div>
+            <ProfileTab user={user} updateUser={(userData) => { /* Update auth context state if possible */ }} />
           )}
 
-          {/* TAB 4: ADDRESSES */}
+          {/* TAB 5: ADDRESSES */}
           {activeTab === 'addresses' && (
-            <div className="space-y-6">
-              <h2 className="font-serif text-2xl text-[#141210] uppercase">
-                Registered Delivery Residences
-              </h2>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div className="bg-white p-5 border border-[#c5b49e]/40 space-y-2 text-xs">
-                  <div className="flex justify-between items-center">
-                    <span className="font-serif text-sm text-[#141210] font-medium">
-                      Primary Residence (Default)
-                    </span>
-                    <span className="bg-[#ede5d8] text-[#9b7e46] text-[10px] px-2 py-0.5 uppercase">
-                      Default
-                    </span>
-                  </div>
-                  <p className="text-[#4a4237] leading-relaxed">
-                    740 Park Avenue, Penthouse 14B
-                    <br />
-                    New York, NY 10021
-                    <br />
-                    United States
-                  </p>
-                </div>
-              </div>
-            </div>
+            <AddressesTab />
           )}
         </main>
       </div>
