@@ -1544,7 +1544,7 @@ router.delete('/admin/reviews/:id', requireAdmin, async (req: AuthenticatedReque
 // 9. WORKSHOP CONCIERGE CHAT & TICKETING
 // ==========================================================
 
-router.get('/conversations', requireAuth, async (req: AuthenticatedRequest, res: Response) => {
+router.get('/conversations', optionalAuth, async (req: AuthenticatedRequest, res: Response) => {
   const pool = getDbPool();
   if (!pool) return res.status(503).json({ success: false, error: 'Database unavailable.' });
 
@@ -1571,8 +1571,12 @@ router.get('/conversations', requireAuth, async (req: AuthenticatedRequest, res:
 
     const params: any[] = [];
     if (!isPrivileged) {
-      query += ` WHERE c.user_id = $1`;
-      params.push(req.user?.id);
+      if (req.user?.id) {
+        query += ` WHERE c.user_id = $1`;
+        params.push(req.user.id);
+      } else {
+        return res.json({ success: true, data: [] });
+      }
     }
 
     query += ` ORDER BY c.updated_at DESC`;
@@ -1589,7 +1593,7 @@ router.get('/conversations', requireAuth, async (req: AuthenticatedRequest, res:
       type: row.type || 'concierge',
       status: row.status || 'open',
       priority: row.priority || 'standard',
-                  messages: row.messages || [],
+      messages: row.messages || [],
       createdAt: row.created_at,
       updatedAt: row.updated_at,
     }));
@@ -1666,19 +1670,22 @@ router.post('/conversations', optionalAuth, async (req: AuthenticatedRequest, re
     const insertRes = await pool.query(
       `INSERT INTO conversations (
         user_id, user_name, user_email, user_phone, subject, type, status, priority
-      ) VALUES ($1, $2, $3, $4, $5, $6, 'open', $7, 'Place Vendôme Workshop')
+      ) VALUES ($1, $2, $3, $4, $5, $6, 'open', $7)
       RETURNING *`,
       [req.user?.id || null, effectiveName, effectiveEmail, userPhone || null, subject || 'Haute Joaillerie Inquiry', type, priority]
     );
 
     const conv = insertRes.rows[0];
+    let createdMsg = null;
 
     if (initialMessage) {
-      await pool.query(
+      const msgRes = await pool.query(
         `INSERT INTO conversation_messages (conversation_id, sender_id, sender_name, sender_role, content)
-         VALUES ($1, $2, $3, 'customer', $4)`,
+         VALUES ($1, $2, $3, 'customer', $4)
+         RETURNING *`,
         [conv.id, req.user?.id || null, effectiveName, initialMessage]
       );
+      createdMsg = msgRes.rows[0];
     }
 
     return res.status(201).json({
@@ -1686,9 +1693,28 @@ router.post('/conversations', optionalAuth, async (req: AuthenticatedRequest, re
       data: {
         id: conv.id,
         ticketNumber: `CON-${conv.id.toString().slice(0, 5)}`,
+        userId: conv.user_id,
+        userName: conv.user_name,
+        userEmail: conv.user_email,
+        userPhone: conv.user_phone,
         subject: conv.subject,
-        status: conv.status,
+        type: conv.type || 'concierge',
+        status: conv.status || 'open',
+        priority: conv.priority || 'standard',
+        messages: createdMsg ? [
+          {
+            id: createdMsg.id,
+            senderId: createdMsg.sender_id,
+            senderName: createdMsg.sender_name,
+            senderRole: createdMsg.sender_role,
+            content: createdMsg.content,
+            attachments: createdMsg.attachments || [],
+            isInternalNote: createdMsg.is_internal_note || false,
+            createdAt: createdMsg.created_at,
+          }
+        ] : [],
         createdAt: conv.created_at,
+        updatedAt: conv.updated_at,
       },
     });
   } catch (error: any) {
