@@ -8,6 +8,7 @@ import { Sparkles, ShieldCheck, Gem, Award, ArrowRight, Star, ChevronRight, Chec
 import { Product, Category, Collection } from '@/lib/types';
 import { getProducts, getCategories, getCollections, FALLBACK_CATEGORIES, FALLBACK_COLLECTIONS, FALLBACK_PRODUCTS } from '@/lib/api';
 import ProductCard from '@/components/ProductCard';
+import Luxury3DScrollShowcase from '@/components/Luxury3DScrollShowcase';
 import { useCurrency } from '@/context/CurrencyContext';
 import { brandConfig } from '@/lib/brandConfig';
 
@@ -210,6 +211,11 @@ export default function HomePage() {
             </Link>
           ))}
         </div>
+      </section>
+
+      {/* 3D SCROLLYTELLING SHOWCASE EXPERIENCE */}
+      <section id="3d-experience" className="w-full">
+        <Luxury3DScrollShowcase />
       </section>
 
       {/* 4. MASTERPIECES SHOWCASE (TABS: FEATURED / NEW / BEST SELLERS) */}
