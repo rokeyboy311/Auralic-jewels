@@ -97,11 +97,25 @@ export default function WorkshopConciergeChat() {
     setIsSending(true);
     const attachments = pendingAttachment ? [pendingAttachment] : [];
     const textToSend = inputText.trim() || (pendingAttachment ? 'Attached photograph from client.' : '');
-    const sent = await sendMessage(textToSend, attachments);
-    if (sent) {
-      setInputText('');
-      setPendingAttachment(null);
+    
+    if (activeConversation) {
+      const sent = await sendMessage(textToSend, attachments);
+      if (sent) {
+        setInputText('');
+        setPendingAttachment(null);
+      }
+    } else {
+      const created = await startNewConversation({
+        subject: 'General Inquiry',
+        type: 'general_concierge',
+        initialMessage: textToSend
+      });
+      if (created) {
+        setInputText('');
+        setPendingAttachment(null);
+      }
     }
+    
     setIsSending(false);
   };
 
@@ -330,12 +344,50 @@ export default function WorkshopConciergeChat() {
                   <p className="text-xs text-[#73685a] max-w-xs mx-auto">
                     Need customization, sizing advice, or have a query regarding a piece? Reach our master goldsmiths directly.
                   </p>
-                  <button
-                    onClick={() => setIsComposingNew(true)}
-                    className="px-5 py-2.5 bg-[#141210] text-[#faf8f5] text-xs uppercase tracking-wider hover:bg-[#9b7e46] transition-colors"
-                  >
-                    Start First Inquiry
-                  </button>
+                  <form onSubmit={handleSend} className="w-full mt-4 flex items-center gap-2">
+                    <label htmlFor="empty-state-chat-file-input" className="sr-only">
+                      Attach Photo or Design Sketch
+                    </label>
+                    <input
+                      ref={chatFileInputRef}
+                      id="empty-state-chat-file-input"
+                      name="chatAttachment"
+                      type="file"
+                      accept="image/jpeg,image/png,image/webp,image/gif"
+                      onChange={handleImageFileSelect}
+                      className="hidden"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => chatFileInputRef.current?.click()}
+                      className="p-2.5 text-[#73685a] hover:text-[#9b7e46] hover:bg-[#faf8f5] transition-colors shrink-0 border border-[#ebdccd] bg-white"
+                      title="Attach Photo or Design Sketch"
+                      aria-label="Attach Photo or Design Sketch"
+                    >
+                      <ImageIcon className="w-4 h-4" />
+                    </button>
+                    <label htmlFor="empty-state-chat-message-input" className="sr-only">
+                      Direct Message
+                    </label>
+                    <input
+                      id="empty-state-chat-message-input"
+                      name="messageContent"
+                      type="text"
+                      placeholder="Type a direct message to start..."
+                      value={inputText}
+                      onChange={(e) => setInputText(e.target.value)}
+                      className="flex-1 text-xs p-2.5 bg-white border border-[#ebdccd] text-[#141210] focus:border-[#9b7e46] outline-none"
+                    />
+                    <button
+                      type="submit"
+                      disabled={(!inputText.trim() && !pendingAttachment) || isSending}
+                      className="p-2.5 bg-[#141210] text-[#faf8f5] hover:bg-[#9b7e46] transition-colors disabled:opacity-40 cursor-pointer shrink-0"
+                      title="Send Message"
+                      aria-label="Send Message"
+                    >
+                      <Send className="w-4 h-4" />
+                    </button>
+                  </form>
                 </div>
               ) : (
                 conversations.map((c) => (

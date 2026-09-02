@@ -16,9 +16,17 @@ export default function AdminConversationsPage() {
 
   useEffect(() => {
     loadConversations();
+    
+    // Poll for new messages every 5 seconds
+    const interval = setInterval(() => {
+      loadConversations(false);
+    }, 5000);
+    
+    return () => clearInterval(interval);
   }, []);
 
-  const loadConversations = async () => {
+  const loadConversations = async (showLoading = true) => {
+    if (showLoading) setIsLoading(true);
     try {
       const res = await fetch('/api/conversations');
       const data = await res.json();
@@ -31,7 +39,7 @@ export default function AdminConversationsPage() {
     } catch (error) {
       console.error('Failed to load conversations', error);
     } finally {
-      setIsLoading(false);
+      if (showLoading) setIsLoading(false);
     }
   };
 

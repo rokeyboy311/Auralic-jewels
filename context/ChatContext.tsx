@@ -82,8 +82,24 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   }, [user, refreshConversations]);
 
-  const selectConversation = async (id: string) => {
-    setLoading(true);
+  useEffect(() => {
+    let intervalId: NodeJS.Timeout;
+    
+    // Poll for new messages when chat is open and a conversation is active
+    if (isChatOpen && activeConversation) {
+      intervalId = setInterval(() => {
+        selectConversation(activeConversation.id, false); // pass false to avoid loading spinner
+        refreshConversations();
+      }, 5000);
+    }
+    
+    return () => {
+      if (intervalId) clearInterval(intervalId);
+    };
+  }, [isChatOpen, activeConversation?.id, refreshConversations]);
+
+  const selectConversation = async (id: string, showLoading = true) => {
+    if (showLoading) setLoading(true);
     try {
       const res = await getConversation(id);
       if (res.success && res.data) {
@@ -92,7 +108,7 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
     } catch (err) {
       console.error('[ChatContext] Failed to select conversation', err);
     } finally {
-      setLoading(false);
+      if (showLoading) setLoading(false);
     }
   };
 
