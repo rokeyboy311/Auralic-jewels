@@ -27,7 +27,6 @@ export default function Header({ onOpenSearch, onOpenAuth, onOpenAppointment }: 
   const [currencyDropdownOpen, setCurrencyDropdownOpen] = useState(false);
 
   const navLinks = [
-    { label: '3D Studio', href: '/bespoke-3d' },
     { label: 'Collections', href: '/collections' },
     { label: 'Rings', href: '/categories/rings' },
     { label: 'Necklaces', href: '/categories/necklaces' },

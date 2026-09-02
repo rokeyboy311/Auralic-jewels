@@ -8,7 +8,6 @@ import { Product } from '@/lib/types';
 import { useCurrency } from '@/context/CurrencyContext';
 import { useCart } from '@/context/CartContext';
 import { useWishlist } from '@/context/WishlistContext';
-import Interactive3DCard from '@/components/Interactive3DCard';
 
 interface ProductCardProps {
   product: Product;
@@ -39,10 +38,9 @@ export default function ProductCard({ product }: ProductCardProps) {
   const secondaryImage = getImageUrl(product.images?.[1]) || primaryImage;
 
   return (
-    <Interactive3DCard depth={8} glareOpacity={0.2} className="h-full">
-      <div className="group relative flex flex-col h-full bg-[#FDFCF8] border border-black/5 hover:border-[#C5A059]/60 transition-all duration-300">
-        {/* Image Container with Zoom & Secondary Hover Image */}
-        <div className="relative w-full aspect-4/5 overflow-hidden bg-[#F5F2ED]">
+    <div className="group relative flex flex-col h-full bg-[#FDFCF8] border border-black/5 hover:border-[#C5A059]/60 transition-all duration-300">
+      {/* Image Container with Zoom & Secondary Hover Image */}
+      <div className="relative w-full aspect-4/5 overflow-hidden bg-[#F5F2ED]">
         <Link href={`/product/${product.slug}`} className="block w-full h-full">
           <Image
             src={primaryImage}
@@ -156,6 +154,5 @@ export default function ProductCard({ product }: ProductCardProps) {
         </div>
       </div>
     </div>
-  </Interactive3DCard>
-);
+  );
 }
