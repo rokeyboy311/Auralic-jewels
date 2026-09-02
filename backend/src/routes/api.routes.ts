@@ -1121,7 +1121,7 @@ router.delete('/admin/coupons/:code', requireAdmin, async (req: AuthenticatedReq
 
   try {
     const { code } = req.params;
-    await pool.query('DELETE FROM coupons WHERE code = $1', [code.toUpperCase().trim()]);
+    await pool.query('DELETE FROM coupons WHERE code = $1', [String(code).toUpperCase().trim()]);
     return res.json({ success: true, message: 'Coupon deleted successfully.' });
   } catch (error: any) {
     return res.status(500).json({ success: false, error: error.message });
@@ -2150,7 +2150,6 @@ router.put('/admin/orders/:id/status', requireAdmin, async (req: AuthenticatedRe
     return res.status(500).json({ success: false, error: error.message });
   }
 });
-export default router;
 
 // ==========================================================
 // 10. MEDIA MANAGEMENT
